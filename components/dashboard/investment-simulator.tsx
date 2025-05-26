@@ -65,8 +65,6 @@ export function InvestmentSimulator({ isOpen, onClose, userName, initialAmount =
     }, 1000)
   }
 
-  if (!isOpen) return null
-
   const calculateReturn = () => {
     const principal = Number.parseFloat(amount) || 0
     const months = Number.parseInt(term) || 0

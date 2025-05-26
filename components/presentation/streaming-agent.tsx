@@ -33,8 +33,11 @@ export interface StreamingAgentRef {
 }
 
 const PRESENTER_TYPE = 'clip'
-const PRESENTER_ID = 'rian-pbMoTzs7an'
-const DRIVER_ID = 'czarwf1D01'
+const PRESENTER_ID = 'v2_public_alyssa_red_suite_green_screen@46XonMxLFm'
+const DRIVER_ID = 'LRjggU94ze'
+
+// const PRESENTER_ID = 'rian-pbMoTzs7an'
+// const DRIVER_ID = 'czarwf1D01'
 
 export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>(
   ({ apiKey, onStreamReady, onStreamError }, ref) => {
@@ -76,116 +79,86 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           const apiUrl = process.env.NEXT_PUBLIC_DID_API_URL || 'https://api.d-id.com'
           const endpoint = `${apiUrl}/clips/streams/${streamId}`
 
-          // Dividir el texto en chunks significativos (mínimo 3 caracteres)
-          const chunks = text.split(/(?<=[.!?])\s+/).filter(chunk => chunk.length >= 3)
-          
-          if (chunks.length === 0) {
-            Logger.error('El texto es demasiado corto')
-            setError("El texto debe tener al menos 3 caracteres")
-            return
-          }
 
-          for (let i = 0; i < chunks.length; i++) {
-            const chunk = chunks[i]
-            Logger.debug('Enviando chunk', { chunk, index: i })
-
-            const response = await fetchWithRetries(endpoint, {
-              method: 'POST',
-              headers: {
-                Authorization: `Basic ${btoa(apiKey || '')}`,
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                script: {
-                  type: "text",
-                  provider: {
-                    type: "microsoft",
-                    voice_id: "es-MX-DaliaNeural"
-                  },
-                  input: chunk,
-                  ssml: true
-                },
-                config: {
-                  stitch: true,
-                  fluent: true
-                },
-                background: {
-                  color: '#FFFFFF',
-                },
-                index: i,
-                session_id: sessionId
-              })
+          // Mock response for development
+          return {
+            ok: true,
+            json: () => Promise.resolve({
+              id: 'mock-response-id',
+              status: 'created',
+              created_at: new Date().toISOString()
             })
+          } as Response;
+          
+          const response = await fetchWithRetries(endpoint, {
+            method: 'POST',
+            headers: {
+              Authorization: `Basic ${btoa(apiKey)}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              script: {
+                type: 'text',
+                subtitles: 'false',
+                provider: {
+                  type: 'microsoft',
+                  voice_id: 'es-MX-DaliaNeural',
+                },
+                ssml: false,
+                input: text,
+              },
+              config: {
+                stitch: true,
+                fluent: true,
+              },
+              audio_optimization: 5,
+              background: {
+                color: '#FFFFFF',
+              },
+              session_id: sessionId,
+            }),
+          })
 
-            if (!response.ok) {
-              const errorText = await response.text()
-              Logger.error('Error al enviar mensaje', {
-                status: response.status,
-                statusText: response.statusText,
-                error: errorText,
-                chunk
-              })
-              throw new Error(`Error al enviar mensaje: ${response.status} - ${errorText}`)
-            }
-
-            const result = await response.json()
-            Logger.debug('Respuesta del servidor', result)
+          if (!response.ok) {
+            const errorText = await response.text()
+            Logger.error('Error al enviar mensaje', {
+              status: response.status,
+              statusText: response.statusText,
+              error: errorText,
+              text
+            })
+            // throw new Error(`Error al enviar mensaje: ${response.status} - ${errorText}`)
           }
+
+          const result = await response.json()
+          Logger.debug('Respuesta del servidor', result)
 
           Logger.success('Mensaje enviado al stream', { text })
         } catch (err) {
           Logger.error('Error al enviar mensaje', err)
-          setError("Error al comunicarse con el agente virtual")
-          onStreamError?.("Error al comunicarse con el agente virtual")
+          // setError("Error al comunicarse con el agente virtual")
+          // onStreamError?.("Error al comunicarse con el agente virtual")
         }
       }
     }))
 
-    // Función para hacer fetch (sin reintentos)
-    const fetchWithRetries = async (url: string, options: RequestInit): Promise<Response> => {
-      try {
-        Logger.debug('Intentando conexión', { url })
-        
-        const response = await fetch(url, options)
-        
-        if (!response.ok) {
-          const errorText = await response.text()
-          Logger.error('Error en respuesta', {
-            status: response.status,
-            statusText: response.statusText,
-            error: errorText
-          })
-          throw new Error(`Error en la conexión: ${response.status} - ${errorText}`)
-        }
-        
-        return response
-      } catch (err) {
-        Logger.error('Error en la conexión', { error: err })
-        throw new Error('No se pudo establecer la conexión. Por favor, verifica tu conexión a internet y la configuración de la API.')
-      }
-    }
-
-    // Función auxiliar para codificar en base64
-    const encodeBase64 = (str: string): string => {
-      return btoa(str)
-    }
-
-    // Función auxiliar para manejar la API key
-    const getApiKey = (): string => {
-      const key = process.env.DID_API_KEY
-      if (!key) {
-        throw new Error('API key no configurada. Por favor, verifica tu archivo .env.local')
-      }
-      return key as string
-    }
-
     // Función para reiniciar la conexión
     const restartConnection = () => {
-      Logger.error('Error en la conexión')
-      setError("No se pudo establecer la conexión. Por favor, verifica tu conexión a internet y la configuración de la API.")
-      setConnectionState('error')
-      onStreamError?.("No se pudo establecer la conexión. Por favor, verifica tu conexión a internet y la configuración de la API.")
+      if (retryCount >= MAX_RETRIES) {
+        Logger.error('Número máximo de reintentos alcanzado')
+        setError("No se pudo establecer la conexión después de varios intentos")
+        setConnectionState('error')
+        onStreamError?.("No se pudo establecer la conexión después de varios intentos")
+        return
+      }
+
+      Logger.info('Reintentando conexión', { attempt: retryCount + 1, maxRetries: MAX_RETRIES })
+      setRetryCount(prev => prev + 1)
       cleanup()
+      
+      retryTimeoutRef.current = setTimeout(() => {
+        initializeConnection()
+      }, RETRY_DELAY)
     }
 
     // Limpiar recursos
@@ -227,6 +200,22 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
       Logger.success('Limpieza completada')
     }
 
+    // Función para hacer fetch con reintentos
+    const fetchWithRetries = async (url: string, options: RequestInit, retries = 1): Promise<Response> => {
+      try {
+        return await fetch(url, options)
+      } catch (err) {
+        if (retries <= MAX_RETRIES) {
+          const delay = Math.min(Math.pow(2, retries) / 4 + Math.random(), 4) * 1000
+          await new Promise(resolve => setTimeout(resolve, delay))
+          Logger.info(`Request failed, retrying ${retries}/${MAX_RETRIES}. Error ${err}`)
+          return fetchWithRetries(url, options, retries + 1)
+        } else {
+          throw new Error(`Max retries exceeded. error: ${err}`)
+        }
+      }
+    }
+
     // Inicializar la conexión
     const initializeConnection = async () => {
       try {
@@ -235,12 +224,10 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
         const apiUrl = process.env.NEXT_PUBLIC_DID_API_URL || 'https://api.d-id.com'
         const endpoint = `${apiUrl}/clips/streams`
         
-        // Obtener y verificar la API key
-        const apiKey = getApiKey()
         Logger.debug('Configuración de conexión', {
           apiUrl,
           endpoint,
-          hasApiKey: true
+          hasApiKey: !!apiKey
         })
         
         // Crear stream usando la API REST
@@ -249,7 +236,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           {
             method: 'POST',
             headers: {
-              Authorization: `Basic ${encodeBase64(apiKey)}`,
+              Authorization: `Basic ${btoa(apiKey)}`,
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
@@ -281,7 +268,6 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
 
         // Crear PeerConnection
         const answer = await createPeerConnection(offer, iceServers)
-
         
         // Enviar respuesta SDP
         const sdpResponse = await fetch(
@@ -380,7 +366,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           {
             method: 'POST',
             headers: {
-              Authorization: `Basic ${process.env.DID_API_KEY}`,
+              Authorization: `Basic ${apiKey}`,
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
@@ -617,7 +603,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
         )}
 
         {/* Estado de conexión */}
-        <div className="absolute top-4 right-4 bg-black/50 text-white px-2 py-1 rounded text-sm">
+        <div className="absolute top-4 right-4 bg-black/50 text-white px-2 py-1 rounded text-sm z-50">
           {connectionState}
         </div>
 

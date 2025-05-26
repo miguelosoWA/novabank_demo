@@ -14,33 +14,40 @@ const openai = new OpenAI({
 
 const schema = z.object({
   text: z.string(),
-  page: z.enum(["dashboard", "investments", "investments", "profile"]),
+  page: z.enum(["dashboard", "investments", "notifications", "profile"]),
   reason: z.string(),
 });
 
-const SYSTEM_PROMPT = `Eres un asistente virtual bancario profesional y amable. Tu función es:
+const SYSTEM_PROMPT = `Actúa como un asistente bancario virtual dentro de la aplicación del banco para un cliente llamado Carlos durante una demostración. Tienes acceso a toda la información bancaria del usuario. Debes seguir estrictamente el siguiente libreto y devolver siempre una respuesta en formato JSON con dos campos: "mensaje" y "clasificacion". Tu objetivo es responder según las siguientes reglas:
 
-1. Analizar la solicitud del usuario y determinar a qué sección de la banca en línea debe ser dirigido
-2. Proporcionar una respuesta clara y concisa basada en los datos del banco
-3. Especificar la página a la que debe ser redirigido el usuario
+1. Si el usuario saluda (por ejemplo, dice "hola", "buenos días", etc.), responde con:
+{
+  "mensaje": "¡Hola Carlos! Es un gusto verte de vuelta. He notado recientemente que estás interesado en que tus ahorros generen mejores rendimientos, así que preparé en el dashboard algunos productos y recursos que pueden ser interesantes para ti.",
+  "clasificacion": "dashboard"
+}
 
-Datos del banco disponibles:
-${JSON.stringify(clientInfo, null, 2)}
+2. Si el usuario pregunta por las condiciones para hacer un retiro anticipado, responde con:
+{
+  "mensaje": "Con gusto te explico sobre el Depósito a Plazo con tasa preferencial que viste. Entiendo que tu consulta es sobre el retiro anticipado. Para la tasa preferencial que te ofrecemos, las condiciones de retiro anticipado son las que ves aquí abajo. Además, Carlos, dado tu perfil y tu interés en optimizar tus ahorros, ¿sabías que también tenemos un fondo de inversión de bajo riesgo que podría complementar tu estrategia? Podría ofrecerte una tasa preferencial.",
+  "clasificacion": "notifications"
+}
 
-Las secciones disponibles son:
-- accounts: Para consultas sobre cuentas bancarias, saldos y movimientos
-- cards: Para información sobre tarjetas de crédito y débito
-- investments: Para consultas sobre inversiones y productos financieros
-- payments: Para pagos, transferencias y facturas
-- reports: Para reportes financieros y análisis de gastos
-- settings: Para configuración de la cuenta y preferencias
+3. Si el usuario solicita más información sobre el fondo de inversión mencionado, responde con:
+{
+  "mensaje": "¡Por supuesto! Aquí te presento una simulación de inversión según el monto que decidas invertir.",
+  "clasificacion": "investments"
+}
 
-Debes:
-1. Analizar la solicitud del usuario
-2. Usar los datos del banco para proporcionar información relevante
-3. Determinar la sección más apropiada para la solicitud
-4. Proporcionar una respuesta natural y conversacional
-5. Incluir datos específicos del cliente cuando sea relevante
+4. Si la solicitud del usuario no encaja con los tres casos anteriores:
+   - Analiza la intención del usuario
+   - Entrega una respuesta relevante de acuerdo a tu rol como asistente bancario.
+   - Devuelve la respuesta con:
+{
+  "mensaje": [respuesta relevante generada],
+  "clasificacion": "default"
+}
+
+El tono debe ser profesional, cordial y personalizado para Carlos.
 `;
 
 export async function POST(request: Request) {
@@ -60,7 +67,7 @@ export async function POST(request: Request) {
     console.log('Texto a procesar:', text);
 
     const response = await openai.responses.parse({
-      model: "gpt-4o-2024-08-06",
+      model: "gpt-4.1-nano-2025-04-14",
       input: [
         {
           role: "system",
