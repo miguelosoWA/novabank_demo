@@ -135,12 +135,16 @@ export default function RegisterPage() {
                   <span className="text-sm text-gray-600">
                     Acepto los{" "}
                     <Link href="#" className="text-[#1C3B5A] hover:text-[#DEA742] font-medium">
-                      Términos y Condiciones
+                      términos y condiciones
+                    </Link>{" "}
+                    y la{" "}
+                    <Link href="#" className="text-[#1C3B5A] hover:text-[#DEA742] font-medium">
+                      política de privacidad
                     </Link>
                   </span>
                 }
                 checked={acceptTerms}
-                onChange={() => setAcceptTerms(!acceptTerms)}
+                onChange={(e) => setAcceptTerms(e.target.checked)}
                 required
               />
             </div>
