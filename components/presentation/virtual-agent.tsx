@@ -1,71 +1,140 @@
 "use client"
 
-import { useState } from "react"
-import Image from "next/image"
-import { motion } from "framer-motion"
+import { useState, useRef, useEffect } from "react"
+import { StreamingAgent } from "./streaming-agent"
 import { VoiceRecognition } from "./voice-recognition"
+import { useRouter } from "next/navigation"
+
+// Logger utility
+const Logger = {
+  info: (message: string, data?: any) => {
+    console.log(`[VirtualAgent] ℹ️ ${message}`, data || '')
+  },
+  error: (message: string, error?: any) => {
+    console.error(`[VirtualAgent] ❌ ${message}`, error || '')
+  },
+  warn: (message: string, data?: any) => {
+    console.warn(`[VirtualAgent] ⚠️ ${message}`, data || '')
+  },
+  debug: (message: string, data?: any) => {
+    console.debug(`[VirtualAgent] 🔍 ${message}`, data || '')
+  },
+  success: (message: string, data?: any) => {
+    console.log(`[VirtualAgent] ✅ ${message}`, data || '')
+  }
+}
 
 export function VirtualAgent() {
-  const [imageError, setImageError] = useState(false)
-  const [userMessage, setUserMessage] = useState("")
+  const [isStreamReady, setIsStreamReady] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const streamingAgentRef = useRef<{ sendMessage: (text: string) => void }>(null)
+  const router = useRouter()
 
-  const handleSpeechRecognized = (text: string) => {
-    setUserMessage(text)
-    // Aquí se podría implementar la lógica para procesar el mensaje
-    // y generar una respuesta del asistente virtual
-    console.log("Mensaje reconocido:", text)
-
-    // Después de un tiempo, limpiar el mensaje (simulando respuesta)
-    setTimeout(() => {
-      setUserMessage("")
-    }, 5000)
+  const handleStreamReady = () => {
+    Logger.info('Stream listo para recibir mensajes')
+    setIsStreamReady(true)
   }
+
+  const handleStreamError = (error: string) => {
+    Logger.error('Error en el stream', { error })
+    setError(error)
+  }
+
+  const handleSpeechRecognized = async (text: string) => {
+    try {
+      Logger.info('Transcripción recibida', { text })
+
+      // Enviar la transcripción a OpenAI
+      Logger.debug('Enviando transcripción a OpenAI')
+      const openaiResponse = await fetch('/api/openai', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: text
+        })
+      })
+
+      if (!openaiResponse.ok) {
+        const errorText = await openaiResponse.text()
+        Logger.error('Error al procesar con OpenAI', {
+          status: openaiResponse.status,
+          error: errorText
+        })
+        throw new Error(`Error al procesar con OpenAI: ${openaiResponse.status} - ${errorText}`)
+      }
+
+      const result = await openaiResponse.json()
+      Logger.info('Respuesta de OpenAI recibida', result)
+
+      // Enviar respuesta al avatar
+      if (result.response && streamingAgentRef.current) {
+        const { text: responseText, page, reason } = result.response
+        
+        Logger.debug('Enviando respuesta al avatar', { 
+          text: responseText,
+          page,
+          reason
+        })
+
+        // Enviar el texto al avatar
+        streamingAgentRef.current.sendMessage(responseText)
+        Logger.success('Respuesta enviada al avatar')
+
+        // Navegar a la página correspondiente
+        Logger.info('Navegando a página', { page, reason })
+        router.push(`/${page}`)
+      } else {
+        Logger.warn('Respuesta de OpenAI sin datos esperados', { result })
+      }
+    } catch (err) {
+      Logger.error('Error al procesar la transcripción', err)
+      setError("Error al procesar la solicitud")
+    }
+  }
+
+  // Log cuando el componente se monta
+  useEffect(() => {
+    Logger.info('Componente VirtualAgent montado')
+    return () => {
+      Logger.info('Componente VirtualAgent desmontado')
+    }
+  }, [])
+
+  // Log cuando cambia el estado de error
+  useEffect(() => {
+    if (error) {
+      Logger.error('Error actualizado', { error })
+    }
+  }, [error])
+
+  // Log cuando cambia el estado de stream
+  useEffect(() => {
+    Logger.debug('Estado del stream actualizado', { isStreamReady })
+  }, [isStreamReady])
 
   return (
     <div className="h-full w-full flex items-end justify-center bg-white relative">
-      {userMessage && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-[#1C3B5A] text-white px-4 py-2 rounded-lg max-w-[80%] z-10"
-        >
-          <p className="text-sm">{userMessage}</p>
-        </motion.div>
+      {error && (
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded-lg max-w-[80%] z-10">
+          <p className="text-sm">{error}</p>
+        </div>
       )}
 
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: "spring", bounce: 0.4, duration: 0.7 }}
-        className="relative h-[95%] flex items-center justify-center"
-      >
-        {!imageError ? (
-          <div className="relative h-full flex items-center justify-center overflow-hidden">
-            <Image
-              src="/nova-assistant-full.png"
-              alt="Nova - Asistente virtual de NovaBank"
-              width={500}
-              height={600}
-              className="h-[95%] w-auto object-contain object-bottom mt-auto"
-              priority
-              onError={() => {
-                console.log("Error cargando imagen del asistente")
-                setImageError(true)
-              }}
-            />
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center text-center py-10">
-            <div className="text-6xl mb-2">👩‍💼</div>
-            <div className="text-sm font-medium text-[#1C3B5A]">Nova</div>
-          </div>
-        )}
-      </motion.div>
+      <StreamingAgent
+        ref={streamingAgentRef}
+        apiKey={process.env.NEXT_PUBLIC_DID_API_KEY || ""}
+        onStreamReady={handleStreamReady}
+        onStreamError={handleStreamError}
+      />
 
       {/* Botón de micrófono */}
-      <div className="absolute bottom-6 right-6">
-        <VoiceRecognition onSpeechRecognized={handleSpeechRecognized} />
-      </div>
+      {isStreamReady && (
+        <div className="absolute bottom-6 right-6">
+          <VoiceRecognition onSpeechRecognized={handleSpeechRecognized} />
+        </div>
+      )}
     </div>
   )
 }

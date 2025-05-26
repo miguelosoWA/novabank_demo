@@ -1,0 +1,168 @@
+{
+  "client": {
+    "personalInfo": {
+      "name": "Juan Pérez",
+      "documentType": "DNI",
+      "documentNumber": "12345678",
+      "birthDate": "1990-05-15",
+      "nationality": "Peruana",
+      "maritalStatus": "Soltero",
+      "occupation": "Ingeniero de Software",
+      "email": "juan.perez@email.com",
+      "phone": "+51 987654321"
+    },
+    "address": {
+      "street": "Av. Arequipa 123",
+      "district": "Miraflores",
+      "city": "Lima",
+      "state": "Lima",
+      "country": "Perú",
+      "postalCode": "15074"
+    },
+    "employment": {
+      "company": "Tech Solutions S.A.",
+      "position": "Senior Developer",
+      "startDate": "2020-01-15",
+      "monthlyIncome": 15000,
+      "currency": "PEN"
+    }
+  },
+  "accounts": {
+    "savings": {
+      "accountNumber": "001-1234567890",
+      "balance": 25000.50,
+      "currency": "PEN",
+      "openingDate": "2020-03-10",
+      "status": "active",
+      "type": "savings",
+      "interestRate": 2.5,
+      "monthlyMaintenanceFee": 0
+    },
+    "checking": {
+      "accountNumber": "002-9876543210",
+      "balance": 15000.75,
+      "currency": "PEN",
+      "openingDate": "2020-03-10",
+      "status": "active",
+      "type": "checking",
+      "monthlyMaintenanceFee": 15.90
+    }
+  },
+  "cards": {
+    "credit": [
+      {
+        "cardNumber": "****-****-****-1234",
+        "type": "credit",
+        "brand": "Visa",
+        "creditLimit": 20000,
+        "availableCredit": 15000,
+        "expiryDate": "2025-12",
+        "status": "active",
+        "monthlyFee": 25.90
+      }
+    ],
+    "debit": [
+      {
+        "cardNumber": "****-****-****-5678",
+        "type": "debit",
+        "brand": "Visa",
+        "linkedAccount": "001-1234567890",
+        "expiryDate": "2025-12",
+        "status": "active",
+        "dailyLimit": 5000
+      }
+    ]
+  },
+  "loans": {
+    "personal": {
+      "loanNumber": "LOAN-2023-001",
+      "amount": 50000,
+      "currency": "PEN",
+      "startDate": "2023-01-15",
+      "endDate": "2024-01-15",
+      "interestRate": 12.5,
+      "monthlyPayment": 4500,
+      "remainingBalance": 30000,
+      "status": "active"
+    }
+  },
+  "investments": {
+    "fixedTerm": [
+      {
+        "certificateNumber": "FT-2023-001",
+        "amount": 10000,
+        "currency": "PEN",
+        "startDate": "2023-06-01",
+        "endDate": "2023-12-01",
+        "interestRate": 5.5,
+        "status": "active"
+      }
+    ],
+    "mutualFunds": [
+      {
+        "fundName": "Fondo de Renta Variable",
+        "accountNumber": "MF-001",
+        "units": 100,
+        "unitValue": 150.75,
+        "totalValue": 15075,
+        "currency": "PEN",
+        "status": "active"
+      }
+    ]
+  },
+  "transactions": {
+    "recent": [
+      {
+        "id": "TRX-001",
+        "date": "2023-06-15",
+        "type": "transfer",
+        "amount": 1000,
+        "currency": "PEN",
+        "description": "Transferencia a María García",
+        "status": "completed"
+      },
+      {
+        "id": "TRX-002",
+        "date": "2023-06-14",
+        "type": "payment",
+        "amount": 500,
+        "currency": "PEN",
+        "description": "Pago de servicios - Luz",
+        "status": "completed"
+      }
+    ]
+  },
+  "benefits": {
+    "insurance": [
+      {
+        "type": "life",
+        "provider": "Seguros XYZ",
+        "policyNumber": "LIFE-001",
+        "coverage": 100000,
+        "currency": "PEN",
+        "monthlyPremium": 50,
+        "status": "active"
+      }
+    ],
+    "rewards": {
+      "points": 2500,
+      "tier": "gold",
+      "expiryDate": "2023-12-31"
+    }
+  },
+  "preferences": {
+    "notifications": {
+      "email": true,
+      "sms": true,
+      "push": true
+    },
+    "language": "es",
+    "currency": "PEN",
+    "timezone": "America/Lima"
+  },
+  "security": {
+    "lastLogin": "2023-06-15T10:30:00",
+    "twoFactorEnabled": true,
+    "lastPasswordChange": "2023-05-01"
+  }
+} 
