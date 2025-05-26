@@ -281,6 +281,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
 
         // Crear PeerConnection
         const answer = await createPeerConnection(offer, iceServers)
+
         
         // Enviar respuesta SDP
         const sdpResponse = await fetch(
@@ -288,7 +289,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           {
             method: 'POST',
             headers: {
-              Authorization: `Basic ${btoa(process.env.DID_API_KEY)}`,
+              Authorization: `Basic ${btoa(apiKey)}`,
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
