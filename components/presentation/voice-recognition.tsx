@@ -1,104 +1,174 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Mic, MicOff, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import type { SpeechRecognition, SpeechRecognitionEvent, SpeechRecognitionErrorEvent } from "web-speech-api"
+
+// Declaraciones de tipos para la Web Speech API
+declare global {
+  interface Window {
+    webkitSpeechRecognition: any
+    SpeechRecognition: any
+  }
+}
 
 interface VoiceRecognitionProps {
   onSpeechRecognized: (text: string) => void
+  isListening?: boolean
+  onListeningChange?: (isListening: boolean) => void
   className?: string
 }
 
-export function VoiceRecognition({ onSpeechRecognized, className }: VoiceRecognitionProps) {
+export function VoiceRecognition({
+  onSpeechRecognized,
+  isListening: controlledIsListening,
+  onListeningChange,
+  className
+}: VoiceRecognitionProps) {
   const [isListening, setIsListening] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [speechRecognition, setSpeechRecognition] = useState<SpeechRecognition | null>(null)
   const [isSupported, setIsSupported] = useState(true)
+  const [permissionDenied, setPermissionDenied] = useState(false)
+  const recognitionRef = useRef<any>(null)
 
-  // Initialize speech recognition
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      // Check if browser supports SpeechRecognition
-      const SpeechRecognitionAPI = window.SpeechRecognition || (window as any).webkitSpeechRecognition
+    // Verificar si el navegador soporta la API de reconocimiento de voz
+    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition
+    if (!SpeechRecognitionAPI) {
+      console.warn("El reconocimiento de voz no está soportado en este navegador")
+      setIsSupported(false)
+      return
+    }
 
-      if (SpeechRecognitionAPI) {
-        const recognition = new SpeechRecognitionAPI()
-        recognition.continuous = false
-        recognition.interimResults = false
-        recognition.lang = "es-ES" // Spanish language
+    // Crear una instancia de SpeechRecognition
+    recognitionRef.current = new SpeechRecognitionAPI()
+    const recognition = recognitionRef.current
 
-        recognition.onresult = (event: SpeechRecognitionEvent) => {
-          const transcript = event.results[0][0].transcript
-          onSpeechRecognized(transcript)
-          setIsListening(false)
-          setIsLoading(false)
-        }
+    // Configurar el reconocimiento de voz
+    recognition.continuous = true
+    recognition.interimResults = true
+    recognition.lang = 'es-ES'
 
-        recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-          console.error("Error de reconocimiento de voz:", event.error)
-          setIsListening(false)
-          setIsLoading(false)
-        }
+    // Manejar resultados
+    recognition.onresult = (event: any) => {
+      const transcript = Array.from(event.results)
+        .map((result: any) => result[0].transcript)
+        .join('')
 
-        recognition.onend = () => {
-          setIsListening(false)
-          setIsLoading(false)
-        }
-
-        setSpeechRecognition(recognition)
-      } else {
-        setIsSupported(false)
-        console.warn("El reconocimiento de voz no está soportado en este navegador")
+      if (event.results[0].isFinal) {
+        onSpeechRecognized(transcript)
       }
+    }
+
+    // Manejar errores
+    recognition.onerror = (event: any) => {
+      console.error('Error en reconocimiento de voz:', event.error)
+      
+      if (event.error === 'not-allowed' || event.error === 'permission-denied') {
+        setPermissionDenied(true)
+      }
+      
+      setIsListening(false)
+      onListeningChange?.(false)
+    }
+
+    // Manejar el final del reconocimiento
+    recognition.onend = () => {
+      setIsListening(false)
+      onListeningChange?.(false)
     }
 
     return () => {
-      if (speechRecognition) {
-        speechRecognition.abort()
+      if (recognition) {
+        recognition.stop()
       }
     }
-  }, [onSpeechRecognized])
+  }, [onSpeechRecognized, onListeningChange])
 
-  const toggleListening = useCallback(() => {
-    if (!speechRecognition || !isSupported) return
+  const requestMicrophonePermission = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      stream.getTracks().forEach(track => track.stop()) // Detener el stream después de obtener el permiso
+      setPermissionDenied(false)
+      return true
+    } catch (error) {
+      console.error('Error al solicitar permiso del micrófono:', error)
+      setPermissionDenied(true)
+      return false
+    }
+  }
+
+  const toggleListening = async () => {
+    if (!recognitionRef.current) return
 
     if (isListening) {
-      speechRecognition.stop()
-      setIsListening(false)
+      recognitionRef.current.stop()
+      const newIsListening = false
+      setIsListening(newIsListening)
+      onListeningChange?.(newIsListening)
     } else {
-      setIsLoading(true)
+      // Solicitar permiso del micrófono antes de iniciar
+      const hasPermission = await requestMicrophonePermission()
+      if (!hasPermission) {
+        return
+      }
+
       try {
-        speechRecognition.start()
-        setIsListening(true)
+        recognitionRef.current.start()
+        const newIsListening = true
+        setIsListening(newIsListening)
+        onListeningChange?.(newIsListening)
       } catch (error) {
-        console.error("Error al iniciar el reconocimiento de voz:", error)
-        setIsLoading(false)
+        console.error('Error al iniciar el reconocimiento de voz:', error)
+        setPermissionDenied(true)
       }
     }
-  }, [isListening, speechRecognition, isSupported])
+  }
 
   if (!isSupported) {
-    return null // No mostrar nada si no es compatible
+    return (
+      <button
+        disabled
+        className={cn(
+          "flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 text-gray-400",
+          className
+        )}
+      >
+        <MicOff size={20} />
+      </button>
+    )
+  }
+
+  if (permissionDenied) {
+    return (
+      <button
+        onClick={() => setPermissionDenied(false)}
+        className={cn(
+          "flex items-center justify-center w-10 h-10 rounded-full bg-red-100 text-red-500",
+          className
+        )}
+        title="Permiso de micrófono denegado. Toca para intentar de nuevo."
+      >
+        <MicOff size={20} />
+      </button>
+    )
   }
 
   return (
     <button
       onClick={toggleListening}
       className={cn(
-        "flex items-center justify-center w-12 h-12 rounded-full transition-all",
-        isListening ? "bg-red-500 hover:bg-red-600" : "bg-[#1C3B5A] hover:bg-[#2a5580]",
-        className,
+        "flex items-center justify-center w-10 h-10 rounded-full transition-colors",
+        isListening
+          ? "bg-red-500 text-white hover:bg-red-600"
+          : "bg-[#1C3B5A] text-white hover:bg-[#2C4B6A]",
+        className
       )}
-      aria-label={isListening ? "Detener reconocimiento de voz" : "Iniciar reconocimiento de voz"}
-      disabled={isLoading}
+      title={isListening ? "Detener grabación" : "Iniciar grabación"}
     >
-      {isLoading ? (
-        <Loader2 className="h-6 w-6 text-white animate-spin" />
-      ) : isListening ? (
-        <MicOff className="h-6 w-6 text-white" />
+      {isListening ? (
+        <Loader2 size={20} className="animate-spin" />
       ) : (
-        <Mic className="h-6 w-6 text-white" />
+        <Mic size={20} />
       )}
     </button>
   )
