@@ -141,23 +141,37 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
       }
     }))
 
+    // Función para hacer fetch (sin reintentos)
+    const fetchWithRetries = async (url: string, options: RequestInit): Promise<Response> => {
+      try {
+        Logger.debug('Intentando conexión', { url })
+        
+        const response = await fetch(url, options)
+        
+        if (!response.ok) {
+          const errorText = await response.text()
+          Logger.error('Error en respuesta', {
+            status: response.status,
+            statusText: response.statusText,
+            error: errorText
+          })
+          throw new Error(`Error en la conexión: ${response.status} - ${errorText}`)
+        }
+        
+        return response
+      } catch (err) {
+        Logger.error('Error en la conexión', { error: err })
+        throw new Error('No se pudo establecer la conexión. Por favor, verifica tu conexión a internet y la configuración de la API.')
+      }
+    }
+
     // Función para reiniciar la conexión
     const restartConnection = () => {
-      if (retryCount >= MAX_RETRIES) {
-        Logger.error('Número máximo de reintentos alcanzado')
-        setError("No se pudo establecer la conexión después de varios intentos")
-        setConnectionState('error')
-        onStreamError?.("No se pudo establecer la conexión después de varios intentos")
-        return
-      }
-
-      Logger.info('Reintentando conexión', { attempt: retryCount + 1, maxRetries: MAX_RETRIES })
-      setRetryCount(prev => prev + 1)
+      Logger.error('Error en la conexión')
+      setError("No se pudo establecer la conexión. Por favor, verifica tu conexión a internet y la configuración de la API.")
+      setConnectionState('error')
+      onStreamError?.("No se pudo establecer la conexión. Por favor, verifica tu conexión a internet y la configuración de la API.")
       cleanup()
-      
-      retryTimeoutRef.current = setTimeout(() => {
-        initializeConnection()
-      }, RETRY_DELAY)
     }
 
     // Limpiar recursos
@@ -199,22 +213,6 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
       Logger.success('Limpieza completada')
     }
 
-    // Función para hacer fetch con reintentos
-    const fetchWithRetries = async (url: string, options: RequestInit, retries = 1): Promise<Response> => {
-      try {
-        return await fetch(url, options)
-      } catch (err) {
-        if (retries <= MAX_RETRIES) {
-          const delay = Math.min(Math.pow(2, retries) / 4 + Math.random(), 4) * 1000
-          await new Promise(resolve => setTimeout(resolve, delay))
-          Logger.info(`Request failed, retrying ${retries}/${MAX_RETRIES}. Error ${err}`)
-          return fetchWithRetries(url, options, retries + 1)
-        } else {
-          throw new Error(`Max retries exceeded. error: ${err}`)
-        }
-      }
-    }
-
     // Inicializar la conexión
     const initializeConnection = async () => {
       try {
@@ -223,11 +221,23 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
         const apiUrl = process.env.NEXT_PUBLIC_DID_API_URL || 'https://api.d-id.com'
         const endpoint = `${apiUrl}/clips/streams`
         
+        // Verificar la API key
+        const apiKey = process.env.DID_API_KEY
         Logger.debug('Configuración de conexión', {
           apiUrl,
           endpoint,
           hasApiKey: !!apiKey
         })
+
+        if (!apiKey) {
+          Logger.error('API key no configurada', {
+            envVars: {
+              DID_API_KEY: !!apiKey,
+              NEXT_PUBLIC_DID_API_URL: !!process.env.NEXT_PUBLIC_DID_API_URL
+            }
+          })
+          throw new Error('API key no configurada. Por favor, verifica tu archivo .env.local')
+        }
         
         // Crear stream usando la API REST
         const sessionResponse = await fetchWithRetries(
@@ -274,7 +284,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           {
             method: 'POST',
             headers: {
-              Authorization: `Basic ${btoa(apiKey)}`,
+              Authorization: `Basic ${btoa(process.env.DID_API_KEY)}`,
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
@@ -365,7 +375,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           {
             method: 'POST',
             headers: {
-              Authorization: `Basic ${apiKey}`,
+              Authorization: `Basic ${process.env.DID_API_KEY}`,
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
