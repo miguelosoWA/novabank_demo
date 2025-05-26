@@ -9,6 +9,17 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api/d-id/:path*',
+        destination: 'https://api.d-id.com/:path*',
+      },
+    ]
+  },
+  env: {
+    DID_API_KEY: process.env.DID_API_KEY,
+  },
 }
 
 export default nextConfig
