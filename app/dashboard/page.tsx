@@ -247,13 +247,6 @@ export default function Dashboard() {
         />
       )} */}
 
-      {/* Simulador de inversión */}
-      <InvestmentSimulator
-        isOpen={isInvestmentSimulatorOpen}
-        onClose={() => setIsInvestmentSimulatorOpen(false)}
-        userName={userName}
-        initialAmount={userActivity.financialContext.availableBalance}
-      />
     </>
   )
 }

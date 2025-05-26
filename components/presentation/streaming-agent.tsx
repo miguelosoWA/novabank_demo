@@ -81,14 +81,14 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
 
 
           // Mock response for development
-          return {
-            ok: true,
-            json: () => Promise.resolve({
-              id: 'mock-response-id',
-              status: 'created',
-              created_at: new Date().toISOString()
-            })
-          } as Response;
+          // return {
+          //   ok: true,
+          //   json: () => Promise.resolve({
+          //     id: 'mock-response-id',
+          //     status: 'created',
+          //     created_at: new Date().toISOString()
+          //   })
+          // } as Response;
           
           const response = await fetchWithRetries(endpoint, {
             method: 'POST',

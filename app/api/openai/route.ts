@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { zodTextFormat } from "openai/helpers/zod";
 import { z } from "zod";
-import clientInfo from '@/data/client-info.json';
 
 if (!process.env.OPENAI_API_KEY) {
   throw new Error('OPENAI_API_KEY no está configurada en las variables de entorno');
@@ -14,7 +13,7 @@ const openai = new OpenAI({
 
 const schema = z.object({
   text: z.string(),
-  page: z.enum(["dashboard", "investments", "notifications", "profile"]),
+  page: z.enum(["dashboard", "investments", "withdrawal", "profile"]),
   reason: z.string(),
 });
 
@@ -29,7 +28,7 @@ const SYSTEM_PROMPT = `Actúa como un asistente bancario virtual dentro de la ap
 2. Si el usuario pregunta por las condiciones para hacer un retiro anticipado, responde con:
 {
   "mensaje": "Con gusto te explico sobre el Depósito a Plazo con tasa preferencial que viste. Entiendo que tu consulta es sobre el retiro anticipado. Para la tasa preferencial que te ofrecemos, las condiciones de retiro anticipado son las que ves aquí abajo. Además, Carlos, dado tu perfil y tu interés en optimizar tus ahorros, ¿sabías que también tenemos un fondo de inversión de bajo riesgo que podría complementar tu estrategia? Podría ofrecerte una tasa preferencial.",
-  "clasificacion": "notifications"
+  "clasificacion": "withdrawal"
 }
 
 3. Si el usuario solicita más información sobre el fondo de inversión mencionado, responde con:
