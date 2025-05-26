@@ -60,7 +60,8 @@ export function PersonalizedRecommendation({
   useEffect(() => {
     // In a real app, this would be based on server-side data or local storage
     const date = new Date()
-    const dayOfYear = Math.floor((date - new Date(date.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24))
+    const startOfYear = new Date(date.getFullYear(), 0, 0)
+    const dayOfYear = Math.floor((date.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24))
     setCurrentSuggestion(dayOfYear % recommendations.length)
   }, [recommendations.length])
 
