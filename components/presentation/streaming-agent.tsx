@@ -92,7 +92,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
             const response = await fetchWithRetries(endpoint, {
               method: 'POST',
               headers: {
-                Authorization: `Basic ${btoa(apiKey)}`,
+                Authorization: `Basic ${btoa(apiKey || '')}`,
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({
@@ -165,6 +165,20 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
       }
     }
 
+    // Función auxiliar para codificar en base64
+    const encodeBase64 = (str: string): string => {
+      return btoa(str)
+    }
+
+    // Función auxiliar para manejar la API key
+    const getApiKey = (): string => {
+      const key = process.env.DID_API_KEY
+      if (!key) {
+        throw new Error('API key no configurada. Por favor, verifica tu archivo .env.local')
+      }
+      return key as string
+    }
+
     // Función para reiniciar la conexión
     const restartConnection = () => {
       Logger.error('Error en la conexión')
@@ -221,23 +235,13 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
         const apiUrl = process.env.NEXT_PUBLIC_DID_API_URL || 'https://api.d-id.com'
         const endpoint = `${apiUrl}/clips/streams`
         
-        // Verificar la API key
-        const apiKey = process.env.DID_API_KEY
+        // Obtener y verificar la API key
+        const apiKey = getApiKey()
         Logger.debug('Configuración de conexión', {
           apiUrl,
           endpoint,
-          hasApiKey: !!apiKey
+          hasApiKey: true
         })
-
-        if (!apiKey) {
-          Logger.error('API key no configurada', {
-            envVars: {
-              DID_API_KEY: !!apiKey,
-              NEXT_PUBLIC_DID_API_URL: !!process.env.NEXT_PUBLIC_DID_API_URL
-            }
-          })
-          throw new Error('API key no configurada. Por favor, verifica tu archivo .env.local')
-        }
         
         // Crear stream usando la API REST
         const sessionResponse = await fetchWithRetries(
@@ -245,7 +249,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           {
             method: 'POST',
             headers: {
-              Authorization: `Basic ${btoa(apiKey)}`,
+              Authorization: `Basic ${encodeBase64(apiKey)}`,
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
