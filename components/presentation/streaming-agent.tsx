@@ -627,9 +627,18 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           transition={{ type: "spring", bounce: 0.4, duration: 0.7 }}
           className="relative h-[95%] flex items-center justify-center"
         >
+          {/* Imagen por defecto antes de que cargue el avatar */}
+          {!isStreamReady && (
+            <img
+              src="/nova-assistant-full.png" // Cambia esta ruta si tu imagen tiene otro nombre o ubicación
+              alt="Avatar por defecto"
+              className="h-[95%] w-auto object-contain object-bottom mt-auto rounded-full bg-white transition-opacity duration-300"
+              style={{ position: 'absolute', left: 0, right: 0, margin: 'auto' }}
+            />
+          )}
           <video
             ref={videoRef}
-            className="h-[95%] w-auto object-contain object-bottom mt-auto"
+            className={`h-[95%] w-auto object-contain object-bottom mt-auto transition-opacity duration-300 ${!isStreamReady ? "opacity-0 absolute" : "opacity-100 relative"}`}
             autoPlay
             playsInline
             muted={false}
