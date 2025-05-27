@@ -3,7 +3,7 @@
   "short_name": "NovaBank",
   "description": "Experimenta el poder de la hiperpersonalización en tu banca digital",
   "start_url": "/",
-  "display": "fullscreen",
+  "display": "standalone",
   "orientation": "portrait",
   "theme_color": "#000000",
   "background_color": "#ffffff",
@@ -25,7 +25,7 @@
   ],
   "categories": ["finance", "business"],
   "prefer_related_applications": false,
-  "display_override": ["fullscreen", "standalone", "minimal-ui"],
+  "display_override": ["standalone", "minimal-ui", "browser"],
   "shortcuts": [
     {
       "name": "Dashboard",
