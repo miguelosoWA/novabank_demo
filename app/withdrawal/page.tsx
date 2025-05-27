@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation"
 import { ChevronLeft, Banknote, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
+export default function NotificationsPage() {
 
 export default function WithdrawalPage() {
   const router = useRouter()

@@ -48,7 +48,9 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
     const [connectionState, setConnectionState] = useState<string>('disconnected')
     const [isWebSocketReady, setIsWebSocketReady] = useState(false)
     const [isStreamReady, setIsStreamReady] = useState(false)
-    const [hasUserInteracted, setHasUserInteracted] = useState(false)
+    const [isVideoPlaying, setIsVideoPlaying] = useState(false)
+    const [retryCount, setRetryCount] = useState(0)
+
     
     const videoRef = useRef<HTMLVideoElement>(null)
     const wsRef = useRef<WebSocket | null>(null)
@@ -57,6 +59,11 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
     const statsIntervalRef = useRef<NodeJS.Timeout | null>(null)
     const lastBytesReceivedRef = useRef<number>(0)
     const videoIsPlayingRef = useRef<boolean>(false)
+    const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+    
+    // Add connection state management
+    const isConnectingRef = useRef<boolean>(false)
+    const isMountedRef = useRef<boolean>(true)
 
     const webSocketUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL
     const stream_warmup = true
@@ -130,6 +137,19 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
               text
             })
             // throw new Error(`Error al enviar mensaje: ${response.status} - ${errorText}`)
+          } else {
+            // Message sent successfully, prepare video for playback
+            Logger.info('Mensaje enviado exitosamente, preparando video para reproducción')
+            
+            // Try to play the video if it's ready
+            if (videoRef.current && videoRef.current.readyState >= 3) {
+              try {
+                await videoRef.current.play()
+                Logger.info('Video iniciado tras envío de mensaje')
+              } catch (playError) {
+                Logger.warn('No se pudo iniciar video automáticamente:', playError)
+              }
+            }
           }
 
           const result = await response.json()
@@ -157,6 +177,13 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
     const cleanup = () => {
       Logger.info('Limpiando recursos')
       
+      isConnectingRef.current = false
+      
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current)
+        retryTimeoutRef.current = null
+      }
+
       if (statsIntervalRef.current) {
         clearInterval(statsIntervalRef.current)
         statsIntervalRef.current = null
@@ -183,9 +210,11 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
       setConnectionState('disconnected')
       setIsWebSocketReady(false)
       setIsStreamReady(false)
+      setIsVideoPlaying(false)
       
       Logger.success('Limpieza completada')
     }
+
 
     // Función para hacer fetch sin reintentos
     const fetchWithRetries = async (url: string, options: RequestInit): Promise<Response> => {
@@ -204,8 +233,21 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
       }
     }
 
-    // Inicializar la conexión
+    // Inicializar conexión
     const initializeConnection = async () => {
+      // Prevent multiple simultaneous connection attempts
+      if (isConnectingRef.current) {
+        Logger.warn('Conexión ya en progreso, ignorando nueva solicitud')
+        return
+      }
+
+      if (!isMountedRef.current) {
+        Logger.warn('Componente desmontado, cancelando conexión')
+        return
+      }
+
+      isConnectingRef.current = true
+      
       try {
         Logger.info('Iniciando conexión')
         
@@ -258,11 +300,21 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
         const { id: newStreamId, offer, ice_servers: iceServers, session_id: newSessionId } = responseData
         Logger.success('Stream creado exitosamente', { streamId: newStreamId, sessionId: newSessionId })
         
+        if (!isMountedRef.current) {
+          Logger.warn('Componente desmontado durante la conexión, cancelando')
+          return
+        }
+        
         setStreamId(newStreamId)
         setSessionId(newSessionId)
 
         // Crear PeerConnection
         const answer = await createPeerConnection(offer, iceServers)
+        
+        if (!isMountedRef.current) {
+          Logger.warn('Componente desmontado durante la conexión, cancelando')
+          return
+        }
         
         // Enviar respuesta SDP
         const sdpResponse = await fetchWithRetries(
@@ -292,6 +344,10 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
         }
 
         Logger.success('Conexión establecida exitosamente')
+        isConnectingRef.current = false
+
+        // Send initial welcome message to make avatar appear
+        sendInitialWelcomeMessage(newStreamId, newSessionId)
 
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Error desconocido'
@@ -306,44 +362,81 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
       }
     }
 
+    // Función para enviar mensaje inicial de bienvenida
+    const sendInitialWelcomeMessage = async (streamId: string, sessionId: string) => {
+      // Wait a short delay to ensure the stream is fully ready
+      setTimeout(async () => {
+        console.log(`streamId: ${streamId}, sessionId: ${sessionId}, isMountedRef.current: ${isMountedRef.current}`)
+        if (!streamId || !sessionId || !isMountedRef.current) {
+          Logger.warn('Stream no está listo para mensaje inicial')
+          return
+        }
+
+        try {
+          Logger.info('Stream listo - no enviando mensaje inicial automático')
+          // Don't send automatic welcome message to prevent immediate video playback
+          // The avatar will only start when the user actually sends a message
+          
+          // Just mark the stream as ready without triggering video playback
+          setIsStreamReady(true)
+          onStreamReady?.()
+          
+        } catch (err) {
+          Logger.warn('Error al preparar stream inicial', err)
+        }
+      }, 100) // Wait 100ms to ensure connection is stable
+    }
+
     // Crear PeerConnection
     const createPeerConnection = async (offer: RTCSessionDescriptionInit, iceServers: RTCIceServer[]) => {
       try {
-        // Limpia cualquier conexión previa antes de crear una nueva
+        // Clean up any existing connection first
         if (peerConnectionRef.current) {
-          Logger.info('Cerrando PeerConnection previa antes de crear una nueva', { signalingState: peerConnectionRef.current.signalingState })
           peerConnectionRef.current.close()
           peerConnectionRef.current = null
-        }
-        if (dataChannelRef.current) {
-          dataChannelRef.current.close()
-          dataChannelRef.current = null
         }
 
         peerConnectionRef.current = new RTCPeerConnection({ iceServers })
         dataChannelRef.current = peerConnectionRef.current.createDataChannel('JanusDataChannel')
-
+        
         peerConnectionRef.current.addEventListener('icegatheringstatechange', () => {
           Logger.debug('ICE gathering state changed', { state: peerConnectionRef.current?.iceGatheringState })
         })
+        
         peerConnectionRef.current.addEventListener('icecandidate', handleICECandidate)
         peerConnectionRef.current.addEventListener('iceconnectionstatechange', () => {
           Logger.info('ICE connection state changed', { state: peerConnectionRef.current?.iceConnectionState })
           if (peerConnectionRef.current?.iceConnectionState === 'failed' || 
               peerConnectionRef.current?.iceConnectionState === 'closed') {
-            restartConnection()
+            if (isMountedRef.current) {
+              restartConnection()
+            }
           }
         })
+        
         peerConnectionRef.current.addEventListener('connectionstatechange', () => {
           Logger.info('Connection state changed', { state: peerConnectionRef.current?.connectionState })
           if (peerConnectionRef.current?.connectionState === 'connected') {
             setIsStreaming(true)
             setConnectionState('connected')
+            // Start monitoring stats when connection is established
+            // startStatsMonitoring()
             onStreamReady?.()
           }
         })
+        
         peerConnectionRef.current.addEventListener('track', handleTrack)
         dataChannelRef.current.addEventListener('message', handleDataChannelMessage)
+        // Limpia cualquier conexión previa antes de crear una nueva
+        //if (peerConnectionRef.current) {
+        // Logger.info('Cerrando PeerConnection previa antes de crear una nueva', { signalingState: peerConnectionRef.current.signalingState })
+        //peerConnectionRef.current.close()
+        //peerConnectionRef.current = null
+        //}
+        //if (dataChannelRef.current) {
+         // dataChannelRef.current.close()
+         // dataChannelRef.current = null
+        //}
 
         const pc = peerConnectionRef.current
         Logger.debug('Signaling state before setRemoteDescription:', pc.signalingState)
@@ -374,7 +467,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           {
             method: 'POST',
             headers: {
-              Authorization: `Basic ${apiKey}`,
+              Authorization: `Basic ${btoa(apiKey)}`,
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
@@ -407,11 +500,17 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           const stats = await peerConnectionRef.current.getStats()
           stats.forEach((report) => {
             if (report.type === 'inbound-rtp' && report.kind === 'video') {
-              const videoStatusChanged = videoIsPlayingRef.current !== report.bytesReceived > lastBytesReceivedRef.current
+              const videoStatusChanged = videoIsPlayingRef.current !== (report.bytesReceived > lastBytesReceivedRef.current)
               if (videoStatusChanged) {
                 videoIsPlayingRef.current = report.bytesReceived > lastBytesReceivedRef.current
+                Logger.debug('Video status changed', { 
+                  isPlaying: videoIsPlayingRef.current,
+                  bytesReceived: report.bytesReceived 
+                })
+                
+                // Keep video visible when receiving data
                 if (videoRef.current && videoIsPlayingRef.current) {
-                  videoRef.current.style.opacity = isStreamReady ? '1' : '0'
+                  videoRef.current.style.opacity = '1'
                 }
               }
               lastBytesReceivedRef.current = report.bytesReceived
@@ -494,30 +593,64 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           // Asegurarse de que el video esté configurado correctamente
           videoRef.current.srcObject = event.streams[0]
           
+          // Don't make video visible immediately, wait for actual content
+          
           // Configurar eventos del video
           videoRef.current.onloadedmetadata = async () => {
             Logger.info('Video metadata cargada')
-            if (videoRef.current) {
-              await safePlayVideo(videoRef.current)
-            }
-          }
+            // Don't auto-play, wait for actual conten
+               }
 
           videoRef.current.oncanplay = () => {
             Logger.info('Video listo para reproducir')
-            setIsStreamReady(true)
+            // Don't show video yet, wait for playing event
           }
 
           videoRef.current.onplaying = () => {
             Logger.info('Video reproduciendo')
+            // Only now show the video and hide the static image
+            setIsVideoPlaying(true)
+            if (videoRef.current) {
+              videoRef.current.style.opacity = '1'
+            }
+          }
+
+          videoRef.current.onwaiting = () => {
+            Logger.debug('Video buffering')
+            // Don't hide the video when buffering, keep it visible
+          }
+
+          videoRef.current.onstalled = () => {
+            Logger.debug('Video stalled')
+            // Keep video visible even when stalled
+          }
+
+          videoRef.current.onseeking = () => {
+            Logger.debug('Video seeking')
+            // Keep video visible when seeking
           }
 
           videoRef.current.onerror = (e) => {
             Logger.error('Error en video', e)
+            if (e && typeof e === 'object' && 'target' in e) {
+              const videoElement = e.target as HTMLVideoElement
+              console.error('Video error details:', videoElement.error)
+            }
             restartConnection()
           }
 
           // Configurar audio
           videoRef.current.volume = 1.0
+
+          // Add event listener to detect when actual video content starts
+          event.track.addEventListener('unmute', () => {
+            Logger.info('Track unmuted - content available')
+            if (videoRef.current && videoRef.current.readyState >= 3) {
+              videoRef.current.play().catch(err => {
+                Logger.warn('Could not auto-play video:', err)
+              })
+            }
+          })
 
         } catch (err) {
           Logger.error('Error al configurar video', err)
@@ -562,15 +695,30 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
     // Inicializar al montar
     useEffect(() => {
       Logger.info('Componente montado, iniciando conexión')
-      initializeConnection()
+      isMountedRef.current = true
+      
+      // Only initialize if we're not already connecting and no existing connection
+      if (!isConnectingRef.current && !streamId) {
+        initializeConnection()
+      }
+      
       return () => {
+        Logger.info('Componente desmontándose')
+        isMountedRef.current = false
         cleanup()
       }
     }, [])
 
+    // Reset retry count when component remounts
+    useEffect(() => {
+      if (isMountedRef.current && connectionState === 'disconnected' && !isConnectingRef.current) {
+        setRetryCount(0)
+      }
+    }, [connectionState])
+
     return (
       <div className="relative h-full w-full">
-        {error && (
+        {/* {error && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -578,7 +726,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           >
             <p className="text-sm">{error}</p>
           </motion.div>
-        )}
+        )} */}
 
         {/* Estado de conexión */}
         <div className="absolute top-4 right-4 bg-black/50 text-white px-2 py-1 rounded text-sm z-50">
@@ -591,7 +739,69 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           transition={{ type: "spring", bounce: 0.4, duration: 0.7 }}
           className="relative h-[95%] flex items-center justify-center"
         >
-          {/* Imagen por defecto antes de que el usuario interactúe */}
+          {/* Imagen por defecto antes de que cargue el avatar */}
+          {!isVideoPlaying && (
+            <motion.img
+              src="/nova-assistant-full.png"
+              alt="Avatar por defecto"
+              className="h-[95%] w-auto object-contain object-bottom mt-auto bg-white"
+              style={{ position: 'absolute', left: 0, right: 0, bottom: 0, margin: 'auto' }}
+              initial={{ opacity: 1 }}
+              animate={{ opacity: !isVideoPlaying ? 1 : 0 }}
+              transition={{ duration: 0.3 }}
+            />
+          )}
+          
+          {/* Video with custom styling to hide loading indicators */}
+          <video
+            ref={videoRef}
+            className={`video-no-controls video-smooth-transition h-[95%] w-auto object-contain object-bottom mt-auto ${!isVideoPlaying ? "opacity-0 absolute" : "opacity-100 relative"}`}
+            playsInline
+            muted={false}
+            preload="metadata"
+            style={{ 
+              opacity: isVideoPlaying ? 1 : 0,
+              visibility: 'visible',
+              display: 'block',
+              background: 'transparent',
+            }}
+            // Hide all default video controls and indicators
+            controls={false}
+            disablePictureInPicture={true}
+            onError={(e) => {
+              Logger.error('Error en video', e)
+              if (e && typeof e === 'object' && 'target' in e) {
+                const videoElement = e.target as HTMLVideoElement
+                console.error('Video error details:', videoElement.error)
+              }
+            }}
+            onLoadedMetadata={() => {
+              Logger.info('Video metadata cargada')
+              console.log('Video dimensions:', videoRef.current?.videoWidth, 'x', videoRef.current?.videoHeight)
+            }}
+            onCanPlay={() => {
+              Logger.info('Video listo para reproducir')
+              console.log('Video can play - duration:', videoRef.current?.duration)
+            }}
+            onPlaying={() => {
+              Logger.info('Video reproduciendo')
+              console.log('Video is now playing')
+            }}
+            onPause={() => Logger.info('Video pausado')}
+            onEnded={() => Logger.info('Video finalizado')}
+            onLoadStart={() => {
+              Logger.info('Video load started')
+              console.log('Video load started')
+            }}
+            onProgress={() => {
+              Logger.debug('Video loading progress')
+            }}
+            onWaiting={() => {
+              Logger.debug('Video waiting/buffering')
+              // Don't change opacity when buffering
+            }}
+          />
+          /* Imagen por defecto antes de que el usuario interactúe 
           {!hasUserInteracted && (
             <img
               src="/avatar-did.png"
@@ -601,7 +811,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
             />
           )}
           
-          {/* Video solo se muestra después de la interacción del usuario */}
+          * Video solo se muestra después de la interacción del usuario 
           {hasUserInteracted && (
             <video
               ref={videoRef}
@@ -617,6 +827,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
               onEnded={() => Logger.info('Video finalizado')}
             />
           )}
+        */
         </motion.div>
       </div>
     )
