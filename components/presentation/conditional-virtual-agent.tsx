@@ -20,7 +20,7 @@ export function ConditionalVirtualAgent({ children }: { children: React.ReactNod
         <VirtualAgent />
       </div>
 
-      {/* Aplicación NovaBank - parte inferior */}
+      {/* Aplicación SofkaBank - parte inferior */}
       <div className="w-full h-1/2 overflow-auto">{children}</div>
     </div>
   )

@@ -17,14 +17,14 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: "NovaBank - Banca Digital Personalizada",
+  title: "SofkaBank - Banca Digital Personalizada",
   description: "Experimenta el poder de la hiperpersonalización en tu banca digital",
   generator: 'v0.dev',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'NovaBank',
+    title: 'SofkaBank',
     startupImage: [
       {
         url: '/icon-512x512.png',

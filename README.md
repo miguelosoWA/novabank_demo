@@ -1,7 +1,7 @@
-# NovaBank - Asistente Virtual
+# SofkaBank - Asistente Virtual
 
 ## Descripción
-NovaBank es una aplicación bancaria que incluye un asistente virtual interactivo. El asistente utiliza la API de D-ID para generar un avatar animado que puede comunicarse con los usuarios a través de voz y texto.
+SofkaBank es una aplicación bancaria que incluye un asistente virtual interactivo. El asistente utiliza la API de D-ID para generar un avatar animado que puede comunicarse con los usuarios a través de voz y texto.
 
 ## Características Principales
 
