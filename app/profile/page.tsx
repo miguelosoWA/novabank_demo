@@ -400,7 +400,7 @@ export default function ProfilePage() {
 
       {/* Botón de cerrar sesión */}
       <div className="mt-8 border-t pt-6">
-        <Button variant="ghost" className="w-full sm:w-auto" onClick={handleLogout} aria-label="Cerrar sesión">
+        <Button variant="destructive" className="w-full sm:w-auto" onClick={handleLogout} aria-label="Cerrar sesión">
           <LogOut className="mr-2 h-4 w-4" aria-hidden="true" />
           <span>Cerrar sesión</span>
         </Button>
