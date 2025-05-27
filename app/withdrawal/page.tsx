@@ -1,11 +1,12 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { ChevronLeft } from "lucide-react"
+import { ChevronLeft, Banknote, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Navbar } from "@/components/dashboard/navbar"
 export default function NotificationsPage() {
   const router = useRouter()
+  const availableBalance = 18500.75 // Simulado, normalmente vendría de la API
 
   return (
     <div className="space-y-6 px-4 md:px-6 lg:px-8 pb-16 md:pb-20 max-w-screen-xl mx-auto">

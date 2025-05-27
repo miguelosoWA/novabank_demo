@@ -7,12 +7,21 @@ import { VirtualAgent } from "./virtual-agent"
 
 export function ConditionalVirtualAgent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const isAuthRoute = pathname.includes("/login")
+  
+  // Rutas donde NO queremos mostrar el agente virtual
+  const excludedRoutes = [
+    "/login",
+    "/register",
+    "/home",
+    "/profile"
+  ]
 
-  if (isAuthRoute) {
+  // Si la ruta actual está en la lista de excluidas, solo mostrar el contenido
+  if (excludedRoutes.some(route => pathname.startsWith(route))) {
     return <>{children}</>
   }
 
+  // Para otras rutas, mostrar el agente virtual
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       {/* Asistente virtual - parte superior */}
