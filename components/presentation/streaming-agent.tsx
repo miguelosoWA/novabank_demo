@@ -48,7 +48,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
     const [connectionState, setConnectionState] = useState<string>('disconnected')
     const [isWebSocketReady, setIsWebSocketReady] = useState(false)
     const [isStreamReady, setIsStreamReady] = useState(false)
-    const [retryCount, setRetryCount] = useState(0)
+    const [hasUserInteracted, setHasUserInteracted] = useState(false)
     
     const videoRef = useRef<HTMLVideoElement>(null)
     const wsRef = useRef<WebSocket | null>(null)
@@ -57,16 +57,18 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
     const statsIntervalRef = useRef<NodeJS.Timeout | null>(null)
     const lastBytesReceivedRef = useRef<number>(0)
     const videoIsPlayingRef = useRef<boolean>(false)
-    const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
     const webSocketUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL
-    const MAX_RETRIES = 3
-    const RETRY_DELAY = 2000 // 2 segundos
     const stream_warmup = true
 
     // Exponer el método sendMessage a través de la referencia
     useImperativeHandle(ref, () => ({
       sendMessage: async (text: string) => {
+        if (!hasUserInteracted) {
+          setHasUserInteracted(true)
+          await initializeConnection()
+        }
+
         if (!streamId || !sessionId) {
           Logger.error('No hay stream o sesión activa')
           setError("No hay stream o sesión activa")
@@ -144,32 +146,17 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
 
     // Función para reiniciar la conexión
     const restartConnection = () => {
-      if (retryCount >= MAX_RETRIES) {
-        Logger.error('Número máximo de reintentos alcanzado')
-        setError("No se pudo establecer la conexión después de varios intentos")
-        setConnectionState('error')
-        onStreamError?.("No se pudo establecer la conexión después de varios intentos")
-        return
-      }
-
-      Logger.info('Reintentando conexión', { attempt: retryCount + 1, maxRetries: MAX_RETRIES })
-      setRetryCount(prev => prev + 1)
+      Logger.error('Error en la conexión')
+      setError("No se pudo establecer la conexión")
+      setConnectionState('error')
+      onStreamError?.("No se pudo establecer la conexión")
       cleanup()
-      
-      retryTimeoutRef.current = setTimeout(() => {
-        initializeConnection()
-      }, RETRY_DELAY)
     }
 
     // Limpiar recursos
     const cleanup = () => {
       Logger.info('Limpiando recursos')
       
-      if (retryTimeoutRef.current) {
-        clearTimeout(retryTimeoutRef.current)
-        retryTimeoutRef.current = null
-      }
-
       if (statsIntervalRef.current) {
         clearInterval(statsIntervalRef.current)
         statsIntervalRef.current = null
@@ -200,19 +187,20 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
       Logger.success('Limpieza completada')
     }
 
-    // Función para hacer fetch con reintentos
-    const fetchWithRetries = async (url: string, options: RequestInit, retries = 1): Promise<Response> => {
+    // Función para hacer fetch sin reintentos
+    const fetchWithRetries = async (url: string, options: RequestInit): Promise<Response> => {
       try {
-        return await fetch(url, options)
-      } catch (err) {
-        if (retries <= MAX_RETRIES) {
-          const delay = Math.min(Math.pow(2, retries) / 4 + Math.random(), 4) * 1000
-          await new Promise(resolve => setTimeout(resolve, delay))
-          Logger.info(`Request failed, retrying ${retries}/${MAX_RETRIES}. Error ${err}`)
-          return fetchWithRetries(url, options, retries + 1)
-        } else {
-          throw new Error(`Max retries exceeded. error: ${err}`)
-        }
+        Logger.debug('Iniciando fetch request', { url, options: { ...options, headers: { ...options.headers, Authorization: '***' } } })
+        const response = await fetch(url, options)
+        Logger.debug('Fetch response recibida', { status: response.status, statusText: response.statusText })
+        return response
+      } catch (error) {
+        Logger.error('Error en fetch request', { 
+          url, 
+          error: error instanceof Error ? error.message : 'Unknown error',
+          stack: error instanceof Error ? error.stack : undefined
+        })
+        throw error
       }
     }
 
@@ -227,8 +215,14 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
         Logger.debug('Configuración de conexión', {
           apiUrl,
           endpoint,
-          hasApiKey: !!apiKey
+          hasApiKey: !!apiKey,
+          presenterId: PRESENTER_ID,
+          driverId: DRIVER_ID
         })
+
+        if (!apiKey) {
+          throw new Error('API key no proporcionada')
+        }
         
         // Crear stream usando la API REST
         const sessionResponse = await fetchWithRetries(
@@ -252,7 +246,8 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           Logger.error('Error en respuesta del servidor', {
             status: sessionResponse.status,
             statusText: sessionResponse.statusText,
-            error: errorText
+            error: errorText,
+            headers: Object.fromEntries(sessionResponse.headers.entries())
           })
           throw new Error(`Error al crear stream: ${sessionResponse.status} - ${errorText}`)
         }
@@ -270,7 +265,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
         const answer = await createPeerConnection(offer, iceServers)
         
         // Enviar respuesta SDP
-        const sdpResponse = await fetch(
+        const sdpResponse = await fetchWithRetries(
           `${apiUrl}/clips/streams/${newStreamId}/sdp`,
           {
             method: 'POST',
@@ -290,7 +285,8 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           Logger.error('Error en respuesta SDP', {
             status: sdpResponse.status,
             statusText: sdpResponse.statusText,
-            error: errorText
+            error: errorText,
+            headers: Object.fromEntries(sdpResponse.headers.entries())
           })
           throw new Error(`Error al enviar SDP: ${sdpResponse.status} - ${errorText}`)
         }
@@ -298,10 +294,14 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
         Logger.success('Conexión establecida exitosamente')
 
       } catch (err) {
-        Logger.error('Error al inicializar conexión', err)
-        setError("Error al inicializar la conexión")
+        const errorMessage = err instanceof Error ? err.message : 'Error desconocido'
+        Logger.error('Error al inicializar conexión', { 
+          error: errorMessage,
+          stack: err instanceof Error ? err.stack : undefined
+        })
+        setError(`Error al inicializar la conexión: ${errorMessage}`)
         setConnectionState('error')
-        onStreamError?.("Error al inicializar la conexión")
+        onStreamError?.(`Error al inicializar la conexión: ${errorMessage}`)
         restartConnection()
       }
     }
@@ -309,45 +309,53 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
     // Crear PeerConnection
     const createPeerConnection = async (offer: RTCSessionDescriptionInit, iceServers: RTCIceServer[]) => {
       try {
-        if (!peerConnectionRef.current) {
-          peerConnectionRef.current = new RTCPeerConnection({ iceServers })
-          dataChannelRef.current = peerConnectionRef.current.createDataChannel('JanusDataChannel')
-          
-          peerConnectionRef.current.addEventListener('icegatheringstatechange', () => {
-            Logger.debug('ICE gathering state changed', { state: peerConnectionRef.current?.iceGatheringState })
-          })
-          
-          peerConnectionRef.current.addEventListener('icecandidate', handleICECandidate)
-          peerConnectionRef.current.addEventListener('iceconnectionstatechange', () => {
-            Logger.info('ICE connection state changed', { state: peerConnectionRef.current?.iceConnectionState })
-            if (peerConnectionRef.current?.iceConnectionState === 'failed' || 
-                peerConnectionRef.current?.iceConnectionState === 'closed') {
-              restartConnection()
-            }
-          })
-          
-          peerConnectionRef.current.addEventListener('connectionstatechange', () => {
-            Logger.info('Connection state changed', { state: peerConnectionRef.current?.connectionState })
-            if (peerConnectionRef.current?.connectionState === 'connected') {
-              setIsStreaming(true)
-              setConnectionState('connected')
-              onStreamReady?.()
-            }
-          })
-          
-          peerConnectionRef.current.addEventListener('track', handleTrack)
-          dataChannelRef.current.addEventListener('message', handleDataChannelMessage)
+        // Limpia cualquier conexión previa antes de crear una nueva
+        if (peerConnectionRef.current) {
+          Logger.info('Cerrando PeerConnection previa antes de crear una nueva', { signalingState: peerConnectionRef.current.signalingState })
+          peerConnectionRef.current.close()
+          peerConnectionRef.current = null
+        }
+        if (dataChannelRef.current) {
+          dataChannelRef.current.close()
+          dataChannelRef.current = null
         }
 
-        await peerConnectionRef.current.setRemoteDescription(offer)
-        Logger.debug('Remote description establecida')
-        
-        const answer = await peerConnectionRef.current.createAnswer()
-        await peerConnectionRef.current.setLocalDescription(answer)
-        Logger.debug('Local description establecida')
-        
-        return answer
+        peerConnectionRef.current = new RTCPeerConnection({ iceServers })
+        dataChannelRef.current = peerConnectionRef.current.createDataChannel('JanusDataChannel')
 
+        peerConnectionRef.current.addEventListener('icegatheringstatechange', () => {
+          Logger.debug('ICE gathering state changed', { state: peerConnectionRef.current?.iceGatheringState })
+        })
+        peerConnectionRef.current.addEventListener('icecandidate', handleICECandidate)
+        peerConnectionRef.current.addEventListener('iceconnectionstatechange', () => {
+          Logger.info('ICE connection state changed', { state: peerConnectionRef.current?.iceConnectionState })
+          if (peerConnectionRef.current?.iceConnectionState === 'failed' || 
+              peerConnectionRef.current?.iceConnectionState === 'closed') {
+            restartConnection()
+          }
+        })
+        peerConnectionRef.current.addEventListener('connectionstatechange', () => {
+          Logger.info('Connection state changed', { state: peerConnectionRef.current?.connectionState })
+          if (peerConnectionRef.current?.connectionState === 'connected') {
+            setIsStreaming(true)
+            setConnectionState('connected')
+            onStreamReady?.()
+          }
+        })
+        peerConnectionRef.current.addEventListener('track', handleTrack)
+        dataChannelRef.current.addEventListener('message', handleDataChannelMessage)
+
+        const pc = peerConnectionRef.current
+        Logger.debug('Signaling state before setRemoteDescription:', pc.signalingState)
+        await pc.setRemoteDescription(offer)
+        Logger.debug('Signaling state after setRemoteDescription:', pc.signalingState)
+
+        const answer = await pc.createAnswer()
+        Logger.debug('Signaling state before setLocalDescription:', pc.signalingState)
+        await pc.setLocalDescription(answer)
+        Logger.debug('Signaling state after setLocalDescription:', pc.signalingState)
+
+        return answer
       } catch (err) {
         Logger.error('Error al crear PeerConnection', err)
         throw err
@@ -442,6 +450,9 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
       if (!video) return
 
       try {
+        // Configurar el video como muted por defecto para permitir autoplay
+        video.muted = true
+        
         // Esperar a que el video esté listo
         if (video.readyState < 3) {
           await new Promise((resolve) => {
@@ -451,26 +462,17 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
 
         // Intentar reproducir
         await video.play()
-        Logger.info('Video reproduciendo correctamente')
+        Logger.info('Video reproduciendo correctamente (muted)')
+        
+        // Intentar desmutear después de un tiempo
+        setTimeout(() => {
+          if (video) {
+            video.muted = false
+            Logger.info('Video desmutado')
+          }
+        }, 1000)
       } catch (error) {
         Logger.error('Error al reproducir video', error)
-        
-        // Intentar reproducir sin sonido
-        try {
-          video.muted = true
-          await video.play()
-          Logger.info('Video reproduciendo sin sonido')
-          
-          // Intentar desmutear después de un tiempo
-          setTimeout(() => {
-            if (video) {
-              video.muted = false
-              Logger.info('Video desmutado')
-            }
-          }, 2000)
-        } catch (mutedError) {
-          Logger.error('Error al reproducir video (muted)', mutedError)
-        }
       }
     }
 
@@ -496,30 +498,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           videoRef.current.onloadedmetadata = async () => {
             Logger.info('Video metadata cargada')
             if (videoRef.current) {
-              try {
-                // Asegurarse de que el video no esté muteado
-                videoRef.current.muted = false
-                await videoRef.current.play()
-                Logger.info('Video reproduciendo correctamente')
-              } catch (err) {
-                Logger.error('Error al reproducir video', err)
-                // Intentar reproducir sin sonido y luego desmutear
-                try {
-                  videoRef.current.muted = true
-                  await videoRef.current.play()
-                  Logger.info('Video reproduciendo sin sonido')
-                  
-                  // Intentar desmutear después de un tiempo
-                  setTimeout(() => {
-                    if (videoRef.current) {
-                      videoRef.current.muted = false
-                      Logger.info('Video desmutado')
-                    }
-                  }, 1000)
-                } catch (mutedError) {
-                  Logger.error('Error al reproducir video (muted)', mutedError)
-                }
-              }
+              await safePlayVideo(videoRef.current)
             }
           }
 
@@ -539,7 +518,6 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
 
           // Configurar audio
           videoRef.current.volume = 1.0
-          videoRef.current.muted = false
 
         } catch (err) {
           Logger.error('Error al configurar video', err)
@@ -613,28 +591,32 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           transition={{ type: "spring", bounce: 0.4, duration: 0.7 }}
           className="relative h-[95%] flex items-center justify-center"
         >
-          {/* Imagen por defecto antes de que cargue el avatar */}
-          {!isStreamReady && (
+          {/* Imagen por defecto antes de que el usuario interactúe */}
+          {!hasUserInteracted && (
             <img
-              src="/nova-assistant-full.png" // Cambia esta ruta si tu imagen tiene otro nombre o ubicación
+              src="/avatar-did.png"
               alt="Avatar por defecto"
-              className="h-[95%] w-auto object-contain object-bottom mt-auto rounded-full bg-white transition-opacity duration-300"
+              className="h-[80%] w-auto object-contain transition-opacity duration-300"
               style={{ position: 'absolute', left: 0, right: 0, margin: 'auto' }}
             />
           )}
-          <video
-            ref={videoRef}
-            className={`h-[95%] w-auto object-contain object-bottom mt-auto transition-opacity duration-300 ${!isStreamReady ? "opacity-0 absolute" : "opacity-100 relative"}`}
-            autoPlay
-            playsInline
-            muted={false}
-            onError={(e) => Logger.error('Error en video', e)}
-            onLoadedMetadata={() => Logger.info('Video metadata cargada')}
-            onCanPlay={() => Logger.info('Video listo para reproducir')}
-            onPlaying={() => Logger.info('Video reproduciendo')}
-            onPause={() => Logger.info('Video pausado')}
-            onEnded={() => Logger.info('Video finalizado')}
-          />
+          
+          {/* Video solo se muestra después de la interacción del usuario */}
+          {hasUserInteracted && (
+            <video
+              ref={videoRef}
+              className={`h-[80%] w-auto object-contain transition-opacity duration-300 ${!isStreamReady ? "opacity-0 absolute" : "opacity-100 relative"}`}
+              autoPlay
+              playsInline
+              muted={false}
+              onError={(e) => Logger.error('Error en video', e)}
+              onLoadedMetadata={() => Logger.info('Video metadata cargada')}
+              onCanPlay={() => Logger.info('Video listo para reproducir')}
+              onPlaying={() => Logger.info('Video reproduciendo')}
+              onPause={() => Logger.info('Video pausado')}
+              onEnded={() => Logger.info('Video finalizado')}
+            />
+          )}
         </motion.div>
       </div>
     )

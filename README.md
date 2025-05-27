@@ -32,7 +32,7 @@ NovaBank es una aplicación bancaria que incluye un asistente virtual interactiv
 Crear un archivo `.env.local` con las siguientes variables:
 ```env
 # D-ID API
-NEXT_PUBLIC_DID_API_KEY=tu_api_key_de_did
+DID_API_KEY=tu_api_key_de_did
 NEXT_PUBLIC_DID_API_URL=https://api.d-id.com
 
 # OpenAI
