@@ -117,33 +117,14 @@ export default function Dashboard() {
 
   return (
     <>
-      <main className="container mx-auto px-4 py-6">
-        {/* Saludo personalizado - Ahora primero */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-[#1C3B5A]">Hola, {userName}</h1>
-          <p className="text-gray-500">Bienvenido de nuevo a tu banca en línea</p>
-        </div>
-
+      <main className="container mx-auto px-0 py-0">
         {/* Sección de oportunidades personalizadas - Ahora segundo */}
         <div className="mb-6">
           <div className="mb-4">
-            <h2 className="text-xl font-semibold text-[#1C3B5A]">Oportunidades para ti</h2>
+            <h3 className="text-lg font-semibold text-[#1C3B5A]">Oportunidades para ti</h3>
           </div>
 
-          <div className="space-y-4">
-            {/* Recomendación personalizada basada en el comportamiento del usuario */}
-            {showRecommendation && (
-              <PersonalizedRecommendation
-                userName={userName}
-                availableBalance={userActivity.financialContext.availableBalance}
-                onDismiss={() => {
-                  setShowRecommendation(false)
-                  trackInteraction("dismiss", "recommendation")
-                }}
-                onAction={handleRecommendationAction}
-                onFeedback={handleRecommendationFeedback}
-              />
-            )}
+          <div className="space-y-0">
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <OpportunityCard
@@ -167,6 +148,27 @@ export default function Dashboard() {
                   trackInteraction("click", "opportunity_card_article")
                 }}
               />
+
+              <Card className="bg-gradient-to-r from-[#1C3B5A] to-[#2a5580] text-white">
+              <CardContent className="p-2">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
+                    <PiggyBank size={20} className="text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">Inversión identificada</h3>
+                    <p className="text-sm text-white/80">Basada en tu perfil</p>
+                  </div>
+                </div>
+
+                <p className="text-sm mb-4">
+                  Hemos identificado una opción de inversión que podría interesarte basada en tu comportamiento
+                  financiero.
+                </p>
+
+                <div className="mt-4"></div>
+              </CardContent>
+            </Card>
             </div>
           </div>
         </div>
@@ -224,32 +226,13 @@ export default function Dashboard() {
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-r from-[#1C3B5A] to-[#2a5580] text-white">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
-                    <PiggyBank size={20} className="text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold">Inversión identificada</h3>
-                    <p className="text-sm text-white/80">Basada en tu perfil</p>
-                  </div>
-                </div>
-
-                <p className="text-sm mb-4">
-                  Hemos identificado una opción de inversión que podría interesarte basada en tu comportamiento
-                  financiero.
-                </p>
-
-                <div className="mt-4"></div>
-              </CardContent>
-            </Card>
+            
           </div>
         </div>
       </main>
 
       {/* Notificación contextual */}
-      {showNotification && (
+      {/* {showNotification && (
         <ContextualNotification
           message="Carlos, tenemos una estrategia de inversión que podría interesarte basada en tu actividad reciente."
           onDismiss={() => {
@@ -262,15 +245,8 @@ export default function Dashboard() {
             trackInteraction("click", "contextual_notification")
           }}
         />
-      )}
+      )} */}
 
-      {/* Simulador de inversión */}
-      <InvestmentSimulator
-        isOpen={isInvestmentSimulatorOpen}
-        onClose={() => setIsInvestmentSimulatorOpen(false)}
-        userName={userName}
-        initialAmount={userActivity.financialContext.availableBalance}
-      />
     </>
   )
 }

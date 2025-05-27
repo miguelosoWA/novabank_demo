@@ -16,10 +16,10 @@ interface OpportunityCardProps {
 
 export function OpportunityCard({ title, description, cta, icon, onClick }: OpportunityCardProps) {
   return (
-    <Card className="border-l-4 border-l-[#DEA742]">
-      <CardContent className="p-4">
+    <Card className="border-l-1 border-l-[#DEA742]">
+      <CardContent className="p-1">
         <div className="flex items-start gap-4">
-          <div className="h-10 w-10 rounded-full bg-[#f0f5fa] flex items-center justify-center flex-shrink-0">
+          <div className="h-2 w-2 rounded-full bg-[#f0f5fa] flex items-center justify-center flex-shrink-0">
             {icon}
           </div>
 
