@@ -71,16 +71,23 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
     const stream_warmup = true
 
     // Función para obtener datos con reintentos
-    const fetchWithRetries = async (url: string, options: RequestInit, retries = 1): Promise<Response> => {
+    const fetchWithRetries = async (url: string, options: RequestInit, retries = MAX_RETRIES): Promise<Response> => {
       try {
+        Logger.debug('Iniciando fetch request', { url, options: { ...options, headers: { ...options.headers, Authorization: '***' } } })
         const response = await fetch(url, options)
+        Logger.debug('Fetch response recibida', { status: response.status, statusText: response.statusText })
         return response
       } catch (error) {
         if (retries > 0) {
           Logger.warn(`Reintentando fetch (${retries} intentos restantes)`, { url, error })
-          await new Promise(resolve => setTimeout(resolve, 1000))
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY))
           return fetchWithRetries(url, options, retries - 1)
         }
+        Logger.error('Error en fetch request', { 
+          url, 
+          error: error instanceof Error ? error.message : 'Unknown error',
+          stack: error instanceof Error ? error.stack : undefined
+        })
         throw error
       }
     }
@@ -229,7 +236,6 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
 
     // Inicializar conexión
     const initializeConnection = async () => {
-      // Prevent multiple simultaneous connection attempts
       if (isConnectingRef.current) {
         Logger.warn('Conexión ya en progreso, ignorando nueva solicitud')
         return
@@ -255,8 +261,8 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           presenterId: PRESENTER_ID,
           driverId: DRIVER_ID
         })
-        
-        // Crear stream usando la API REST
+
+        // Crear stream usando la API REST con reintentos
         const sessionResponse = await fetchWithRetries(
           endpoint,
           {
@@ -304,9 +310,9 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           Logger.warn('Componente desmontado durante la conexión, cancelando')
           return
         }
-        
-        // Enviar respuesta SDP
-        const sdpResponse = await fetch(
+
+        // Enviar respuesta SDP con reintentos
+        const sdpResponse = await fetchWithRetries(
           `${apiUrl}/clips/streams/${newStreamId}/sdp`,
           {
             method: 'POST',
@@ -338,6 +344,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
         sendInitialWelcomeMessage(newStreamId, newSessionId)
 
       } catch (err) {
+        isConnectingRef.current = false
         const errorMessage = err instanceof Error ? err.message : 'Error desconocido'
         Logger.error('Error al inicializar conexión', { 
           error: errorMessage,
