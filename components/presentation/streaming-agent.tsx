@@ -65,16 +65,13 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
     const isMountedRef = useRef<boolean>(true)
 
     const webSocketUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL
+    const MAX_RETRIES = 3
+    const RETRY_DELAY = 2000 // 2 segundos
     const stream_warmup = true
 
     // Exponer el método sendMessage a través de la referencia
     useImperativeHandle(ref, () => ({
       sendMessage: async (text: string) => {
-        if (!hasUserInteracted) {
-          setHasUserInteracted(true)
-          await initializeConnection()
-        }
-
         if (!streamId || !sessionId) {
           Logger.error('No hay stream o sesión activa')
           setError("No hay stream o sesión activa")
@@ -272,10 +269,6 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           endpoint,
           hasApiKey: true
         })
-
-        if (!apiKey) {
-          throw new Error('API key no proporcionada')
-        }
         
         // Crear stream usando la API REST
         const sessionResponse = await fetchWithRetries(
@@ -299,8 +292,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           Logger.error('Error en respuesta del servidor', {
             status: sessionResponse.status,
             statusText: sessionResponse.statusText,
-            error: errorText,
-            headers: Object.fromEntries(sessionResponse.headers.entries())
+            error: errorText
           })
           throw new Error(`Error al crear stream: ${sessionResponse.status} - ${errorText}`)
         }
@@ -328,7 +320,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
         }
         
         // Enviar respuesta SDP
-        const sdpResponse = await fetchWithRetries(
+        const sdpResponse = await fetch(
           `${apiUrl}/clips/streams/${newStreamId}/sdp`,
           {
             method: 'POST',
@@ -348,8 +340,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           Logger.error('Error en respuesta SDP', {
             status: sdpResponse.status,
             statusText: sdpResponse.statusText,
-            error: errorText,
-            headers: Object.fromEntries(sdpResponse.headers.entries())
+            error: errorText
           })
           throw new Error(`Error al enviar SDP: ${sdpResponse.status} - ${errorText}`)
         }
@@ -438,17 +429,15 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
         peerConnectionRef.current.addEventListener('track', handleTrack)
         dataChannelRef.current.addEventListener('message', handleDataChannelMessage)
 
-        const pc = peerConnectionRef.current
-        Logger.debug('Signaling state before setRemoteDescription:', pc.signalingState)
-        await pc.setRemoteDescription(offer)
-        Logger.debug('Signaling state after setRemoteDescription:', pc.signalingState)
-
-        const answer = await pc.createAnswer()
-        Logger.debug('Signaling state before setLocalDescription:', pc.signalingState)
-        await pc.setLocalDescription(answer)
-        Logger.debug('Signaling state after setLocalDescription:', pc.signalingState)
-
+        await peerConnectionRef.current.setRemoteDescription(offer)
+        Logger.debug('Remote description establecida')
+        
+        const answer = await peerConnectionRef.current.createAnswer()
+        await peerConnectionRef.current.setLocalDescription(answer)
+        Logger.debug('Local description establecida')
+        
         return answer
+
       } catch (err) {
         Logger.error('Error al crear PeerConnection', err)
         throw err
@@ -549,9 +538,6 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
       if (!video) return
 
       try {
-        // Configurar el video como muted por defecto para permitir autoplay
-        video.muted = true
-        
         // Esperar a que el video esté listo
         if (video.readyState < 3) {
           await new Promise((resolve) => {
@@ -561,17 +547,26 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
 
         // Intentar reproducir
         await video.play()
-        Logger.info('Video reproduciendo correctamente (muted)')
-        
-        // Intentar desmutear después de un tiempo
-        setTimeout(() => {
-          if (video) {
-            video.muted = false
-            Logger.info('Video desmutado')
-          }
-        }, 1000)
+        Logger.info('Video reproduciendo correctamente')
       } catch (error) {
         Logger.error('Error al reproducir video', error)
+        
+        // Intentar reproducir sin sonido
+        try {
+          video.muted = true
+          await video.play()
+          Logger.info('Video reproduciendo sin sonido')
+          
+          // Intentar desmutear después de un tiempo
+          setTimeout(() => {
+            if (video) {
+              video.muted = false
+              Logger.info('Video desmutado')
+            }
+          }, 2000)
+        } catch (mutedError) {
+          Logger.error('Error al reproducir video (muted)', mutedError)
+        }
       }
     }
 
