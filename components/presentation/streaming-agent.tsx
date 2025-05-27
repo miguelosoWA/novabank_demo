@@ -66,16 +66,28 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
     const isMountedRef = useRef<boolean>(true)
 
     const webSocketUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL
+    const MAX_RETRIES = 3
+    const RETRY_DELAY = 2000 // 2 segundos
     const stream_warmup = true
+
+    // Función para obtener datos con reintentos
+    const fetchWithRetries = async (url: string, options: RequestInit, retries = 1): Promise<Response> => {
+      try {
+        const response = await fetch(url, options)
+        return response
+      } catch (error) {
+        if (retries > 0) {
+          Logger.warn(`Reintentando fetch (${retries} intentos restantes)`, { url, error })
+          await new Promise(resolve => setTimeout(resolve, 1000))
+          return fetchWithRetries(url, options, retries - 1)
+        }
+        throw error
+      }
+    }
 
     // Exponer el método sendMessage a través de la referencia
     useImperativeHandle(ref, () => ({
       sendMessage: async (text: string) => {
-        if (!hasUserInteracted) {
-          setHasUserInteracted(true)
-          await initializeConnection()
-        }
-
         if (!streamId || !sessionId) {
           Logger.error('No hay stream o sesión activa')
           setError("No hay stream o sesión activa")
@@ -215,24 +227,6 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
       Logger.success('Limpieza completada')
     }
 
-
-    // Función para hacer fetch sin reintentos
-    const fetchWithRetries = async (url: string, options: RequestInit): Promise<Response> => {
-      try {
-        Logger.debug('Iniciando fetch request', { url, options: { ...options, headers: { ...options.headers, Authorization: '***' } } })
-        const response = await fetch(url, options)
-        Logger.debug('Fetch response recibida', { status: response.status, statusText: response.statusText })
-        return response
-      } catch (error) {
-        Logger.error('Error en fetch request', { 
-          url, 
-          error: error instanceof Error ? error.message : 'Unknown error',
-          stack: error instanceof Error ? error.stack : undefined
-        })
-        throw error
-      }
-    }
-
     // Inicializar conexión
     const initializeConnection = async () => {
       // Prevent multiple simultaneous connection attempts
@@ -261,10 +255,6 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           presenterId: PRESENTER_ID,
           driverId: DRIVER_ID
         })
-
-        if (!apiKey) {
-          throw new Error('API key no proporcionada')
-        }
         
         // Crear stream usando la API REST
         const sessionResponse = await fetchWithRetries(
@@ -288,8 +278,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           Logger.error('Error en respuesta del servidor', {
             status: sessionResponse.status,
             statusText: sessionResponse.statusText,
-            error: errorText,
-            headers: Object.fromEntries(sessionResponse.headers.entries())
+            error: errorText
           })
           throw new Error(`Error al crear stream: ${sessionResponse.status} - ${errorText}`)
         }
@@ -317,7 +306,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
         }
         
         // Enviar respuesta SDP
-        const sdpResponse = await fetchWithRetries(
+        const sdpResponse = await fetch(
           `${apiUrl}/clips/streams/${newStreamId}/sdp`,
           {
             method: 'POST',
@@ -337,8 +326,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           Logger.error('Error en respuesta SDP', {
             status: sdpResponse.status,
             statusText: sdpResponse.statusText,
-            error: errorText,
-            headers: Object.fromEntries(sdpResponse.headers.entries())
+            error: errorText
           })
           throw new Error(`Error al enviar SDP: ${sdpResponse.status} - ${errorText}`)
         }
@@ -449,6 +437,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
         Logger.debug('Signaling state after setLocalDescription:', pc.signalingState)
 
         return answer
+
       } catch (err) {
         Logger.error('Error al crear PeerConnection', err)
         throw err
@@ -549,9 +538,6 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
       if (!video) return
 
       try {
-        // Configurar el video como muted por defecto para permitir autoplay
-        video.muted = true
-        
         // Esperar a que el video esté listo
         if (video.readyState < 3) {
           await new Promise((resolve) => {
@@ -561,17 +547,26 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
 
         // Intentar reproducir
         await video.play()
-        Logger.info('Video reproduciendo correctamente (muted)')
-        
-        // Intentar desmutear después de un tiempo
-        setTimeout(() => {
-          if (video) {
-            video.muted = false
-            Logger.info('Video desmutado')
-          }
-        }, 1000)
+        Logger.info('Video reproduciendo correctamente')
       } catch (error) {
         Logger.error('Error al reproducir video', error)
+        
+        // Intentar reproducir sin sonido
+        try {
+          video.muted = true
+          await video.play()
+          Logger.info('Video reproduciendo sin sonido')
+          
+          // Intentar desmutear después de un tiempo
+          setTimeout(() => {
+            if (video) {
+              video.muted = false
+              Logger.info('Video desmutado')
+            }
+          }, 2000)
+        } catch (mutedError) {
+          Logger.error('Error al reproducir video (muted)', mutedError)
+        }
       }
     }
 
@@ -641,6 +636,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
 
           // Configurar audio
           videoRef.current.volume = 1.0
+          videoRef.current.muted = false
 
           // Add event listener to detect when actual video content starts
           event.track.addEventListener('unmute', () => {
@@ -715,6 +711,9 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
         setRetryCount(0)
       }
     }, [connectionState])
+  
+
+    // Manejar el evento de error del v
 
     return (
       <div className="relative h-full w-full">
@@ -801,7 +800,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
               // Don't change opacity when buffering
             }}
           />
-          /* Imagen por defecto antes de que el usuario interactúe 
+          {/* Imagen por defecto antes de que el usuario interactúe 
           {!hasUserInteracted && (
             <img
               src="/avatar-did.png"
@@ -827,7 +826,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
               onEnded={() => Logger.info('Video finalizado')}
             />
           )}
-        */
+        */}
         </motion.div>
       </div>
     )

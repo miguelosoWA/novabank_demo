@@ -36,7 +36,7 @@ export function VirtualAgent() {
     if (!isMountedRef.current) return
     Logger.info('Stream listo para recibir mensajes')
     setIsStreamReady(true)
-    // setConnectionState('connected')
+    setConnectionState('connected')
     setError(null) // Clear any previous errors when connection is successful
   }
 
@@ -153,7 +153,7 @@ export function VirtualAgent() {
 
       <StreamingAgent
         ref={streamingAgentRef}
-        apiKey={process.env.DID_API_KEY || ""}
+        apiKey={process.env.NEXT_PUBLIC_DID_API_KEY || ""}
         onStreamReady={handleStreamReady}
         onStreamError={handleStreamError}
       />
