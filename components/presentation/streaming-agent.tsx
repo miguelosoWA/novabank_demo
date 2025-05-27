@@ -68,6 +68,8 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
     const webSocketUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL
     const MAX_RETRIES = 3
     const RETRY_DELAY = 2000 // 2 segundos
+    const MAX_RETRIES = 3
+    const RETRY_DELAY = 2000 // 2 segundos
     const stream_warmup = true
 
     // Función para obtener datos con reintentos
@@ -261,8 +263,8 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           presenterId: PRESENTER_ID,
           driverId: DRIVER_ID
         })
-
-        // Crear stream usando la API REST con reintentos
+        
+        // Crear stream usando la API REST
         const sessionResponse = await fetchWithRetries(
           endpoint,
           {
@@ -284,6 +286,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           Logger.error('Error en respuesta del servidor', {
             status: sessionResponse.status,
             statusText: sessionResponse.statusText,
+            error: errorText
             error: errorText
           })
           throw new Error(`Error al crear stream: ${sessionResponse.status} - ${errorText}`)
@@ -310,9 +313,9 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           Logger.warn('Componente desmontado durante la conexión, cancelando')
           return
         }
-
-        // Enviar respuesta SDP con reintentos
-        const sdpResponse = await fetchWithRetries(
+        
+        // Enviar respuesta SDP
+        const sdpResponse = await fetch(
           `${apiUrl}/clips/streams/${newStreamId}/sdp`,
           {
             method: 'POST',
@@ -332,6 +335,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           Logger.error('Error en respuesta SDP', {
             status: sdpResponse.status,
             statusText: sdpResponse.statusText,
+            error: errorText
             error: errorText
           })
           throw new Error(`Error al enviar SDP: ${sdpResponse.status} - ${errorText}`)
@@ -433,17 +437,15 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
          // dataChannelRef.current = null
         //}
 
-        const pc = peerConnectionRef.current
-        Logger.debug('Signaling state before setRemoteDescription:', pc.signalingState)
-        await pc.setRemoteDescription(offer)
-        Logger.debug('Signaling state after setRemoteDescription:', pc.signalingState)
-
-        const answer = await pc.createAnswer()
-        Logger.debug('Signaling state before setLocalDescription:', pc.signalingState)
-        await pc.setLocalDescription(answer)
-        Logger.debug('Signaling state after setLocalDescription:', pc.signalingState)
-
+        await peerConnectionRef.current.setRemoteDescription(offer)
+        Logger.debug('Remote description establecida')
+        
+        const answer = await peerConnectionRef.current.createAnswer()
+        await peerConnectionRef.current.setLocalDescription(answer)
+        Logger.debug('Local description establecida')
+        
         return answer
+
 
       } catch (err) {
         Logger.error('Error al crear PeerConnection', err)
@@ -554,6 +556,26 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
 
         // Intentar reproducir
         await video.play()
+        Logger.info('Video reproduciendo correctamente')
+      } catch (error) {
+        Logger.error('Error al reproducir video', error)
+        
+        // Intentar reproducir sin sonido
+        try {
+          video.muted = true
+          await video.play()
+          Logger.info('Video reproduciendo sin sonido')
+          
+          // Intentar desmutear después de un tiempo
+          setTimeout(() => {
+            if (video) {
+              video.muted = false
+              Logger.info('Video desmutado')
+            }
+          }, 2000)
+        } catch (mutedError) {
+          Logger.error('Error al reproducir video (muted)', mutedError)
+        }
         Logger.info('Video reproduciendo correctamente')
       } catch (error) {
         Logger.error('Error al reproducir video', error)
