@@ -38,6 +38,20 @@ export function VirtualAgent() {
     setIsStreamReady(true)
     setConnectionState('connected')
     setError(null) // Clear any previous errors when connection is successful
+    
+    // Send initial welcome message to make the avatar appear
+    if (streamingAgentRef.current) {
+      const initialMessage = `<break time="100ms"/>`
+      Logger.info('Enviando mensaje inicial al avatar', { message: initialMessage })
+      
+      // Small delay to ensure the stream is fully ready
+      setTimeout(() => {
+        if (streamingAgentRef.current && isMountedRef.current) {
+          streamingAgentRef.current.sendMessage(initialMessage)
+          Logger.success('Mensaje inicial enviado al avatar')
+        }
+      }, 1000)
+    }
   }
 
   const handleStreamError = (error: string) => {

@@ -134,7 +134,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
                   type: 'microsoft',
                   voice_id: 'es-MX-DaliaNeural',
                 },
-                ssml: false,
+                ssml: true,
                 input: text,
               },
               config: {
@@ -165,10 +165,20 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
             // Try to play the video if it's ready
             if (videoRef.current && videoRef.current.readyState >= 3) {
               try {
+                // Ensure video is muted first for autoplay compliance
+                videoRef.current.muted = true
                 await videoRef.current.play()
                 Logger.info('Video iniciado tras envío de mensaje')
+                
+                // Unmute after a short delay
+                setTimeout(() => {
+                  if (videoRef.current && !videoRef.current.paused) {
+                    videoRef.current.muted = false
+                    Logger.info('Video desmutado tras envío de mensaje')
+                  }
+                }, 500)
               } catch (playError) {
-                Logger.warn('No se pudo iniciar video automáticamente:', playError)
+                Logger.warn('No se pudo iniciar video automáticamente tras envío:', playError)
               }
             }
           }
@@ -508,7 +518,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
                 
                 // Keep video visible when receiving data
                 if (videoRef.current && videoIsPlayingRef.current) {
-                  videoRef.current.style.opacity = '1'
+                  // Video is receiving data - content will show over background
                 }
               }
               lastBytesReceivedRef.current = report.bytesReceived
@@ -554,6 +564,9 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           })
         }
 
+        // Start muted to comply with autoplay policies
+        video.muted = true
+        
         // Intentar reproducir
         await video.play()
         Logger.info('Video reproduciendo correctamente')
@@ -632,21 +645,18 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
 
           videoRef.current.onplaying = () => {
             Logger.info('Video reproduciendo')
-            // Only now show the video and hide the static image
+            // Mark that video content is playing (background will be hidden by video content)
             setIsVideoPlaying(true)
-            if (videoRef.current) {
-              videoRef.current.style.opacity = '1'
-            }
           }
 
           videoRef.current.onwaiting = () => {
             Logger.debug('Video buffering')
-            // Don't hide the video when buffering, keep it visible
+            // Keep video visible when buffering
           }
 
           videoRef.current.onstalled = () => {
             Logger.debug('Video stalled')
-            // Keep video visible even when stalled
+            // Keep video visible when stalled
           }
 
           videoRef.current.onseeking = () => {
@@ -764,31 +774,19 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", bounce: 0.4, duration: 0.7 }}
+          transition={{ type: "tween", duration: 0.6, ease: "easeOut" }}
           className="relative h-[95%] flex items-center justify-center"
         >
-          {/* Imagen por defecto antes de que cargue el avatar */}
-          {!isVideoPlaying && (
-            <motion.img
-              src="/nova-assistant-full.png"
-              alt="Avatar por defecto"
-              className="h-[95%] w-auto object-contain object-bottom mt-auto bg-white"
-              style={{ position: 'absolute', left: 0, right: 0, bottom: 0, margin: 'auto' }}
-              initial={{ opacity: 1 }}
-              animate={{ opacity: !isVideoPlaying ? 1 : 0 }}
-              transition={{ duration: 0.3 }}
-            />
-          )}
-          
-          {/* Video with custom styling to hide loading indicators */}
+          {/* Video with background image that shows when no video content is playing */}
           <video
             ref={videoRef}
-            className={`video-no-controls video-smooth-transition h-[95%] w-auto object-contain object-bottom mt-auto ${!isVideoPlaying ? "opacity-0 absolute" : "opacity-100 relative"}`}
+            className="video-no-controls video-smooth-transition h-[95%] w-auto object-contain object-bottom mt-auto"
             playsInline
-            muted={false}
+            muted={true}
             preload="metadata"
+            autoPlay
             style={{ 
-              opacity: isVideoPlaying ? 1 : 0,
+              opacity: 1, // Always visible
               visibility: 'visible',
               display: 'block',
               background: 'transparent',
@@ -807,13 +805,33 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
               Logger.info('Video metadata cargada')
               console.log('Video dimensions:', videoRef.current?.videoWidth, 'x', videoRef.current?.videoHeight)
             }}
-            onCanPlay={() => {
+            onCanPlay={async () => {
               Logger.info('Video listo para reproducir')
               console.log('Video can play - duration:', videoRef.current?.duration)
+              
+              // Try to play the video automatically when it's ready
+              if (videoRef.current) {
+                try {
+                  await videoRef.current.play()
+                  Logger.info('Video iniciado automáticamente')
+                  
+                  // Unmute after a short delay if playback is successful
+                  setTimeout(() => {
+                    if (videoRef.current && !videoRef.current.paused) {
+                      videoRef.current.muted = false
+                      Logger.info('Video desmutado tras inicio exitoso')
+                    }
+                  }, 1000)
+                } catch (playError) {
+                  Logger.warn('No se pudo iniciar video automáticamente (esperado en algunos navegadores):', playError)
+                  // This is expected behavior in many browsers, not a real error
+                }
+              }
             }}
             onPlaying={() => {
               Logger.info('Video reproduciendo')
               console.log('Video is now playing')
+              setIsVideoPlaying(true)
             }}
             onPause={() => Logger.info('Video pausado')}
             onEnded={() => Logger.info('Video finalizado')}
@@ -829,33 +847,6 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
               // Don't change opacity when buffering
             }}
           />
-          {/* Imagen por defecto antes de que el usuario interactúe 
-          {!hasUserInteracted && (
-            <img
-              src="/avatar-did.png"
-              alt="Avatar por defecto"
-              className="h-[80%] w-auto object-contain transition-opacity duration-300"
-              style={{ position: 'absolute', left: 0, right: 0, margin: 'auto' }}
-            />
-          )}
-          
-          * Video solo se muestra después de la interacción del usuario 
-          {hasUserInteracted && (
-            <video
-              ref={videoRef}
-              className={`h-[80%] w-auto object-contain transition-opacity duration-300 ${!isStreamReady ? "opacity-0 absolute" : "opacity-100 relative"}`}
-              autoPlay
-              playsInline
-              muted={false}
-              onError={(e) => Logger.error('Error en video', e)}
-              onLoadedMetadata={() => Logger.info('Video metadata cargada')}
-              onCanPlay={() => Logger.info('Video listo para reproducir')}
-              onPlaying={() => Logger.info('Video reproduciendo')}
-              onPause={() => Logger.info('Video pausado')}
-              onEnded={() => Logger.info('Video finalizado')}
-            />
-          )}
-        */}
         </motion.div>
       </div>
     )
