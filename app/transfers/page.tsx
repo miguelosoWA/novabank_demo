@@ -1,123 +1,104 @@
 "use client"
 
-import { useState } from "react"
-import { Banknote, Send, User, ChevronLeft } from "lucide-react"
+import { Suspense } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { BackButton } from "@/components/navigation/back-button"
+import { Shield, Clock, ArrowRight } from "lucide-react"
+import { useRouter } from "next/navigation"
 
-const accounts = [
-  { id: 1, name: "Cuenta Corriente", number: "1234 5678 9012 3456", balance: 18500.75, currency: "MXN" },
-  { id: 2, name: "Cuenta de Ahorro", number: "9876 5432 1098 7654", balance: 32000.0, currency: "MXN" },
-]
+// Client component that uses useSearchParams
+const TransfersContent = () => {
+  const router = useRouter()
 
-export default function TransfersPage() {
-  const [fromAccount, setFromAccount] = useState(accounts[0].id)
-  const [toAccount, setToAccount] = useState("")
-  const [amount, setAmount] = useState("")
-  const [concept, setConcept] = useState("")
-  const [success, setSuccess] = useState(false)
-  const [error, setError] = useState("")
-
-  const handleTransfer = (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-    if (!toAccount || !amount || isNaN(Number(amount)) || Number(amount) <= 0) {
-      setError("Por favor, ingresa una cuenta destino y un monto válido.")
-      return
-    }
-    setSuccess(true)
+  const handleContinue = () => {
+    router.push('/transfers/confirmation')
   }
 
   return (
-    <div className="space-y-8 px-4 md:px-6 lg:px-8 pb-16 md:pb-20 max-w-screen-md mx-auto">
-      {/* Botón regresar */}
-      <div className="pt-6">
-        <BackButton label="Regresar al inicio" destination="/dashboard" />
+    <div className="px-2 py-6">
+      <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-4 rounded-t-2xl">
+        <h1 className="text-xl font-semibold text-center">Transferencias</h1>
       </div>
 
-      {/* Header visual */}
-      <div className="flex flex-col items-center text-center gap-2">
-        <div className="bg-gradient-to-r from-indigo-500 to-blue-600 rounded-full p-4 mb-2 shadow-lg">
-          <Send className="w-8 h-8 text-white" />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+        {/* Límites de Transferencia */}
+        <div className="bg-blue-50 rounded-lg p-4">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2 bg-blue-100 rounded-full">
+              <Shield className="h-6 w-6 text-blue-600" />
+            </div>
+            <span className="text-base text-blue-900 font-medium">Límites de Transferencia</span>
+          </div>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center p-2 bg-white rounded-lg">
+              <span className="text-gray-600">Límite Diario</span>
+              <span className="font-semibold text-gray-900">$10,000,000 COP</span>
+            </div>
+            <div className="flex justify-between items-center p-2 bg-white rounded-lg">
+              <span className="text-gray-600">Límite Mensual</span>
+              <span className="font-semibold text-gray-900">$50,000,000 COP</span>
+            </div>
+            <div className="flex justify-between items-center p-2 bg-white rounded-lg">
+              <span className="text-gray-600">Mínimo por Transacción</span>
+              <span className="font-semibold text-gray-900">$10,000 COP</span>
+            </div>
+            <div className="flex justify-between items-center p-2 bg-white rounded-lg">
+              <span className="text-gray-600">Máximo por Transacción</span>
+              <span className="font-semibold text-gray-900">$5,000,000 COP</span>
+            </div>
+          </div>
         </div>
-        <h1 className="text-2xl md:text-3xl font-bold text-[#1C3B5A]">Transferencias</h1>
-        <p className="text-gray-600 max-w-md">Envía dinero de forma rápida y segura a cualquier cuenta.</p>
+
+        {/* Información Importante */}
+        <div className="bg-yellow-50 rounded-lg p-4">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2 bg-yellow-100 rounded-full">
+              <Clock className="h-6 w-6 text-yellow-600" />
+            </div>
+            <span className="text-base text-yellow-900 font-medium">Información Importante</span>
+          </div>
+          <div className="space-y-2">
+            <div className="p-3 bg-white rounded-lg">
+              <h3 className="font-semibold text-yellow-900 mb-1 text-sm">Horarios de Procesamiento</h3>
+              <p className="text-yellow-800 text-sm">Las transferencias se procesan en horario bancario de lunes a viernes.</p>
+            </div>
+            <div className="p-3 bg-white rounded-lg">
+              <h3 className="font-semibold text-yellow-900 mb-1 text-sm">Tiempo de Procesamiento</h3>
+              <p className="text-yellow-800 text-sm">Las transferencias pueden tomar hasta 24 horas hábiles.</p>
+            </div>
+            <div className="p-3 bg-white rounded-lg">
+              <h3 className="font-semibold text-yellow-900 mb-1 text-sm">Comisiones</h3>
+              <p className="text-yellow-800 text-sm">Consulta las comisiones aplicables según el tipo de transferencia.</p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Formulario de transferencia */}
-      {!success ? (
-        <form onSubmit={handleTransfer} className="bg-white rounded-2xl shadow-md p-6 space-y-6 max-w-lg mx-auto">
-          <div>
-            <label className="block text-sm font-medium text-[#1C3B5A] mb-1">Cuenta de origen</label>
-            <select
-              className="w-full border rounded-lg p-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              value={fromAccount}
-              onChange={e => setFromAccount(Number(e.target.value))}
-            >
-              {accounts.map(acc => (
-                <option key={acc.id} value={acc.id}>
-                  {acc.name} ({acc.number.slice(-4)}) - {acc.balance.toLocaleString("es-MX", { style: "currency", currency: acc.currency })}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-[#1C3B5A] mb-1">Cuenta destino</label>
-            <div className="relative">
-              <Input
-                type="text"
-                placeholder="Número de cuenta o CLABE"
-                value={toAccount}
-                onChange={e => setToAccount(e.target.value)}
-                className="pl-10"
-              />
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-[#1C3B5A] mb-1">Monto</label>
-            <div className="relative">
-              <Input
-                type="number"
-                min="1"
-                step="0.01"
-                placeholder="0.00"
-                value={amount}
-                onChange={e => setAmount(e.target.value)}
-                className="pl-10"
-              />
-              <Banknote className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-[#1C3B5A] mb-1">Concepto (opcional)</label>
-            <Input
-              type="text"
-              placeholder="Ej. Renta, regalo, pago..."
-              value={concept}
-              onChange={e => setConcept(e.target.value)}
-            />
-          </div>
-          {error && <div className="text-red-600 text-sm text-center">{error}</div>}
-          <Button
-            type="submit"
-            size="lg"
-            className="w-full bg-gradient-to-r from-indigo-500 to-blue-600 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:scale-105 transition-all mt-2"
-          >
-            Transferir
-          </Button>
-        </form>
-      ) : (
-        <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col items-center gap-4 max-w-lg mx-auto">
-          <div className="bg-green-100 rounded-full p-4 mb-2">
-            <Send className="w-8 h-8 text-green-600" />
-          </div>
-          <h2 className="text-2xl font-bold text-green-700 mb-2">¡Transferencia exitosa!</h2>
-          <p className="text-gray-700">Tu dinero ha sido enviado correctamente.</p>
-          <Button onClick={() => { setSuccess(false); setToAccount(""); setAmount(""); setConcept(""); }} className="mt-4">Realizar otra transferencia</Button>
-        </div>
-      )}
+      {/* Botón de Continuar */}
+      <div className="mt-8 flex justify-center">
+        <Button
+          onClick={handleContinue}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 rounded-xl text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
+        >
+          Continuar con la transferencia
+          <ArrowRight className="h-5 w-5" />
+        </Button>
+      </div>
+
+      {/* Mensaje de Seguridad */}
+      <div className="mt-8 text-center text-gray-600 flex items-center justify-center gap-2">
+        <Shield className="h-5 w-5 text-green-600" />
+        <p>Todas las transferencias están protegidas con los más altos estándares de seguridad</p>
+      </div>
     </div>
+  )
+}
+
+// Main page component
+export default function TransfersPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <TransfersContent />
+    </Suspense>
   )
 }

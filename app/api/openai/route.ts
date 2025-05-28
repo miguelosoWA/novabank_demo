@@ -13,7 +13,7 @@ const openai = new OpenAI({
 
 const schema = z.object({
   text: z.string(),
-  page: z.enum(["dashboard", "recommendations", "cdt", "fic", "investments"]),
+  page: z.enum(["dashboard", "recommendations", "cdt", "fic", "investments", "transfers", "credit-card"]),
   reason: z.string(),
 });
 
@@ -45,8 +45,34 @@ const SYSTEM_PROMPT = `Actúa como un asistente bancario virtual dentro de la ap
 
 5. Si el usuario pregunta cómo puede entrar a un Fondo de Inversión Colectiva, responde con:
 {
-  "mensaje": "Yo puedo ayudarte con eso. Este es un formulario pre-llenado con tus datos. Solo necesitas revisarlo y confirmar para vincularte.",
+  "mensaje": "¡Por supuesto! Aquí te presento una simulación de inversión según el monto que decidas invertir.",
   "page": "investments"
+}
+
+4. Si el usuario solicita información sobre realizar una transferencia, responde con:
+{
+  "mensaje": "¡Hola! Soy Sofia. 
+              Para ayudarte con tu transferencia, necesito algunos datos:
+              Primero, ¿a qué cuenta quieres transferir?
+              Segundo, ¿qué monto deseas transferir?
+              Y por último, ¿deseas agregar alguna descripción a la transferencia?",
+  "page": "transfers",
+  "reason": "transferencia"
+}
+
+5. Si el usuario solicita información para adquirir una tarjeta de crédito, responde con:
+{
+  "mensaje": "¡Hola! Soy Sofia. De acuerdo a tu perfil, te puedo ofrecer una tarjeta de crédito con las siguientes características:
+              - Límite de crédito: $5 millones
+              - Cashback: 2% de tus compras
+              - Seguro de compras y viajes
+              - Programa de recompensas
+              Para ayudarte con tu tarjeta de crédito, necesito algunos datos:
+              Primero, ¿cuál es tu ingreso mensual?
+              Segundo, ¿cuántos años has trabajado en tu empleo actual?
+              Y por último, ¿cuál es tu situación laboral? (empleado, independiente o empresario)",
+  "page": "credit-card",
+  "reason": "tarjeta de crédito"
 }
 
 6. Si la solicitud del usuario no encaja con ninguno de los casos anteriores:
@@ -55,7 +81,8 @@ const SYSTEM_PROMPT = `Actúa como un asistente bancario virtual dentro de la ap
    - Devuelve la respuesta con:
 {
   "mensaje": [respuesta relevante generada],
-  "page": "dashboard"
+  "page": "dashboard",
+  "reason": "otro"
 }
 
 El tono debe ser profesional, cordial y personalizado para Carlos.

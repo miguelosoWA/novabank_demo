@@ -3,7 +3,9 @@
 import { useState, useRef, useEffect } from "react"
 import { StreamingAgent } from "./streaming-agent"
 import { VoiceRecognition } from "./voice-recognition"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
+import { useTransferStore } from '@/lib/store/transfer-store'
+import { useCreditCardStore } from '@/lib/store/credit-card-store'
 
 // Logger utility
 const Logger = {
@@ -30,7 +32,12 @@ export function VirtualAgent() {
   const [connectionState, setConnectionState] = useState<'connecting' | 'connected' | 'error' | 'disconnected'>('disconnected')
   const streamingAgentRef = useRef<{ sendMessage: (text: string) => void }>(null)
   const router = useRouter()
+  const pathname = usePathname()
   const isMountedRef = useRef(true)
+  const isTransfersPage = pathname === '/transfers'
+  const isCreditCardPage = pathname === '/credit-card'
+  const setTransferData = useTransferStore((state) => state.setTransferData)
+  const setCreditCardData = useCreditCardStore((state) => state.setCreditCardData)
 
   const handleStreamReady = () => {
     if (!isMountedRef.current) return
@@ -73,19 +80,24 @@ export function VirtualAgent() {
     if (!isMountedRef.current) return
     
     try {
-      Logger.info('Transcripción recibida', { text })
+      Logger.info('Transcripción recibida', text)
 
       // Enviar la transcripción a OpenAI
       Logger.debug('Enviando transcripción a OpenAI')
-      const openaiResponse = await fetch('/api/openai', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          text: text
-        })
-      })
+      const openaiResponse = await fetch(
+        isTransfersPage ? '/api/openai/transfers' : 
+        isCreditCardPage ? '/api/openai/credit-card' : 
+        '/api/openai', 
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            text: text
+          })
+        }
+      )
 
       if (!openaiResponse.ok) {
         const errorText = await openaiResponse.text()
@@ -101,21 +113,26 @@ export function VirtualAgent() {
 
       // Enviar respuesta al avatar
       if (result.response && streamingAgentRef.current && isMountedRef.current) {
-        const { text: responseText, page, reason } = result.response
-        
-        Logger.debug('Enviando respuesta al avatar', { 
-          text: responseText,
-          page,
-          reason
-        })
-
-        // Enviar el texto al avatar
-        streamingAgentRef.current.sendMessage(responseText)
+        if (isTransfersPage) {
+          // Guardar los datos de la transferencia en el store
+          setTransferData(result.response)
+          // Enviar solo el mensaje de respuesta al avatar
+          streamingAgentRef.current.sendMessage(result.response.response)
+          router.push('/transfers/confirmation')
+        } else if (isCreditCardPage) {
+          // Guardar los datos de la tarjeta de crédito en el store
+          setCreditCardData(result.response)
+          // Enviar solo el mensaje de respuesta al avatar
+          streamingAgentRef.current.sendMessage(result.response.response)
+          router.push('/credit-card/confirmation')
+        } else {
+          const { text: responseText, page, reason } = result.response
+          streamingAgentRef.current.sendMessage(responseText)
+          if (page) {
+            router.push(`/${page}`)
+          }
+        }
         Logger.success('Respuesta enviada al avatar')
-
-        // Navegar a la página correspondiente
-        Logger.info('Navegando a página', { page, reason })
-        router.push(`/${page}`)
       } else {
         Logger.warn('Respuesta de OpenAI sin datos esperados', { result })
       }

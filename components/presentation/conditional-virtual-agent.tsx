@@ -5,12 +5,25 @@ import type React from "react"
 import { usePathname } from "next/navigation"
 import { VirtualAgent } from "./virtual-agent"
 
+// Lista de rutas donde NO queremos mostrar el agente virtual
+const EXCLUDED_ROUTES = [
+  "/login",
+  "/register",
+  "/about",
+]
+
 export function ConditionalVirtualAgent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const isAuthRoute = pathname.includes("/login")
+  
+  // Verificar si la ruta actual está en la lista de exclusiones
+  const shouldShowVirtualAgent = !EXCLUDED_ROUTES.some(route => pathname.startsWith(route))
 
-  if (isAuthRoute) {
-    return <>{children}</>
+  if (!shouldShowVirtualAgent) {
+    return (
+      <div className="w-full h-full overflow-auto">
+        {children}
+      </div>
+    )
   }
 
   return (
