@@ -566,25 +566,19 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
         // Intentar reproducir
         await video.play()
         Logger.info('Video reproduciendo correctamente')
-      } catch (error) {
-        Logger.error('Error al reproducir video', error)
         
-        // Intentar reproducir sin sonido
-        try {
-          video.muted = true
-          await video.play()
-          Logger.info('Video reproduciendo sin sonido')
-          
-          // Intentar desmutear después de un tiempo
-          setTimeout(() => {
-            if (video) {
-              video.muted = false
-              Logger.info('Video desmutado')
-            }
-          }, 2000)
-        } catch (mutedError) {
-          Logger.error('Error al reproducir video (muted)', mutedError)
-        }
+        // Unmute after successful playback starts
+        setTimeout(() => {
+          if (video && !video.paused) {
+            video.muted = false
+            Logger.info('Video desmutado tras inicio exitoso')
+          }
+        }, 1000)
+        
+      } catch (error) {
+        Logger.warn('No se pudo iniciar video automáticamente (comportamiento esperado):', error)
+        // This is expected behavior in many browsers when there's no user interaction
+        // The video will start when the user interacts or when content is actually sent
       }
     }
 
