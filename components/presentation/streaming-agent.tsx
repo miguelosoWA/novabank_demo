@@ -33,8 +33,14 @@ export interface StreamingAgentRef {
 }
 
 const PRESENTER_TYPE = 'clip'
-const PRESENTER_ID = 'v2_public_alyssa_red_suite_green_screen@46XonMxLFm'
-const DRIVER_ID = 'LRjggU94ze'
+
+// Presenter Alyssa
+const PRESENTER_ID = 'v2_public_fiona_black_jacket_green_screen@477B7MX1Vf'
+const DRIVER_ID = 'o1UQHkgCxv'
+
+// Presenter Fiona
+// const PRESENTER_ID = 'v2_public_alyssa_red_suite_green_screen@46XonMxLFm'
+// const DRIVER_ID = 'LRjggU94ze'
 
 // const PRESENTER_ID = 'rian-pbMoTzs7an'
 // const DRIVER_ID = 'czarwf1D01'
