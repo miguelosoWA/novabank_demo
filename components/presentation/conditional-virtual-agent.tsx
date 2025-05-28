@@ -10,7 +10,7 @@ const EXCLUDED_ROUTES = [
   "/login",
   "/register",
   "/virtual-agent",
-  "/transfers",
+  "/transfers/confirmation",
   "/about",
 ]
 

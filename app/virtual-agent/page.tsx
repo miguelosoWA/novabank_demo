@@ -86,13 +86,13 @@ export default function VirtualAgent() {
       
       // Enviar respuesta al avatar
       if (result.response && streamingAgentRef.current) {
-        const { text: responseText } = result.response
+        const responseText = result.response.response
         
         // Enviar el texto al avatar
         streamingAgentRef.current.sendMessage(responseText)
 
         // Actualizar el formulario con la información recolectada
-        const openAIResponse = result as OpenAIResponse
+        const openAIResponse = result.response as OpenAIResponse
         
         // Actualizar solo los campos que vienen en la respuesta y son diferentes
         setFormData(prev => ({
