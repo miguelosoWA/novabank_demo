@@ -18,7 +18,7 @@ export default function InvestmentsPage() {
   // Updated state for the new form fields
   const [firstName, setFirstName] = useState("Carlos Alberto ")
   const [lastName, setLastName] = useState("Valderrama Palacio")
-  const [email, setEmail] = useState("carlos@sofka.com")
+  const [email, setEmail] = useState("carlos@sofka.com.co")
   const [amount, setAmount] = useState("25630000")
   const [password, setPassword] = useState("194839203")
   const [confirmPassword, setConfirmPassword] = useState("Ahorros") // Or derive from image context if needed
