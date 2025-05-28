@@ -2,228 +2,254 @@
 
 import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
-import { InvestmentSimulator } from "@/components/dashboard/investment-simulator"
-import { X, TrendingUp, Calendar, DollarSign, PiggyBank, HelpCircle, RefreshCw } from "lucide-react"
+// Remove InvestmentSimulator import as it's no longer used
+// import { InvestmentSimulator } from "@/components/dashboard/investment-simulator"
+import { X, TrendingUp, Calendar, DollarSign, PiggyBank, HelpCircle, RefreshCw, User, Mail, Lock, Phone, MapPin, Building, Hash } from "lucide-react" // Added new icons
 import { ChevronLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+// Navbar import might be kept or removed depending on final page structure, keeping for now
 import { Navbar } from "@/components/dashboard/navbar"
 
 export default function InvestmentsPage() {
   const router = useRouter()
-  const userName = "Carlos"
-  const [amount, setAmount] = useState("10000")
-  const [term, setTerm] = useState("12")
-  const [risk, setRisk] = useState("medium") // low, medium, high
+  // const userName = "Carlos" // Kept for potential use in the personalized message
+
+  // Updated state for the new form fields
+  const [firstName, setFirstName] = useState("Carlos Alberto ")
+  const [lastName, setLastName] = useState("Valderrama Palacio")
+  const [email, setEmail] = useState("carlos@sofka.com")
+  const [amount, setAmount] = useState("25630000")
+  const [password, setPassword] = useState("194839203")
+  const [confirmPassword, setConfirmPassword] = useState("Ahorros") // Or derive from image context if needed
+  const [phoneNumber, setPhoneNumber] = useState("312 541 8596") // Or derive from image context if needed
+
+  // Assuming the bottom three fields are City, State, Zip based on common form structures
+  const [city, setCity] = useState("Envigado")
+  const [state, setState] = useState("Antioquia")
+  const [address, setAddress] = useState("Cr 41 No. 40BS-09")
+
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [userActivity, setUserActivity] = useState<{
-    lastCalculation: number | null
-    viewedProducts: string[]
-    interactionCount: number
-  }>({
-    lastCalculation: null,
-    viewedProducts: [],
-    interactionCount: 0,
-  })
-  const [simulationCount, setSimulationCount] = useState(0)
-  const [showPersonalizedTip, setShowPersonalizedTip] = useState(false)
 
-  const calculateReturn = () => {
-    const principal = Number.parseFloat(amount) || 0
-    const months = Number.parseInt(term) || 0
-
-    // Different rates based on risk profile
-    const riskRates = {
-      low: 0.06, // 6% anual
-      medium: 0.095, // 9.5% anual
-      high: 0.14, // 14% anual
-    }
-
-    const annualRate = riskRates[risk as keyof typeof riskRates]
-    const monthlyRate = annualRate / 12
-
-    const futureValue = principal * Math.pow(1 + monthlyRate, months)
-    const interest = futureValue - principal
-
-    // Potential future value with additional contributions
-    const monthlyContribution = 1000
-    const futureValueWithContributions =
-      principal * Math.pow(1 + monthlyRate, months) +
-      monthlyContribution * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate)
-
-    return {
-      futureValue: futureValue.toFixed(2),
-      interest: interest.toFixed(2),
-      annualRate: (annualRate * 100).toFixed(2),
-      potentialValue: futureValueWithContributions.toFixed(2),
-    }
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    // Handle form submission logic here
+    console.log({
+      firstName,
+      lastName,
+      email,
+      amount,
+      password,
+      confirmPassword,
+      phoneNumber,
+      city,
+      state,
+      address,
+    })
+    setTimeout(() => setIsSubmitting(false), 2000) // Simulate API call
   }
 
-  const { futureValue, interest, annualRate, potentialValue } = calculateReturn()
+  // Helper function to format the amount for display
+  const formatAmountForDisplay = (numericString: string) => {
+    if (!numericString) return "";
+    const number = parseInt(numericString, 10);
+    if (isNaN(number)) {
+      return ""; // Or return numericString if you prefer to show the raw input on error
+    }
+    return new Intl.NumberFormat('es-MX', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(number);
+  };
+
+  // Handler for amount input change
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    const numericValue = inputValue.replace(/[^0-9]/g, ''); // Remove non-digits
+    setAmount(numericValue);
+  };
 
   return (
-    <div className="space-y-6 px-4 md:px-6 lg:px-8 pb-16 md:pb-20 max-w-screen-xl mx-auto">
-      <Navbar />
-      <div className="bg-white rounded-xl shadow-lg w-full max-w-2xl mx-auto">
-        <div className="flex items-center justify-between p-1 border-b">
-          <div className="flex items-center gap-1">
-            <h2 className="text-xl font-semibold text-[#1C3B5A]">Simulador de Inversión</h2>
-          </div>
-        </div>
+    <div className="space-y-6 px-1 md:px-6 lg:px-8 pb-16 md:pb-20 max-w-screen-xl mx-auto">
+      {/* Title can be adjusted if needed */}
+      <h2 className="text-xl font-semibold text-[#1C3B5A]">Formulario de Vinculación a Fondo de Inversión Colectiva.</h2>
 
-        <div className="p-6">
-          <div className="bg-[#f0f5fa] rounded-lg p-4 mb-6">
-            <p className="text-sm text-[#1C3B5A]">
-              <strong>{userName}</strong>, hemos personalizado este simulador basado en tu actividad reciente y perfil
-              financiero.
-            </p>
-          </div>
-
-          <form className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-[#1C3B5A] mb-2">Monto a invertir</label>
-              <div className="relative">
-                <DollarSign size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value.replace(/[^0-9]/g, ""))}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DEA742]"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-[#1C3B5A] mb-2">Plazo (meses)</label>
-              <div className="relative">
-                <Calendar size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                <select
-                  value={term}
-                  onChange={(e) => setTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DEA742] appearance-none bg-white"
-                >
-                  <option value="3">3 meses</option>
-                  <option value="6">6 meses</option>
-                  <option value="12">12 meses</option>
-                  <option value="24">24 meses</option>
-                  <option value="36">36 meses</option>
-                </select>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-[#1C3B5A] mb-2">Perfil de riesgo</label>
-              <div className="grid grid-cols-3 gap-3">
-                <button
-                  type="button"
-                  className={`flex flex-col items-center justify-center py-3 px-4 rounded-lg border ${
-                    risk === "low" ? "border-[#1C3B5A] bg-[#f0f5fa]" : "border-gray-200 hover:bg-gray-50"
-                  }`}
-                  onClick={() => setRisk("low")}
-                >
-                  <span className="text-sm font-medium">Bajo</span>
-                  <span className="text-xs text-gray-500">6% anual</span>
-                </button>
-                <button
-                  type="button"
-                  className={`flex flex-col items-center justify-center py-3 px-4 rounded-lg border ${
-                    risk === "medium" ? "border-[#1C3B5A] bg-[#f0f5fa]" : "border-gray-200 hover:bg-gray-50"
-                  }`}
-                  onClick={() => setRisk("medium")}
-                >
-                  <span className="text-sm font-medium">Medio</span>
-                  <span className="text-xs text-gray-500">9.5% anual</span>
-                </button>
-                <button
-                  type="button"
-                  className={`flex flex-col items-center justify-center py-3 px-4 rounded-lg border ${
-                    risk === "high" ? "border-[#1C3B5A] bg-[#f0f5fa]" : "border-gray-200 hover:bg-gray-50"
-                  }`}
-                  onClick={() => setRisk("high")}
-                >
-                  <span className="text-sm font-medium">Alto</span>
-                  <span className="text-xs text-gray-500">14% anual</span>
-                </button>
-              </div>
-            </div>
-
-            <Card className="bg-[#f0f5fa] border-0">
-              <CardContent className="p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500">Tasa anual:</span>
-                  <span className="text-sm font-medium text-[#1C3B5A]">{annualRate}%</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500">Interés estimado:</span>
-                  <span className="text-sm font-medium text-[#1C3B5A]">
-                    {new Intl.NumberFormat("es-MX", {
-                      style: "currency",
-                      currency: "MXN",
-                    }).format(Number.parseFloat(interest))}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500">Monto al vencimiento:</span>
-                  <span className="text-sm font-medium text-[#1C3B5A]">
-                    {new Intl.NumberFormat("es-MX", {
-                      style: "currency",
-                      currency: "MXN",
-                    }).format(Number.parseFloat(futureValue))}
-                  </span>
-                </div>
-
-                <div className="pt-3 border-t border-gray-200 mt-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center text-sm text-gray-500">
-                      <span>Potencial con aportaciones mensuales</span>
-                      <HelpCircle size={14} className="ml-1 text-gray-400" />
-                    </div>
-                    <span className="text-sm font-medium text-green-600">
-                      {new Intl.NumberFormat("es-MX", {
-                        style: "currency",
-                        currency: "MXN",
-                      }).format(Number.parseFloat(potentialValue))}
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {showPersonalizedTip && (
-              <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <HelpCircle size={16} className="text-blue-400" />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className="flex items-center gap-3">
-              <Button
-                type="submit"
-                fullWidth
-                isLoading={isSubmitting}
-                leftIcon={isSubmitting ? undefined : <RefreshCw size={16} />}
-              >
-                {isSubmitting ? "Simulando..." : "Calcular rendimiento"}
-              </Button>
-            </div>
-
-            <div className="flex justify-center">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="text-[#1C3B5A] hover:text-[#DEA742] mt-2 text-sm"
-                leftIcon={<PiggyBank size={16} />}
-              >
-                Invertir ahora
-              </Button>
-            </div>
-          </form>
-        </div>
+      {/* Personalized message div can be kept or removed */}
+      {/*
+      <div className="bg-[#f0f5fa] rounded-lg p-4 mb-6">
+        <p className="text-sm text-[#1C3B5A]">
+          <strong>{userName}</strong>, welcome. Please fill out your details.
+        </p>
       </div>
+      */}
+
+      <form onSubmit={handleSubmit} className="space-y-6 bg-white p-0 md:p-8 rounded-lg">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">Nombres</label>
+            <div className="relative">
+              <User size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                id="firstName"
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DEA742] focus:border-[#DEA742]"
+                required
+              />
+            </div>
+          </div>
+          <div>
+            <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">Apellidos</label>
+            <div className="relative">
+              <User size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                id="lastName"
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DEA742] focus:border-[#DEA742]"
+                required
+              />
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">Monto a Invertir</label>
+          <div className="relative">
+            <DollarSign size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              id="amount"
+              type="text"
+              value={amount ? formatAmountForDisplay(amount) : ""}
+              onChange={handleAmountChange}
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DEA742] focus:border-[#DEA742]"
+              placeholder="0"
+              required
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">No. de Cuenta</label>
+            <div className="relative">
+              <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                id="password"
+                type="text"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DEA742] focus:border-[#DEA742]"
+                required
+              />
+            </div>
+          </div>
+          <div>
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">Tipo de Cuenta</label>
+            <div className="relative">
+              <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                id="confirmPassword"
+                type="text"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DEA742] focus:border-[#DEA742]"
+                required
+              />
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico</label>
+          <div className="relative">
+            <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DEA742] focus:border-[#DEA742]"
+              required
+            />
+          </div>
+        </div>
+
+        <div>
+          <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
+          <div className="relative">
+            <MapPin size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              id="address"
+              type="text"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DEA742] focus:border-[#DEA742]"
+            />
+          </div>
+        </div>
+
+        {/* Assuming the next set of fields are for address details */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            {/* Label changed from "First Name" to "City" for clarity */}
+            <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">Ciudad</label>
+            <div className="relative">
+              <MapPin size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                id="city"
+                type="text"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DEA742] focus:border-[#DEA742]"
+              />
+            </div>
+          </div>
+          <div>
+            {/* Label changed from "Last Name" to "State/Province" for clarity */}
+            <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">Departamento/Provincia</label>
+            <div className="relative">
+              <Building size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                id="state"
+                type="text"
+                value={state}
+                onChange={(e) => setState(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DEA742] focus:border-[#DEA742]"
+              />
+            </div>
+          </div>
+        </div>
+        
+        <div>
+          {/* Label changed from "Email Address" to "Zip Code" for clarity */}
+          <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 mb-1">Número de Teléfono</label>
+          <div className="relative">
+            <Phone size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              id="phoneNumber"
+              type="tel"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DEA742] focus:border-[#DEA742]"
+            />
+          </div>
+        </div>
+        
+        <div className="flex items-center justify-center pt-4">
+          <Button
+            type="submit"
+            className="bg-[#1C3B5A] hover:bg-[#DEA742] text-white font-semibold py-3 px-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#DEA742]"
+            isLoading={isSubmitting}
+            // Removed leftIcon, button text will change based on isSubmitting
+          >
+            {isSubmitting ? "Enviando..." : "Confirmar y Enviar"}
+          </Button>
+        </div>
+      </form>
     </div>
   )
 }

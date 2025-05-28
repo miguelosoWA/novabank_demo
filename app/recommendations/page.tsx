@@ -128,8 +128,8 @@ export default function Dashboard() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <OpportunityCard
-                title="Maximiza tus ahorros"
-                description="Descubre nuestro nuevo Depósito a Plazo con tasa preferencial para ti."
+                title="Certificado de Deposito a Termino (CDT)"
+                description=""
                 cta=""
                 icon={<TrendingUp size={20} className="text-[#1C3B5A]" />}
                 onClick={() => {
@@ -139,8 +139,8 @@ export default function Dashboard() {
               />
 
               <OpportunityCard
-                title="Estrategias para hacer crecer tu dinero"
-                description="3 estrategias para hacer crecer tu dinero en 2025."
+                title="Fondo de Inversión Colectiva (FIC)"
+                description=""
                 cta=""
                 icon={<BookOpen size={20} className="text-[#1C3B5A]" />}
                 onClick={() => {
@@ -149,103 +149,22 @@ export default function Dashboard() {
                 }}
               />
 
-              <Card className="bg-gradient-to-r from-[#1C3B5A] to-[#2a5580] text-white">
-              <CardContent className="p-2">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
-                    <PiggyBank size={20} className="text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold">Inversión identificada</h3>
-                    <p className="text-sm text-white/80">Basada en tu perfil</p>
-                  </div>
-                </div>
+              <OpportunityCard
+                title="Cuenta AFC"
+                description=""
+                cta=""
+                icon={<BookOpen size={20} className="text-[#1C3B5A]" />}
+                onClick={() => {
+                  window.alert("Abriendo artículo...")
+                  trackInteraction("click", "opportunity_card_article")
+                }}
+              />
 
-                <p className="text-sm mb-4">
-                  Hemos identificado una opción de inversión que podría interesarte basada en tu comportamiento
-                  financiero.
-                </p>
-
-                <div className="mt-4"></div>
-              </CardContent>
-            </Card>
             </div>
           </div>
         </div>
 
-        {/* Tarjetas de cuentas - Ahora tercero */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <AccountCard
-            type="savings"
-            name="Cuenta de Ahorros"
-            number="4552 **** **** 7895"
-            balance={userActivity.financialContext.availableBalance}
-          />
-
-          <AccountCard type="credit" name="Tarjeta Oro" number="5412 **** **** 3456" balance={12500.75} limit={50000} />
-        </div>
-
-        {/* Sección de transacciones y resumen - Sigue siendo último */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <TransactionList transactions={transactions} />
-          </div>
-
-          <div className="space-y-4">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Resumen financiero</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-500">Ingresos (Mayo)</span>
-                    <span className="text-sm font-medium text-[#1C3B5A]">$15,000.00</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-500">Gastos (Mayo)</span>
-                    <span className="text-sm font-medium text-[#1C3B5A]">$14,836.25</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-500">Balance</span>
-                    <span className="text-sm font-medium text-green-600">+$163.75</span>
-                  </div>
-                </div>
-
-                <div className="mt-4">
-                  <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <div className="h-full bg-[#DEA742]" style={{ width: "98.9%" }} />
-                  </div>
-                  <div className="flex justify-between mt-1">
-                    <span className="text-xs text-gray-500">0%</span>
-                    <span className="text-xs text-gray-500">100%</span>
-                  </div>
-                </div>
-
-                <div className="mt-4"></div>
-              </CardContent>
-            </Card>
-
-            
-          </div>
-        </div>
       </main>
-
-      {/* Notificación contextual */}
-      {/* {showNotification && (
-        <ContextualNotification
-          message="Carlos, tenemos una estrategia de inversión que podría interesarte basada en tu actividad reciente."
-          onDismiss={() => {
-            setShowNotification(false)
-            trackInteraction("dismiss", "contextual_notification")
-          }}
-          onAction={() => {
-            setShowNotification(false)
-            setIsInvestmentSimulatorOpen(true)
-            trackInteraction("click", "contextual_notification")
-          }}
-        />
-      )} */}
 
     </>
   )
