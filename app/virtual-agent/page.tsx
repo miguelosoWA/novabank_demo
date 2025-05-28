@@ -17,13 +17,13 @@ interface FormData {
   phone: string
   monthlyIncome: string
   employmentStatus: string
-  yearsEmployed: string
+  timeEmployed: string
 }
 
 interface OpenAIResponse {
   monthlyIncome?: number
   employmentStatus?: "empleado" | "independiente" | "empresario"
-  yearsEmployed?: number
+  timeEmployed?: number
   response: string
 }
 
@@ -38,7 +38,7 @@ export default function VirtualAgent() {
     phone: "+57 3173808475",
     monthlyIncome: "",
     employmentStatus: "",
-    yearsEmployed: ""
+    timeEmployed: ""
   })
   const streamingAgentRef = useRef<{ sendMessage: (text: string) => void }>(null)
   const [isStreamReady, setIsStreamReady] = useState(false)
@@ -104,9 +104,9 @@ export default function VirtualAgent() {
               openAIResponse.employmentStatus !== prev.employmentStatus && {
             employmentStatus: openAIResponse.employmentStatus
           }),
-          ...(openAIResponse.yearsEmployed !== undefined && 
-              openAIResponse.yearsEmployed.toString() !== prev.yearsEmployed && {
-            yearsEmployed: openAIResponse.yearsEmployed.toString()
+          ...(openAIResponse.timeEmployed !== undefined && 
+              openAIResponse.timeEmployed.toString() !== prev.timeEmployed && {
+            timeEmployed: openAIResponse.timeEmployed.toString()
           })
         }))
       }
@@ -129,7 +129,7 @@ export default function VirtualAgent() {
     }
   }
 
-  const isFormComplete = formData.monthlyIncome && formData.employmentStatus && formData.yearsEmployed
+  const isFormComplete = formData.monthlyIncome && formData.employmentStatus && formData.timeEmployed
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
@@ -236,12 +236,12 @@ export default function VirtualAgent() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="yearsEmployed">Años en el empleo actual</Label>
+                  <Label htmlFor="timeEmployed">Tiempo en el empleo actual</Label>
                   <Input
-                    id="yearsEmployed"
+                    id="timeEmployed"
                     type="number"
-                    value={formData.yearsEmployed}
-                    onChange={(e) => setFormData(prev => ({ ...prev, yearsEmployed: e.target.value }))}
+                    value={formData.timeEmployed}
+                    onChange={(e) => setFormData(prev => ({ ...prev, timeEmployed: e.target.value }))}
                     placeholder="Ingrese los años en su empleo actual"
                   />
                 </div>

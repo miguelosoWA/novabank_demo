@@ -9,14 +9,14 @@ import { CheckCircle2, DollarSign, Briefcase, Calendar } from "lucide-react"
 
 export default function CreditCardConfirmationPage() {
   const router = useRouter()
-  const { monthlyIncome, employmentStatus, yearsEmployed, response, resetCreditCardData } = useCreditCardStore()
+  const { monthlyIncome, employmentStatus, timeEmployed, response, resetCreditCardData } = useCreditCardStore()
 
   // Redirigir si no hay datos
   useEffect(() => {
-    if (!monthlyIncome && !employmentStatus && !yearsEmployed) {
+    if (!monthlyIncome && !employmentStatus && !timeEmployed) {
       router.push('/credit-card')
     }
-  }, [monthlyIncome, employmentStatus, yearsEmployed, router])
+  }, [monthlyIncome, employmentStatus, timeEmployed, router])
 
   const handleReturnToDashboard = () => {
     resetCreditCardData()
@@ -61,12 +61,8 @@ export default function CreditCardConfirmationPage() {
                 <Calendar className="h-5 w-5 text-blue-600 mt-1" />
                 <div>
                   <h3 className="font-semibold">Años de Experiencia</h3>
-                  <p className="text-gray-600">{yearsEmployed} años</p>
+                  <p className="text-gray-600">{timeEmployed} años</p>
                 </div>
-              </div>
-
-              <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                <p className="text-blue-800">{response}</p>
               </div>
 
               <div className="mt-6">
@@ -74,7 +70,7 @@ export default function CreditCardConfirmationPage() {
                   onClick={handleReturnToDashboard}
                   className="w-full bg-blue-600 hover:bg-blue-700"
                 >
-                  Volver al Dashboard
+                  Confirmar Solicitud
                 </Button>
               </div>
             </div>

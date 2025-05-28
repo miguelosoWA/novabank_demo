@@ -15,7 +15,7 @@ const openai = new OpenAI({
 const schema = z.object({
     monthlyIncome: z.number(),
     employmentStatus: z.enum(["empleado", "independiente", "empresario"]),
-    yearsEmployed: z.number(),
+    timeEmployed: z.number(),
     response: z.string(),
 });
 
@@ -28,17 +28,16 @@ export async function POST(request: Request) {
     Debes recoletar la siguiente información:
     4. Ingreso mensual
     5. Situación laboral (empleado, independiente o empresario)
-    6. Años en el empleo actual
+    6. Tiempo en el empleo actual
     
     Mantén un tono conversacional y asegúrate de validar la información proporcionada.
-    Si el usuario no proporciona la información correcta, pide amablemente que la repita.
     Cuando hayas recolectado toda la información, agradece al usuario y confirma que su solicitud será procesada.
     
     El formato de la respuesta debe ser el siguiente:
     {
       "monthlyIncome": 1000000,
       "employmentStatus": "empleado",
-      "yearsEmployed": 5,
+      "timeEmployed": 5,
       "response": "¡Gracias por proporcionar la información! Su solicitud será procesada en breve."
     }`;
     
