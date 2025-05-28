@@ -9,8 +9,6 @@ import { VirtualAgent } from "./virtual-agent"
 const EXCLUDED_ROUTES = [
   "/login",
   "/register",
-  "/virtual-agent",
-  "/transfers/confirmation",
   "/about",
 ]
 

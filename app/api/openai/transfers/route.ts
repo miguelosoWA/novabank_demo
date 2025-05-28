@@ -22,7 +22,10 @@ const schema = z.object({
 export async function POST(request: Request) {
 
     try {
-        const { text, context } = await request.json();
+        
+        const {text}  = await request.json();
+
+        console.log('Texto recibido:', text);
 
         const systemPrompt =`Eres un asistente virtual especializado en transferencias bancarias.
         Tu objetivo es recolectar la información necesaria del usuario de manera amigable y profesional.
@@ -49,6 +52,8 @@ export async function POST(request: Request) {
             input: [{ role: "system", content: systemPrompt }, { role: "user", content: text }],
             text: { format: zodTextFormat(schema, "response") }
         });
+
+        console.log('Respuesta de OpenAI:', response);
 
         if (!response.output_parsed) {
             throw new Error('No se recibió respuesta de OpenAI');

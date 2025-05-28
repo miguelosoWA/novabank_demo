@@ -1,109 +1,152 @@
 "use client"
 
-import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { CreditCard, Shield, Gift, Percent, Mic } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { CreditCard, Shield, Gift, Clock, CheckCircle2 } from "lucide-react"
 
-export default function CreditCardApplication() {
-  const router = useRouter()
-  const [isStarting, setIsStarting] = useState(false)
+interface UserCreditCard {
+  id: string
+  name: string
+  number: string
+  limit: number
+  available: number
+  dueDate: string
+  status: 'active' | 'pending'
+}
 
-  const handleStartApplication = () => {
-    setIsStarting(true)
-    // Redirigir al agente virtual
-    router.push("/virtual-agent?context=credit-card-application")
+const userCards: UserCreditCard[] = [
+  {
+    id: "1",
+    name: "Tarjeta Clásica",
+    number: "**** **** **** 1234",
+    limit: 5000000,
+    available: 3500000,
+    dueDate: "15/03/2024",
+    status: 'active'
+  },
+  {
+    id: "2",
+    name: "Tarjeta Gold",
+    number: "**** **** **** 5678",
+    limit: 10000000,
+    available: 7500000,
+    dueDate: "20/03/2024",
+    status: 'active'
   }
+]
 
+export default function CreditCardPage() {
   return (
-    <main className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-[#1C3B5A] mb-8">Solicita tu Tarjeta de Crédito</h1>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Sección principal con botón de inicio */}
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Inicia tu Solicitud</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col items-center justify-center py-12 space-y-6">
-              
-              <Button 
-                onClick={handleStartApplication}
-                disabled={isStarting}
-                className="w-full max-w-md bg-[#1C3B5A] hover:bg-[#2C4B6A] h-14 text-lg"
-              >
-                {isStarting ? (
-                  "Iniciando..."
-                ) : (
-                  <>
-                    <Mic className="w-5 h-5 mr-2" />
-                    Iniciar Solicitud
-                  </>
-                )}
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+    <div className="px-2 py-6">
+      <div className="max-w-4xl mx-auto">
+  
 
-        {/* Beneficios de la tarjeta */}
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Beneficios de tu Tarjeta</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-start space-x-4">
-                <Shield className="w-6 h-6 text-[#DEA742] mt-1" />
+        {/* Beneficios */}
+        <Card className="mt-6 border-0 shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Gift className="h-5 w-5 text-blue-600" />
+              Beneficios de tu Tarjeta
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-start gap-3">
+                <CheckCircle2 className="h-5 w-5 text-green-500 mt-1" />
                 <div>
-                  <h3 className="font-semibold">Seguridad Avanzada</h3>
-                  <p className="text-sm text-gray-600">Protección contra fraudes y seguro de compras</p>
+                  <h3 className="font-semibold">Cashback en Compras</h3>
+                  <p className="text-sm text-gray-600">Obtén hasta 2% de devolución en todas tus compras</p>
                 </div>
               </div>
-
-              <div className="flex items-start space-x-4">
-                <Gift className="w-6 h-6 text-[#DEA742] mt-1" />
+              <div className="flex items-start gap-3">
+                <CheckCircle2 className="h-5 w-5 text-green-500 mt-1" />
+                <div>
+                  <h3 className="font-semibold">Seguros de Protección</h3>
+                  <p className="text-sm text-gray-600">Seguro de compras y protección de viajes incluidos</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <CheckCircle2 className="h-5 w-5 text-green-500 mt-1" />
                 <div>
                   <h3 className="font-semibold">Programa de Recompensas</h3>
-                  <p className="text-sm text-gray-600">Gana puntos en todas tus compras</p>
+                  <p className="text-sm text-gray-600">Acumula puntos en cada compra y canjéalos por beneficios</p>
                 </div>
               </div>
+            </div>
+          </CardContent>
+        </Card>
 
-              <div className="flex items-start space-x-4">
-                <Percent className="w-6 h-6 text-[#DEA742] mt-1" />
+        {/* Requisitos */}
+        <Card className="mt-6 border-0 shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Shield className="h-5 w-5 text-blue-600" />
+              Requisitos
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-start gap-3">
+                <Clock className="h-5 w-5 text-blue-500 mt-1" />
                 <div>
-                  <h3 className="font-semibold">Tasa Preferencial</h3>
-                  <p className="text-sm text-gray-600">Tasa de interés competitiva desde el primer día</p>
+                  <h3 className="font-semibold">Edad Mínima</h3>
+                  <p className="text-sm text-gray-600">Mayor de 18 años</p>
                 </div>
               </div>
-
-              <div className="flex items-start space-x-4">
-                <CreditCard className="w-6 h-6 text-[#DEA742] mt-1" />
+              <div className="flex items-start gap-3">
+                <Clock className="h-5 w-5 text-blue-500 mt-1" />
                 <div>
-                  <h3 className="font-semibold">Línea de Crédito Flexible</h3>
-                  <p className="text-sm text-gray-600">Línea de crédito adaptada a tus necesidades</p>
+                  <h3 className="font-semibold">Ingresos Mínimos</h3>
+                  <p className="text-sm text-gray-600">Ingresos mensuales superiores a 2 SMMLV</p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+              <div className="flex items-start gap-3">
+                <Clock className="h-5 w-5 text-blue-500 mt-1" />
+                <div>
+                  <h3 className="font-semibold">Historial Crediticio</h3>
+                  <p className="text-sm text-gray-600">Sin reportes negativos en centrales de riesgo</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Requisitos</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="list-disc list-inside space-y-2 text-sm text-gray-600">
-                <li>Ser mayor de 18 años</li>
-                <li>Ingresos mínimos mensuales de $8,000</li>
-                <li>Historial crediticio positivo</li>
-                <li>Identificación oficial vigente</li>
-                <li>Comprobante de ingresos</li>
-              </ul>
-            </CardContent>
-          </Card>
+        {/* Tarjetas del Usuario */}
+        <div className="mt-6">
+          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <CreditCard className="h-5 w-5 text-blue-600" />
+            Mis Tarjetas
+          </h2>
+          <div className="space-y-4">
+            {userCards.map((card) => (
+              <Card key={card.id} className="border-0 shadow-lg">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center justify-between">
+                    <span>{card.name}</span>
+                    <span className="text-sm font-normal text-gray-500">{card.number}</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Línea de Crédito</span>
+                      <span className="font-semibold">${card.limit.toLocaleString('es-CO')} COP</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Disponible</span>
+                      <span className="font-semibold text-green-600">${card.available.toLocaleString('es-CO')} COP</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Fecha de Corte</span>
+                      <span className="font-semibold">{card.dueDate}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </div>
-    </main>
+    </div>
   )
 } 
