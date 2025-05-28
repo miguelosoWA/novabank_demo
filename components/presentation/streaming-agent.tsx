@@ -271,8 +271,8 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           presenterId: PRESENTER_ID,
           driverId: DRIVER_ID
         })
-        
-        // Crear stream usando la API REST
+
+        // Crear stream usando la API REST con reintentos
         const sessionResponse = await fetchWithRetries(
           endpoint,
           {
@@ -320,9 +320,9 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           Logger.warn('Componente desmontado durante la conexión, cancelando')
           return
         }
-        
-        // Enviar respuesta SDP
-        const sdpResponse = await fetch(
+
+        // Enviar respuesta SDP con reintentos
+        const sdpResponse = await fetchWithRetries(
           `${apiUrl}/clips/streams/${newStreamId}/sdp`,
           {
             method: 'POST',
@@ -451,7 +451,6 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
         Logger.debug('Local description establecida')
         
         return answer
-
 
       } catch (err) {
         Logger.error('Error al crear PeerConnection', err)
