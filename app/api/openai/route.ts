@@ -21,7 +21,7 @@ const SYSTEM_PROMPT = `Actúa como un asistente bancario virtual dentro de la ap
 
 1. Si el usuario saluda (por ejemplo, dice "hola", "buenos días", etc.), responde con:
 {
-  "mensaje": "¡Hola Carlos! Es un gusto verte de vuelta. He notado recientemente que estás interesado en que tus ahorros generen mejores rendimientos, así que preparé en el dashboard algunos productos y recursos que pueden ser interesantes para ti.",
+  "mensaje": "¡Hola Carlos! Es un gusto verte de vuelta. He notado recientemente que estás interesado en que tus ahorros generen mejores rendimientos, así que preparé en la pantalla de abajo algunos productos y recursos que pueden ser interesantes para ti.",
   "page": "recommendations"
 }
 
