@@ -1,19 +1,13 @@
 "use client"
 
-import { useRouter } from "next/navigation"
-import { Card, CardContent } from "@/components/ui/card"
+import { Suspense } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { AlertCircle, Info, ArrowRight, Shield, Clock, Globe } from "lucide-react"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Shield, Clock, ArrowRight } from "lucide-react"
+import { useRouter } from "next/navigation"
 
-const TRANSACTION_LIMITS = {
-  daily: 10000000, // 10 millones COP
-  monthly: 50000000, // 50 millones COP
-  minimum: 10000, // 10 mil COP
-  maximum: 5000000, // 5 millones COP por transacción
-}
-
-export default function Transfers() {
+// Client component that uses useSearchParams
+const TransfersContent = () => {
   const router = useRouter()
 
   const handleContinue = () => {
@@ -21,108 +15,101 @@ export default function Transfers() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header con gradiente */}
-      <div className="bg-gradient-to-r from-[#1C3B5A] to-[#2A4D6E] py-16 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl font-bold text-white mb-4">Transferencias</h1>
-          <p className="text-xl text-gray-200">Realiza tus transferencias de manera segura y rápida</p>
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-8 rounded-t-2xl">
+          <h1 className="text-3xl font-bold text-center">Transferencias</h1>
+          <p className="text-center text-blue-100 mt-2">Realiza transferencias de manera segura y rápida</p>
         </div>
-      </div>
 
-      {/* Contenido principal */}
-      <div className="max-w-4xl mx-auto px-4 py-12">
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* Límites de transferencia */}
-          <Card className="border-none shadow-lg">
-            <CardContent className="p-8">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="bg-blue-100 p-3 rounded-full">
-                  <Shield className="w-6 h-6 text-blue-600" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          {/* Límites de Transferencia */}
+          <Card className="shadow-lg">
+            <CardHeader className="bg-blue-50 rounded-t-lg">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 rounded-full">
+                  <Shield className="h-6 w-6 text-blue-600" />
                 </div>
-                <h2 className="text-2xl font-semibold text-gray-800">Límites de transferencia</h2>
+                <CardTitle className="text-xl text-blue-900">Límites de Transferencia</CardTitle>
               </div>
-              
+            </CardHeader>
+            <CardContent className="p-6">
               <div className="space-y-4">
-                <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                  <span className="text-gray-600">Mínimo por transacción</span>
-                  <span className="font-semibold text-gray-800">
-                    {TRANSACTION_LIMITS.minimum.toLocaleString("es-CO", { style: "currency", currency: "COP" })}
-                  </span>
+                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <span className="text-gray-600">Límite Diario</span>
+                  <span className="font-semibold text-gray-900">$10,000,000 COP</span>
                 </div>
-                <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                  <span className="text-gray-600">Máximo por transacción</span>
-                  <span className="font-semibold text-gray-800">
-                    {TRANSACTION_LIMITS.maximum.toLocaleString("es-CO", { style: "currency", currency: "COP" })}
-                  </span>
+                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <span className="text-gray-600">Límite Mensual</span>
+                  <span className="font-semibold text-gray-900">$50,000,000 COP</span>
                 </div>
-                <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                  <span className="text-gray-600">Límite diario</span>
-                  <span className="font-semibold text-gray-800">
-                    {TRANSACTION_LIMITS.daily.toLocaleString("es-CO", { style: "currency", currency: "COP" })}
-                  </span>
+                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <span className="text-gray-600">Mínimo por Transacción</span>
+                  <span className="font-semibold text-gray-900">$10,000 COP</span>
                 </div>
-                <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                  <span className="text-gray-600">Límite mensual</span>
-                  <span className="font-semibold text-gray-800">
-                    {TRANSACTION_LIMITS.monthly.toLocaleString("es-CO", { style: "currency", currency: "COP" })}
-                  </span>
+                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <span className="text-gray-600">Máximo por Transacción</span>
+                  <span className="font-semibold text-gray-900">$5,000,000 COP</span>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Restricciones y tiempos */}
-          <Card className="border-none shadow-lg">
-            <CardContent className="p-8">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="bg-yellow-100 p-3 rounded-full">
-                  <Clock className="w-6 h-6 text-yellow-600" />
+          {/* Información Importante */}
+          <Card className="shadow-lg">
+            <CardHeader className="bg-yellow-50 rounded-t-lg">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-yellow-100 rounded-full">
+                  <Clock className="h-6 w-6 text-yellow-600" />
                 </div>
-                <h2 className="text-2xl font-semibold text-gray-800">Información importante</h2>
+                <CardTitle className="text-xl text-yellow-900">Información Importante</CardTitle>
               </div>
-
+            </CardHeader>
+            <CardContent className="p-6">
               <div className="space-y-4">
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <h3 className="font-medium text-gray-800 mb-2">Horario de procesamiento</h3>
-                  <p className="text-gray-600">8:00 AM - 5:00 PM, días hábiles</p>
+                <div className="p-4 bg-yellow-50 rounded-lg">
+                  <h3 className="font-semibold text-yellow-900 mb-2">Horarios de Procesamiento</h3>
+                  <p className="text-yellow-800">Las transferencias se procesan en horario bancario de lunes a viernes.</p>
                 </div>
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <h3 className="font-medium text-gray-800 mb-2">Tiempo de procesamiento</h3>
-                  <p className="text-gray-600">Hasta 24 horas hábiles para transferencias a otros bancos</p>
+                <div className="p-4 bg-yellow-50 rounded-lg">
+                  <h3 className="font-semibold text-yellow-900 mb-2">Tiempo de Procesamiento</h3>
+                  <p className="text-yellow-800">Las transferencias pueden tomar hasta 24 horas hábiles.</p>
                 </div>
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <h3 className="font-medium text-gray-800 mb-2">Verificación adicional</h3>
-                  <p className="text-gray-600">Requerida para transferencias superiores a 2 millones de pesos</p>
-                </div>
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <h3 className="font-medium text-gray-800 mb-2">Transferencias internacionales</h3>
-                  <p className="text-gray-600">Límites y requisitos adicionales aplican</p>
+                <div className="p-4 bg-yellow-50 rounded-lg">
+                  <h3 className="font-semibold text-yellow-900 mb-2">Comisiones</h3>
+                  <p className="text-yellow-800">Consulta las comisiones aplicables según el tipo de transferencia.</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Botón de continuar */}
-        <div className="mt-12 text-center">
-          <Button 
-            className="bg-[#1C3B5A] hover:bg-[#1C3B5A]/90 text-white px-8 py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+        {/* Botón de Continuar */}
+        <div className="mt-8 flex justify-center">
+          <Button
             onClick={handleContinue}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 rounded-xl text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
           >
             Continuar con la transferencia
-            <ArrowRight className="ml-2 w-5 h-5" />
+            <ArrowRight className="h-5 w-5" />
           </Button>
         </div>
 
-        {/* Información de seguridad */}
-        <div className="mt-12 text-center">
-          <div className="inline-flex items-center gap-2 text-gray-600">
-            <Shield className="w-5 h-5 text-green-600" />
-            <span>Todas las transferencias están protegidas con encriptación de última generación</span>
-          </div>
+        {/* Mensaje de Seguridad */}
+        <div className="mt-8 text-center text-gray-600 flex items-center justify-center gap-2">
+          <Shield className="h-5 w-5 text-green-600" />
+          <p>Todas las transferencias están protegidas con los más altos estándares de seguridad</p>
         </div>
       </div>
     </div>
+  )
+}
+
+// Main page component
+export default function TransfersPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <TransfersContent />
+    </Suspense>
   )
 }

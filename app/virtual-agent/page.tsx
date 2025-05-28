@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { useSearchParams, useRouter } from "next/navigation"
+import {useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { StreamingAgent } from "@/components/presentation/streaming-agent"
 import { VoiceRecognition } from "@/components/presentation/voice-recognition"
@@ -28,9 +28,8 @@ interface OpenAIResponse {
 }
 
 export default function VirtualAgent() {
-  const searchParams = useSearchParams()
   const router = useRouter()
-  const context = searchParams.get("context")
+  const context = "credit-card-application"
   
   const [isProcessing, setIsProcessing] = useState(false)
   const [formData, setFormData] = useState<FormData>({
