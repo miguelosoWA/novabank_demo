@@ -1,7 +1,7 @@
-# SofkaBank - Asistente Virtual
+# Insight Banking by Sofka - Asistente Virtual
 
 ## Descripción
-SofkaBank es una aplicación bancaria que incluye un asistente virtual interactivo. El asistente utiliza la API de D-ID para generar un avatar animado que puede comunicarse con los usuarios a través de voz y texto.
+Insight Banking by Sofka es una aplicación bancaria que incluye un asistente virtual interactivo. El asistente utiliza la API de D-ID para generar un avatar animado que puede comunicarse con los usuarios a través de voz y texto.
 
 ## Características Principales
 
@@ -46,8 +46,8 @@ AZURE_SPEECH_REGION=tu_region_de_azure
 ### Instalación
 1. Clonar el repositorio:
 ```bash
-git clone https://github.com/tu-usuario/novabank.git
-cd novabank
+git clone https://github.com/tu-usuario/Insight Banking by Sofka.git
+cd Insight Banking by Sofka
 ```
 
 2. Instalar dependencias:

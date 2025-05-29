@@ -46,7 +46,7 @@ export function Logo({ size = "md", variant = "default" }: LogoProps) {
       <div
         className={`font-bold text-${size === "sm" ? "lg" : size === "md" ? "xl" : "2xl"} ${variant === "default" ? "text-[#1C3B5A]" : "text-white"}`}
       >
-        SofkaBank
+        Insight Banking by Sofka
       </div>
     </div>
   )

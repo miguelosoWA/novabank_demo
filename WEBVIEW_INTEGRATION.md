@@ -1,6 +1,6 @@
-# NovaBank WebView Integration Guide
+# Insight Banking by Sofka WebView Integration Guide
 
-This guide explains how to integrate the NovaBank web app into an Android WebView for a native-like mobile experience.
+This guide explains how to integrate the Insight Banking by Sofka web app into an Android WebView for a native-like mobile experience.
 
 ## Features Added
 

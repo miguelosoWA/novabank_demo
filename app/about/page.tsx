@@ -14,7 +14,7 @@ export default function About() {
               {/* Logo and Title */}
               <div className="text-center space-y-2">
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent">
-                  NovaBank
+                  Insight Banking by Sofka
                 </h1>
                 <p className="text-gray-500">Tu banco del futuro, hoy</p>
               </div>
@@ -40,10 +40,10 @@ export default function About() {
                     <Mail className="h-5 w-5 text-orange-600" />
                   </div>
                   <a 
-                    href="mailto:contacto@novabank.com" 
+                    href="mailto:contacto@sofka.com" 
                     className="text-gray-700 hover:text-orange-600 transition-colors duration-300 font-medium"
                   >
-                    contacto@novabank.com
+                    contacto@sofka.com
                   </a>
                 </div>
 
