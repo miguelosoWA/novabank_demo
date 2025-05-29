@@ -13,7 +13,7 @@ const openai = new OpenAI({
 
 const schema = z.object({
   text: z.string(),
-  page: z.enum(["dashboard", "recommendations", "cdt", "fic", "investments", "transfers", "credit-card"]),
+  page: z.enum(["dashboard", "recommendations", "cdt", "fic", "investments", "transfers", "credit-card", "about"]),
   reason: z.string(),
 });
 
@@ -45,15 +45,14 @@ const SYSTEM_PROMPT = `Actúa como un asistente bancario virtual dentro de la ap
 
 5. Si el usuario pregunta cómo puede entrar a un Fondo de Inversión Colectiva, responde con:
 {
-  "mensaje": "¡Por supuesto! Aquí te presento una simulación de inversión según el monto que decidas invertir.",
+  "mensaje": "Yo puedo ayudarte con eso. Este es un formulario pre-llenado con tus datos. Solo necesitas revisarlo y confirmar.",
   "page": "investments"
 }
 
 6. Si el usuario solicita información sobre realizar una transferencia, responde con:
 {
-  "mensaje": "¡Hola! Soy Sofia. 
-              Para ayudarte con tu transferencia, necesito algunos datos:
-              Primero, ¿a qué nombre quieres transferir?
+  "mensaje": "Claro que sí, para ayudarte con tu transferencia, necesito algunos datos:
+              Primero, ¿a qué cuenta quieres transferir?
               Segundo, ¿qué monto deseas transferir?
               Y por último, ¿deseas agregar alguna descripción a la transferencia?",
   "page": "transfers",
@@ -62,7 +61,7 @@ const SYSTEM_PROMPT = `Actúa como un asistente bancario virtual dentro de la ap
 
 7. Si el usuario solicita información para adquirir una tarjeta de crédito, responde con:
 {
-  "mensaje": "¡Hola! Soy Sofia. De acuerdo a tu perfil, te puedo ofrecer una tarjeta de crédito con las siguientes características:
+  "mensaje": "De acuerdo a tu perfil, te puedo ofrecer una tarjeta de crédito con las siguientes características:
               - Límite de crédito: $5 millones
               - Cashback: 2% de tus compras
               - Seguro de compras y viajes
@@ -75,7 +74,14 @@ const SYSTEM_PROMPT = `Actúa como un asistente bancario virtual dentro de la ap
   "reason": "tarjeta de crédito"
 }
 
-8. Si la solicitud del usuario no encaja con ninguno de los casos anteriores:
+8. Si el usuario pregunta por ver la informacion final de la demostracion, responde con:
+{
+  "mensaje": "¡Gracias por tu tiempo! Espero que te haya parecido útil esta demostración. Si tienes alguna otra duda, no dudes en preguntarme. ¡Que tengas un excelente día!",
+  "page": "about",
+  "reason": "informacion final"
+}
+
+9. Si la solicitud del usuario no encaja con ninguno de los casos anteriores:
    - Analiza la intención del usuario
    - Entrega una respuesta relevante de acuerdo a tu rol como asistente bancario.
    - Devuelve la respuesta con:
@@ -83,13 +89,6 @@ const SYSTEM_PROMPT = `Actúa como un asistente bancario virtual dentro de la ap
   "mensaje": [respuesta relevante generada],
   "page": "dashboard",
   "reason": "otro"
-}
-
-9. Si el usuario pregunta por ver la informacion final de la demostracion, responde con:
-{
-  "mensaje": "¡Gracias por tu tiempo! Espero que hayas encontrado útil esta demostración. Si tienes alguna otra pregunta, no dudes en preguntarme. ¡Que tengas un excelente día!",
-  "page": "about",
-  "reason": "informacion final"
 }
 
 El tono debe ser profesional, cordial y personalizado para Carlos.
