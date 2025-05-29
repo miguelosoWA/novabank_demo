@@ -117,9 +117,9 @@ export default function Dashboard() {
 
   return (
     <>
-      <main className="container mx-auto px-0 py-0">
+      <main className="container w-full mx-auto px-0 py-0 bg-[#c9e6d4]">
         {/* Tarjetas de cuentas - Ahora tercero */}
-        <div className="grid grid-cols-2 md:grid-cols-2 gap-1 mb-1">
+        <div className="grid grid-cols-2 md:grid-cols-2 gap-2 mb-2 px-4 pt-4">
           <AccountCard
             type="savings"
             name="Cuenta de Ahorros"
@@ -131,67 +131,19 @@ export default function Dashboard() {
         </div>
 
         {/* Sección de transacciones y resumen - Sigue siendo último */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-4">
+          <div className="lg:col-span-4">
             <TransactionList transactions={transactions} />
           </div>
 
           <div className="space-y-4">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Resumen financiero</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-500">Ingresos (Mayo)</span>
-                    <span className="text-sm font-medium text-[#1C3B5A]">$15,000.00</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-500">Gastos (Mayo)</span>
-                    <span className="text-sm font-medium text-[#1C3B5A]">$14,836.25</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-500">Balance</span>
-                    <span className="text-sm font-medium text-green-600">+$163.75</span>
-                  </div>
-                </div>
-
-                <div className="mt-4">
-                  <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <div className="h-full bg-[#DEA742]" style={{ width: "98.9%" }} />
-                  </div>
-                  <div className="flex justify-between mt-1">
-                    <span className="text-xs text-gray-500">0%</span>
-                    <span className="text-xs text-gray-500">100%</span>
-                  </div>
-                </div>
-
-                <div className="mt-4"></div>
-              </CardContent>
-            </Card>
-
-            
+            {/* Financial Summary Card removed as it's not in the target image */}
           </div>
         </div>
       </main>
-
-      {/* Notificación contextual */}
-      {/* {showNotification && (
-        <ContextualNotification
-          message="Carlos, tenemos una estrategia de inversión que podría interesarte basada en tu actividad reciente."
-          onDismiss={() => {
-            setShowNotification(false)
-            trackInteraction("dismiss", "contextual_notification")
-          }}
-          onAction={() => {
-            setShowNotification(false)
-            setIsInvestmentSimulatorOpen(true)
-            trackInteraction("click", "contextual_notification")
-          }}
-        />
-      )} */}
-
+      <footer className="bg-[#103B3C] text-white text-center py-4">
+        <p className="text-sm">2025© Sofka Technologies / All Rigths Reserved.</p>
+      </footer>
     </>
   )
 }

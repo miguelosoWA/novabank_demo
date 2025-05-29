@@ -40,10 +40,10 @@ export default function About() {
                     <Mail className="h-5 w-5 text-orange-600" />
                   </div>
                   <a 
-                    href="mailto:contacto@sofka.com" 
+                    href="mailto:contacto@sofka.com.co" 
                     className="text-gray-700 hover:text-orange-600 transition-colors duration-300 font-medium"
                   >
-                    contacto@sofka.com
+                    contacto@sofka.com.co
                   </a>
                 </div>
 

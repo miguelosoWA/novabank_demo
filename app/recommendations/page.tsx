@@ -117,55 +117,65 @@ export default function Dashboard() {
 
   return (
     <>
-      <main className="container mx-auto px-0 py-0">
-        {/* Sección de oportunidades personalizadas - Ahora segundo */}
-        <div className="mb-6">
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold text-[#1C3B5A]">Oportunidades para ti</h3>
+      <main className="min-h-screen p-0 bg-[#c9e6d4]">
+        <div className="max-w-md mx-auto">
+          {/* Header */}
+          <div className="bg-[#15d05f] text-white py-6 px-6 shadow-m">
+            <h1 className="text-2xl font-bold text-center">Oportunidades para ti</h1>
           </div>
 
-          <div className="space-y-0">
+          {/* Cards Container */}
+          <div className="bg-transparent backdrop-blur-sm rounded-b-xl pt-4 p-6 space-y-4">
+            {/* CDT Card */}
+            <div className="flex items-center bg-white rounded-xl overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+                 onClick={() => {
+                   setIsInvestmentSimulatorOpen(true)
+                   trackInteraction("click", "opportunity_card_investment")
+                 }}>
+              <div className="bg-[#074f2a] w-20 h-20 flex items-center justify-center">
+                <span className="text-white font-bold text-lg">CDT</span>
+              </div>
+              <div className="flex-1 p-4">
+                <h3 className="text-gray-800 font-semibold text-base leading-tight">
+                  Certificado de Depósito a Termino
+                </h3>
+              </div>
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <OpportunityCard
-                title="Certificado de Deposito a Termino (CDT)"
-                description=""
-                cta=""
-                icon={<TrendingUp size={20} className="text-[#1C3B5A]" />}
-                onClick={() => {
-                  setIsInvestmentSimulatorOpen(true)
-                  trackInteraction("click", "opportunity_card_investment")
-                }}
-              />
+            {/* FIC Card */}
+            <div className="flex items-center bg-white rounded-xl overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+                 onClick={() => {
+                   window.alert("Abriendo artículo...")
+                   trackInteraction("click", "opportunity_card_article")
+                 }}>
+              <div className="bg-[#074f2a] w-20 h-20 flex items-center justify-center">
+                <span className="text-white font-bold text-lg">FIC</span>
+              </div>
+              <div className="flex-1 p-4">
+                <h3 className="text-gray-800 font-semibold text-base leading-tight">
+                  Fondo de Inversión Colectiva
+                </h3>
+              </div>
+            </div>
 
-              <OpportunityCard
-                title="Fondo de Inversión Colectiva (FIC)"
-                description=""
-                cta=""
-                icon={<BookOpen size={20} className="text-[#1C3B5A]" />}
-                onClick={() => {
-                  window.alert("Abriendo artículo...")
-                  trackInteraction("click", "opportunity_card_article")
-                }}
-              />
-
-              <OpportunityCard
-                title="Cuenta AFC"
-                description=""
-                cta=""
-                icon={<BookOpen size={20} className="text-[#1C3B5A]" />}
-                onClick={() => {
-                  window.alert("Abriendo artículo...")
-                  trackInteraction("click", "opportunity_card_article")
-                }}
-              />
-
+            {/* AFC Card */}
+            <div className="flex items-center bg-white rounded-xl overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+                 onClick={() => {
+                   window.alert("Abriendo artículo...")
+                   trackInteraction("click", "opportunity_card_article")
+                 }}>
+              <div className="bg-[#074f2a] w-20 h-20 flex items-center justify-center">
+                <span className="text-white font-bold text-lg">AFC</span>
+              </div>
+              <div className="flex-1 p-4">
+                <h3 className="text-gray-800 font-semibold text-base leading-tight">
+                  Cuenta AFC
+                </h3>
+              </div>
             </div>
           </div>
         </div>
-
       </main>
-
     </>
   )
 }

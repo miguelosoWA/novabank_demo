@@ -71,9 +71,13 @@ export default function InvestmentsPage() {
   };
 
   return (
-    <div className="space-y-6 px-1 md:px-6 lg:px-8 pb-16 md:pb-20 max-w-screen-xl mx-auto">
+    <div className="space-y-6 px-0 md:px-6 lg:px-8 pb-16 md:pb-20 max-w-screen-xl mx-auto bg-[#c9e6d4]">
       {/* Title can be adjusted if needed */}
-      <h2 className="text-xl font-semibold text-[#1C3B5A]">Formulario de Vinculación a Fondo de Inversión Colectiva.</h2>
+
+      <div className="bg-[#15d05f] text-white py-6 px-6 shadow-m">
+            <h1 className="text-2xl font-bold text-center">Formulario de Vinculación a Fondo de Inversión Colectiva.</h1>
+          </div>
+        
 
       {/* Personalized message div can be kept or removed */}
       {/*
@@ -84,12 +88,12 @@ export default function InvestmentsPage() {
       </div>
       */}
 
-      <form onSubmit={handleSubmit} className="space-y-6 bg-white p-0 md:p-8 rounded-lg">
+      <form onSubmit={handleSubmit} className="space-y-6 bg-transparent p-0 md:p-8 rounded-lg" style={{ marginRight: "24px", marginLeft: "24px" }}>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">Nombres</label>
+            <label htmlFor="firstName" className="block text-sm font-medium text-[#074f2a]-700 mb-1">Nombres</label>
             <div className="relative">
-              <User size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <User size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#074f2a]-400" />
               <input
                 id="firstName"
                 type="text"
@@ -101,9 +105,9 @@ export default function InvestmentsPage() {
             </div>
           </div>
           <div>
-            <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">Apellidos</label>
+            <label htmlFor="lastName" className="block text-sm font-medium text-[#074f2a]-700 mb-1">Apellidos</label>
             <div className="relative">
-              <User size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <User size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#074f2a]-400" />
               <input
                 id="lastName"
                 type="text"
@@ -117,9 +121,9 @@ export default function InvestmentsPage() {
         </div>
 
         <div>
-          <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">Monto a Invertir</label>
+          <label htmlFor="amount" className="block text-sm font-medium text-[#074f2a]-700 mb-1">Monto a Invertir</label>
           <div className="relative">
-            <DollarSign size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <DollarSign size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#074f2a]-400" />
             <input
               id="amount"
               type="text"
@@ -134,9 +138,9 @@ export default function InvestmentsPage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">No. de Cuenta</label>
+            <label htmlFor="password" className="block text-sm font-medium text-[#074f2a]-700 mb-1">No. de Cuenta</label>
             <div className="relative">
-              <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#074f2a]-400" />
               <input
                 id="password"
                 type="text"
@@ -148,9 +152,9 @@ export default function InvestmentsPage() {
             </div>
           </div>
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">Tipo de Cuenta</label>
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-[#074f2a]-700 mb-1">Tipo de Cuenta</label>
             <div className="relative">
-              <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#074f2a]-400" />
               <input
                 id="confirmPassword"
                 type="text"
@@ -164,9 +168,9 @@ export default function InvestmentsPage() {
         </div>
 
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico</label>
+          <label htmlFor="email" className="block text-sm font-medium text-[#074f2a]-700 mb-1">Correo Electrónico</label>
           <div className="relative">
-            <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#074f2a]-400" />
             <input
               id="email"
               type="email"
@@ -179,9 +183,9 @@ export default function InvestmentsPage() {
         </div>
 
         <div>
-          <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
+          <label htmlFor="address" className="block text-sm font-medium text-[#074f2a]-700 mb-1">Dirección</label>
           <div className="relative">
-            <MapPin size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <MapPin size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#074f2a]-400" />
             <input
               id="address"
               type="text"
@@ -196,9 +200,9 @@ export default function InvestmentsPage() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             {/* Label changed from "First Name" to "City" for clarity */}
-            <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">Ciudad</label>
+            <label htmlFor="city" className="block text-sm font-medium text-[#074f2a]-700 mb-1">Ciudad</label>
             <div className="relative">
-              <MapPin size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <MapPin size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#074f2a]-400" />
               <input
                 id="city"
                 type="text"
@@ -210,9 +214,9 @@ export default function InvestmentsPage() {
           </div>
           <div>
             {/* Label changed from "Last Name" to "State/Province" for clarity */}
-            <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">Departamento/Provincia</label>
+            <label htmlFor="state" className="block text-sm font-medium text-[#074f2a]-700 mb-1">Departamento/Provincia</label>
             <div className="relative">
-              <Building size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <Building size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#074f2a]-400" />
               <input
                 id="state"
                 type="text"
@@ -226,9 +230,9 @@ export default function InvestmentsPage() {
         
         <div>
           {/* Label changed from "Email Address" to "Zip Code" for clarity */}
-          <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 mb-1">Número de Teléfono</label>
+          <label htmlFor="zipCode" className="block text-sm font-medium text-[#074f2a]-700 mb-1">Número de Teléfono</label>
           <div className="relative">
-            <Phone size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Phone size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#074f2a]-400" />
             <input
               id="phoneNumber"
               type="tel"
@@ -242,7 +246,7 @@ export default function InvestmentsPage() {
         <div className="flex items-center justify-center pt-4">
           <Button
             type="submit"
-            className="bg-[#1C3B5A] hover:bg-[#DEA742] text-white font-semibold py-3 px-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#DEA742]"
+            className="bg-[#074f2a] hover:bg-[#DEA742] text-white font-semibold py-3 px-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#DEA742]"
             isLoading={isSubmitting}
             // Removed leftIcon, button text will change based on isSubmitting
           >

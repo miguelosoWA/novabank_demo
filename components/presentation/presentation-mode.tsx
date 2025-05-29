@@ -8,7 +8,7 @@ interface PresentationModeProps {
 
 export function PresentationMode({ children }: PresentationModeProps) {
   return (
-    <div className="h-screen w-screen bg-black overflow-hidden">
+    <div className="h-screen w-screen bg-black">
       {children}
     </div>
   )

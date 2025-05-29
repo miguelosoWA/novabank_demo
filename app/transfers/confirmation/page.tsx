@@ -35,22 +35,22 @@ export default function TransferConfirmation() {
         </div>
 
         {/* Detalles de la Transferencia */}
-        <Card className="mt-4 border-0 shadow-lg">
-          <CardContent className="p-6">
-            <div className="space-y-6">
-              <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                <span className="text-gray-600">Nombre Destinatario</span>
-                <span className="font-semibold text-gray-900">{nombreDestinatario}</span>
+        <Card className="mt-2 border-0 shadow-lg bg-green-50">
+          <CardContent className="p-2">
+            <div className="space-y-2">
+              <div className="flex justify-between items-center p-4 bg-white rounded-lg">
+                <span className="text-white-600">Nombre Destinatario</span>
+                <span className="font-semibold text-white-900">{nombreDestinatario}</span>
               </div>
 
-              <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                <span className="text-gray-600">Monto</span>
-                <span className="font-semibold text-gray-900">${amount.toLocaleString('es-CO')} COP</span>
+              <div className="flex justify-between items-center p-4 bg-white rounded-lg">
+                <span className="text-white-600">Monto</span>
+                <span className="font-semibold text-white-900">${amount.toLocaleString('es-CO')} COP</span>
               </div>
 
-              <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                <span className="text-gray-600">Descripción</span>
-                <span className="font-semibold text-gray-900">{description}</span>
+              <div className="flex justify-between items-center p-4 bg-white rounded-lg">
+                <span className="text-white-600">Descripción</span>
+                <span className="font-semibold text-white-900">{description}</span>
               </div>
             </div>
 

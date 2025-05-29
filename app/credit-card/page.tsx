@@ -37,15 +37,15 @@ const userCards: UserCreditCard[] = [
 
 export default function CreditCardPage() {
   return (
-    <div className="px-2 py-6">
+    <div className="px-6 py-0" >
       <div className="max-w-4xl mx-auto">
   
 
         {/* Beneficios */}
-        <Card className="mt-6 border-0 shadow-lg">
+        <Card className="mt-6 border-0 shadow-lg bg-green-50">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <Gift className="h-5 w-5 text-blue-600" />
+              <Gift className="h-5 w-5 text-green-600" />
               Beneficios de tu Tarjeta
             </CardTitle>
           </CardHeader>
@@ -77,31 +77,31 @@ export default function CreditCardPage() {
         </Card>
 
         {/* Requisitos */}
-        <Card className="mt-6 border-0 shadow-lg">
+        <Card className="mt-6 border-0 shadow-lg bg-yellow-50">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <Shield className="h-5 w-5 text-blue-600" />
+              <Shield className="h-5 w-5 text-yellow-600" />
               Requisitos
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-start gap-3">
-                <Clock className="h-5 w-5 text-blue-500 mt-1" />
+                <Clock className="h-5 w-5 text-yellow-500 mt-1" />
                 <div>
                   <h3 className="font-semibold">Edad Mínima</h3>
                   <p className="text-sm text-gray-600">Mayor de 18 años</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <Clock className="h-5 w-5 text-blue-500 mt-1" />
+                <Clock className="h-5 w-5 text-yellow-500 mt-1" />
                 <div>
                   <h3 className="font-semibold">Ingresos Mínimos</h3>
                   <p className="text-sm text-gray-600">Ingresos mensuales superiores a 2 SMMLV</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <Clock className="h-5 w-5 text-blue-500 mt-1" />
+                <Clock className="h-5 w-5 text-yellow-500 mt-1" />
                 <div>
                   <h3 className="font-semibold">Historial Crediticio</h3>
                   <p className="text-sm text-gray-600">Sin reportes negativos en centrales de riesgo</p>
@@ -110,42 +110,6 @@ export default function CreditCardPage() {
             </div>
           </CardContent>
         </Card>
-
-        {/* Tarjetas del Usuario */}
-        <div className="mt-6">
-          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <CreditCard className="h-5 w-5 text-blue-600" />
-            Mis Tarjetas
-          </h2>
-          <div className="space-y-4">
-            {userCards.map((card) => (
-              <Card key={card.id} className="border-0 shadow-lg">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center justify-between">
-                    <span>{card.name}</span>
-                    <span className="text-sm font-normal text-gray-500">{card.number}</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600">Línea de Crédito</span>
-                      <span className="font-semibold">${card.limit.toLocaleString('es-CO')} COP</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600">Disponible</span>
-                      <span className="font-semibold text-green-600">${card.available.toLocaleString('es-CO')} COP</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600">Fecha de Corte</span>
-                      <span className="font-semibold">{card.dueDate}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   )

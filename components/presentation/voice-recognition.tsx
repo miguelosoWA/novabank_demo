@@ -259,7 +259,7 @@ export function VoiceRecognition({ onSpeechRecognized, className }: VoiceRecogni
   const getButtonColor = () => {
     // Only show recording or not recording - hide connection state from user
     if (isRecording) return 'bg-red-600 hover:bg-red-700 animate-pulse';
-    return 'bg-blue-900 hover:bg-blue-800';
+    return 'bg-green-900 hover:bg-green-800';
   };
 
   return (

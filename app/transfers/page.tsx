@@ -15,17 +15,17 @@ const TransfersContent = () => {
   }
 
   return (
-    <div className="px-2 py-6">
-      <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-4 rounded-t-2xl">
+    <div className="px-4 py-6">
+      <div className="bg-[#15d05f] text-white p-4 rounded-t-2xl">
         <h1 className="text-xl font-semibold text-center">Transferencias</h1>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
         {/* Límites de Transferencia */}
-        <div className="bg-blue-50 rounded-lg p-4">
+        <div className="bg-green-50 rounded-lg p-4">
           <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 bg-blue-100 rounded-full">
-              <Shield className="h-6 w-6 text-blue-600" />
+            <div className="p-2 bg-green-100 rounded-full">
+              <Shield className="h-6 w-6 text-green-600" />
             </div>
             <span className="text-base text-blue-900 font-medium">Límites de Transferencia</span>
           </div>
@@ -74,16 +74,6 @@ const TransfersContent = () => {
         </div>
       </div>
 
-      {/* Botón de Continuar */}
-      <div className="mt-8 flex justify-center">
-        <Button
-          onClick={handleContinue}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 rounded-xl text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
-        >
-          Continuar con la transferencia
-          <ArrowRight className="h-5 w-5" />
-        </Button>
-      </div>
 
       {/* Mensaje de Seguridad */}
       <div className="mt-8 text-center text-gray-600 flex items-center justify-center gap-2">
