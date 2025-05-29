@@ -53,7 +53,7 @@ const SYSTEM_PROMPT = `Actúa como un asistente bancario virtual dentro de la ap
 {
   "mensaje": "¡Hola! Soy Sofia. 
               Para ayudarte con tu transferencia, necesito algunos datos:
-              Primero, ¿a qué cuenta quieres transferir?
+              Primero, ¿a qué nombre quieres transferir?
               Segundo, ¿qué monto deseas transferir?
               Y por último, ¿deseas agregar alguna descripción a la transferencia?",
   "page": "transfers",

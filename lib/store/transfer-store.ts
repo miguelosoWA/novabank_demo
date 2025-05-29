@@ -1,12 +1,12 @@
 import { create } from 'zustand'
 
 interface TransferState {
-  destinationAccount: string
+  nombreDestinatario: string
   amount: number
   description: string
   response: string
   setTransferData: (data: {
-    destinationAccount: string
+    nombreDestinatario: string
     amount: number
     description: string
     response: string
@@ -15,13 +15,13 @@ interface TransferState {
 }
 
 export const useTransferStore = create<TransferState>((set) => ({
-  destinationAccount: '',
+  nombreDestinatario: '',
   amount: 0,
   description: '',
   response: '',
   setTransferData: (data) => set(data),
   resetTransferData: () => set({
-    destinationAccount: '',
+    nombreDestinatario: '',
     amount: 0,
     description: '',
     response: ''

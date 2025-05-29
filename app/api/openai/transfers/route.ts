@@ -12,7 +12,7 @@ const openai = new OpenAI({
 });
 
 const schema = z.object({
-    destinationAccount: z.string(),
+    nombreDestinatario: z.string(),
     amount: z.number(),
     description: z.string(),
     response: z.string(),
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
         const systemPrompt =`Eres un asistente virtual especializado en transferencias bancarias.
         Tu objetivo es recolectar la información necesaria del usuario de manera amigable y profesional.
         Debes recoletar la siguiente información:
-        1. Cuenta destino
+        1. Nombre del destinatario
         2. Monto
         3. Descripción
 
@@ -41,10 +41,10 @@ export async function POST(request: Request) {
 
         El formato de la respuesta debe ser el siguiente:
         {
-            "destinationAccount": "1234567890",
+            "nombreDestinatario": "Juan Perez",
             "amount": 1000000,
             "description": "Transferencia de prueba",
-            "response": "¡Gracias por proporcionar la información! Su solicitud será procesada en breve."
+            "response": "¡Gracias por proporcionar la información! Su solicitud será procesada en breve. Por favor, acepta para proceder"
         }`;
 
         const response = await openai.responses.parse({

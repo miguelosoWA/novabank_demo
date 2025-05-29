@@ -9,14 +9,14 @@ import { Shield, CheckCircle2 } from "lucide-react"
 
 export default function TransferConfirmation() {
   const router = useRouter()
-  const { destinationAccount, amount, description, response, resetTransferData } = useTransferStore()
+  const { nombreDestinatario, amount, description, response, resetTransferData } = useTransferStore()
 
   useEffect(() => {
     // Si no hay datos de transferencia, redirigir a la página de transferencias
-    if (!destinationAccount || !amount) {
+    if (!nombreDestinatario || !amount) {
       router.push('/transfers')
     }
-  }, [destinationAccount, amount, router])
+  }, [nombreDestinatario, amount, router])
 
   const handleComplete = () => {
     resetTransferData()
@@ -39,8 +39,8 @@ export default function TransferConfirmation() {
           <CardContent className="p-6">
             <div className="space-y-6">
               <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                <span className="text-gray-600">Cuenta Destino</span>
-                <span className="font-semibold text-gray-900">{destinationAccount}</span>
+                <span className="text-gray-600">Nombre Destinatario</span>
+                <span className="font-semibold text-gray-900">{nombreDestinatario}</span>
               </div>
 
               <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
@@ -65,7 +65,7 @@ export default function TransferConfirmation() {
                 onClick={handleComplete}
                 className="w-full bg-green-600 hover:bg-green-700 text-white py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
               >
-                Volver al Dashboard
+                Confirmar Transferencia
               </Button>
             </div>
           </CardContent>
