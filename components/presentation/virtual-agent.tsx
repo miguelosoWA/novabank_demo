@@ -34,8 +34,8 @@ export function VirtualAgent() {
   const router = useRouter()
   const pathname = usePathname()
   const isMountedRef = useRef(true)
-  const isTransfersPage = pathname === '/transfers'
-  const isCreditCardPage = pathname === '/credit-card'
+  const isTransfersPage = pathname === '/transfers' || pathname === '/transfers/confirmation'
+  const isCreditCardPage = pathname === '/credit-card' || pathname === '/credit-card/confirmation'
   const setTransferData = useTransferStore((state) => state.setTransferData)
   const setCreditCardData = useCreditCardStore((state) => state.setCreditCardData)
 
@@ -118,13 +118,23 @@ export function VirtualAgent() {
           setTransferData(result.response)
           // Enviar solo el mensaje de respuesta al avatar
           streamingAgentRef.current.sendMessage(result.response.response)
-          router.push('/transfers/confirmation')
+
+          if (result.response.page){
+            router.push(`/${result.response.page}`)
+          } else {
+            router.push('/transfers/confirmation')
+          }
         } else if (isCreditCardPage) {
           // Guardar los datos de la tarjeta de crédito en el store
           setCreditCardData(result.response)
           // Enviar solo el mensaje de respuesta al avatar
           streamingAgentRef.current.sendMessage(result.response.response)
-          router.push('/credit-card/confirmation')
+
+          if (result.response.page){
+            router.push(`/${result.response.page}`)
+          } else {
+            router.push('/credit-card/confirmation')
+          }
         } else {
           const { text: responseText, page, reason } = result.response
           streamingAgentRef.current.sendMessage(responseText)
