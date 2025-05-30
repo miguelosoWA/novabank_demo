@@ -14,9 +14,9 @@ const openai = new OpenAI({
 });
 
 const schema = z.object({
-    monthlyIncome: z.number(),
-    employmentStatus: z.enum(["empleado", "independiente", "empresario"]),
-    timeEmployed: z.string(),
+    monthlyIncome: z.number().optional(),
+    employmentStatus: z.enum(["empleado", "independiente", "empresario"]).optional(),
+    timeEmployed: z.string().optional(),
     response: z.string(),
     page: z.string()
 });
@@ -39,8 +39,8 @@ export async function POST(request: Request) {
     Tiempo en el empleo actual: ${timeEmployed}
     
     Mantén un tono conversacional y asegúrate de validar la información proporcionada.
-    Cuando hayas recolectado toda la información, agradece al usuario y confirma que su solicitud será procesada.
-    
+
+    Si el usuario proporciona información de la solicitud, el formato de la respuesta debe ser:
     El formato de la respuesta debe ser el siguiente:
     {
       "monthlyIncome": 1000000,
@@ -50,14 +50,17 @@ export async function POST(request: Request) {
       "page": "credit-card/confirmation"
     }
       
-    Si el usuario acepta la solicitud, la página a la que debe redirigir es:
-    "dashboard"
+    Si el usuario acepta o confirma la solicitud, el formato de la respuesta debe ser:
+    {
+      "response": "¡Gracias por confirmar la solicitud!, tu solicitud será procesada en breve.",
+      "page": "dashboard"
+    }
 
-    Si el usuario no acepta la solicitud, la página a la que debe redirigir es:
-    "credit-card"
-
-    Si falta información o el usuario está corrigiendo datos, la página a la que debe redirigir es:
-    "credit-card"
+    Si falta información o el usuario está corrigiendo datos, el formato de la respuesta debe ser:
+    {
+      "response": "¡Por favor, proporciona la información necesaria para continuar!",
+      "page": "credit-card"
+    }
 
     IMPORTANTE:
     No decir a donde redirigir, solo responder con el formato de la respuesta.

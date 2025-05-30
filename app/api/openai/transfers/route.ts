@@ -12,8 +12,8 @@ const openai = new OpenAI({
 });
 
 const schema = z.object({
-    nombreDestinatario: z.string(),
-    amount: z.number(),
+    nombreDestinatario: z.string().optional(),
+    amount: z.number().optional(),
     description: z.string().optional(),
     response: z.string(),
     page: z.string()
@@ -41,13 +41,9 @@ export async function POST(request: Request) {
         Descripción: ${description}
 
         Mantén un tono conversacional y asegúrate de validar la información proporcionada.
-        Si el usuario no proporciona la información correcta, pide amablemente que la repita.
+        Si el usuario no proporciona la información correcta, pide amablemente que la repita.   
 
-        Cuando hayas recolectado el nombre del destinatario y el monto (la descripción es opcional), responde agradeciendo y confirma que se mostrará la pantalla de confirmación de transferencia.
-        Si el usuario acepta la transferencia en la pantalla de confirmación, responde agradeciendo y confirma que será redirigido al dashboard.
-        Si el usuario indica que quiere hacer otra transferencia después de aceptar, vuelve a mostrar la pantalla de confirmación de transferencia.
-
-        El formato de la respuesta debe ser el siguiente:
+        Si el usuario proporciona informacion de la transferencia, el formato de la respuesta debe ser:
         {
             "nombreDestinatario": "Juan Perez",
             "amount": 1000000,
@@ -56,14 +52,18 @@ export async function POST(request: Request) {
             "page" : "transfers/confirmation"
         }
 
-        Si el usuario acepta la transferencia en la confirmación, la página a la que debe redirigir es:
-        "dashboard"
+        Si el usuario acepta o confirma la transferencia en la confirmación, el formato de la respuesta debe ser:
+        {
+            "response": "¡Gracias por confirmar la transferencia!, tu solicitud será procesada en breve.",
+            "page" : "dashboard"
+        }
 
-        Si el usuario indica que quiere hacer otra transferencia después de aceptar, la página a la que debe redirigir es:
-        "transfers/confirmation"
 
-        Si falta información o el usuario está corrigiendo datos, la página a la que debe redirigir es:
-        "transfers/confirmation"
+        Si falta información o el usuario está corrigiendo datos, el formato de la respuesta debe ser:
+        {
+            "response": "¡Por favor, proporciona la información necesaria para continuar!",
+            "page" : "transfers"
+        }
 
 
         IMPORTANTE:
