@@ -35,6 +35,14 @@ const userCards: UserCreditCard[] = [
   }
 ]
 
+// Función para obtener el color de fondo según el nombre de la tarjeta
+function getCardBgColor(name: string) {
+  if (name.toLowerCase().includes('gold')) return 'bg-[#DEA742] text-white';
+  if (name.toLowerCase().includes('clásica')) return 'bg-[#1C3B5A] text-white';
+  if (name.toLowerCase().includes('platinum')) return 'bg-[#4B5563] text-white';
+  return 'bg-white';
+}
+
 export default function CreditCardPage() {
   return (
     <div className="px-6 py-0" >
@@ -110,6 +118,42 @@ export default function CreditCardPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Tarjetas del Usuario */}
+        <div className="mt-6">
+          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <CreditCard className="h-5 w-5 text-blue-600" />
+            Mis Tarjetas
+          </h2>
+          <div className="space-y-4">
+            {userCards.map((card) => (
+              <Card key={card.id} className={`border-0 shadow-lg rounded-2xl ${getCardBgColor(card.name)}`}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center justify-between" style={{ fontFamily: 'var(--font-roboto)' }}>
+                    <span>{card.name}</span>
+                    <span className="text-sm font-normal text-gray-200">{card.number}</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-200">Línea de Crédito</span>
+                      <span className="font-semibold">${card.limit.toLocaleString('es-CO')} COP</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-200">Disponible</span>
+                      <span className="font-semibold text-green-200">${card.available.toLocaleString('es-CO')} COP</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-200">Fecha de Corte</span>
+                      <span className="font-semibold">{card.dueDate}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   )

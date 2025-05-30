@@ -1,8 +1,6 @@
 "use client"
 import { Bell } from "lucide-react"
-import { Logo } from "@/components/logo"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
+import Image from "next/image"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { UserMenu } from "@/components/dashboard/user-menu"
 
@@ -29,6 +27,13 @@ export function Navbar() {
           </div>
         </div>
       </div>
+      {/* Notificación campana */}
+      <div className="relative">
+        <Bell size={28} className="text-[#00C96B]" />
+        <span className="absolute top-0 right-0 h-3 w-3 rounded-full bg-orange-500 border-2 border-[#0B3C23]" />
+      </div>
+
+      {isDesktop && <UserMenu />}
     </header>
   )
 }
