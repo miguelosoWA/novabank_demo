@@ -20,7 +20,7 @@ export default function NotFound() {
           Lo sentimos, la página que estás buscando no existe o ha sido movida.
         </p>
         <Button
-          onClick={() => router.push("/")}
+          onClick={() => router.push("/dashboard")}
           className="bg-[#00C96B] hover:bg-[#00B05C] text-white px-6 py-2 rounded-full flex items-center gap-2"
         >
           <Home className="h-4 w-4" />
