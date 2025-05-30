@@ -20,8 +20,8 @@ export function ConditionalVirtualAgent({ children }: { children: React.ReactNod
   // Verificar si la ruta actual está en la lista de exclusiones
   const shouldShowVirtualAgent = !EXCLUDED_ROUTES.some(route => pathname.startsWith(route))
 
-  // Si la ruta es /about, renderiza solo el children sin Navbar ni wrappers
-  if (pathname.startsWith("/about")) {
+  // Si la ruta es /about o /login, renderiza solo el children sin Navbar ni wrappers
+  if (pathname.startsWith("/about") || pathname.startsWith("/login")) {
     return <>{children}</>
   }
 
@@ -45,7 +45,7 @@ export function ConditionalVirtualAgent({ children }: { children: React.ReactNod
       </div>
 
       {/* Aplicación SofkaBank - parte inferior */}
-      <div className="w-full h-1/2 overflow-auto">
+      <div className="w-full flex-1 h-1/2 overflow-auto">
         {children}
       </div>
     </div>

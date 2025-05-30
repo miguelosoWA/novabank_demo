@@ -56,6 +56,7 @@ export default function About() {
                   >
                     +57 300 123 4567
                   </a>
+                </div>
                 <div className="flex items-center bg-white/10 backdrop-blur-sm rounded-xl px-4 py-3 text-white">
                   <Phone className="h-5 w-5 text-[#00C96B] mr-3" />
                   <span className="text-base" style={{ fontFamily: 'var(--font-roboto)' }}>+57 300 123 4567</span>

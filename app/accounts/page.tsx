@@ -99,156 +99,95 @@ export default function AccountsPage() {
     { balance: 0, debt: 0 },
   )
 
+  // Datos de ejemplo para movimientos y resumen financiero
+  const movimientos = [
+    { tipo: 'ingreso', descripcion: 'Depósito recibida', detalle: 'Transferencia de nómina', monto: 15000, fecha: '15 May 2025' },
+    { tipo: 'gasto', descripcion: 'Supermercado La Comer', detalle: 'Compras semanales', monto: -1250.75, fecha: '14 May 2025' },
+    { tipo: 'gasto', descripcion: 'Starbucks', detalle: 'Café', monto: -85.5, fecha: '14 May 2025' },
+    { tipo: 'gasto', descripcion: 'Pago de hipoteca', detalle: 'Mensualidad mayo', monto: -8500, fecha: '10 May 2025' },
+    { tipo: 'gasto', descripcion: 'Pago de tarjeta', detalle: 'Tarjeta Oro', monto: -5000, fecha: '05 May 2025' },
+  ]
+  const resumen = {
+    ingresos: 15000,
+    gastos: 14836.25,
+    balance: 163.75,
+  }
+
   return (
-    <div className="min-h-screen pb-16 md:pb-20 px-0">
-      <div className="max-w-screen-xl mx-auto px-4 md:px-6 lg:px-8 space-y-6 pt-8">
-        <div className="mb-4">
-          <BackButton />
-          <h1 className="text-3xl font-bold text-white mt-4 mb-1" style={{ fontFamily: 'var(--font-clash-display)' }}>Tus Cuentas</h1>
-          <p className="text-white/80" style={{ fontFamily: 'var(--font-roboto)' }}>Administra tus cuentas y tarjetas</p>
+    <div className="min-h-screen pb-16 md:pb-20 bg-[#F4F8F6]">
+      <div className="max-w-md mx-auto px-2 md:px-0 py-6 space-y-6">
+        {/* Tarjetas resumen de cuentas */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Cuenta de Ahorros */}
+          <div className="rounded-2xl bg-[#0097A7] text-white p-4 flex flex-col shadow-md">
+            <div className="flex items-center gap-2 mb-2">
+              <DollarSign className="h-5 w-5" />
+              <span className="font-semibold">Cuenta de Ahorros</span>
+              <span className="ml-auto text-xs opacity-80">7895</span>
+            </div>
+            <div className="text-xs opacity-80 mb-1">Saldo disponible</div>
+            <div className="text-2xl font-bold" style={{ fontFamily: 'var(--font-clash-display)' }}>$35,000</div>
+          </div>
+          {/* Tarjeta Oro */}
+          <div className="rounded-2xl bg-[#DEA742] text-white p-4 flex flex-col shadow-md">
+            <div className="flex items-center gap-2 mb-2">
+              <CreditCard className="h-5 w-5" />
+              <span className="font-semibold">Tarjeta Oro</span>
+              <span className="ml-auto text-xs opacity-80">3456</span>
+            </div>
+            <div className="text-xs opacity-80 mb-1">Saldo Actual</div>
+            <div className="text-2xl font-bold" style={{ fontFamily: 'var(--font-clash-display)' }}>$12,500.75</div>
+            <div className="flex justify-between text-xs mt-2">
+              <span>Límite <span className="font-bold">$50,000</span></span>
+              <span>Disponible <span className="font-bold">$37,499.25</span></span>
+            </div>
+          </div>
         </div>
 
-        {/* Summary cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-          <Card className="bg-gradient-to-r from-[#1C3B5A] to-[#2a5580] text-white rounded-2xl shadow-lg">
-            <CardContent className="p-4 md:p-5">
-              <p className="text-sm text-white/80">Saldo total</p>
-              <p className="text-2xl font-bold mt-1" style={{ fontFamily: 'var(--font-clash-display)' }}>{formatCurrency(totals.balance, "MXN")}</p>
-              <p className="text-xs text-white/60 mt-2">En cuentas de ahorro y corriente</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-r from-[#DEA742] to-[#e8c078] text-white rounded-2xl shadow-lg">
-            <CardContent className="p-4 md:p-5">
-              <p className="text-sm text-white/80">Deuda total</p>
-              <p className="text-2xl font-bold mt-1" style={{ fontFamily: 'var(--font-clash-display)' }}>{formatCurrency(totals.debt, "MXN")}</p>
-              <p className="text-xs text-white/60 mt-2">En tarjetas de crédito</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-r from-[#4CAF50] to-[#81C784] text-white rounded-2xl shadow-lg">
-            <CardContent className="p-4 md:p-5">
-              <p className="text-sm text-white/80">Balance neto</p>
-              <p className="text-2xl font-bold mt-1" style={{ fontFamily: 'var(--font-clash-display)' }}>{formatCurrency(totals.balance - totals.debt, "MXN")}</p>
-              <p className="text-xs text-white/60 mt-2">Activos menos pasivos</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Filter and add account */}
-        <div className="flex justify-between items-center">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" leftIcon={<Filter size={16} />} className="border-[#00C96B] text-[#00C96B] font-medium">
-                {filter === "all" ? "Todas las cuentas" : getAccountTypeName(filter)}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-              <DropdownMenuItem onClick={() => setFilter("all")}>Todas las cuentas</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setFilter("savings")}>Cuentas de ahorro</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setFilter("checking")}>Cuentas corrientes</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setFilter("credit")}>Tarjetas de crédito</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <Button size="sm" leftIcon={<Plus size={16} />} className="bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-full px-5">
-            Agregar cuenta
-          </Button>
-        </div>
-
-        {/* Accounts list */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
-          {filteredAccounts.map((account) => (
-            <Card
-              key={account.id}
-              className="overflow-hidden cursor-pointer hover:shadow-xl transition-shadow rounded-2xl"
-              onClick={() => router.push(`/accounts/${account.id}`)}
-            >
-              <CardContent className="p-0">
-                <div className={`bg-gradient-to-r ${getAccountGradient(account.type)} p-4`}>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="text-white text-xs opacity-80">{getAccountTypeName(account.type)}</p>
-                      <h3 className="text-white text-lg font-bold mt-1" style={{ fontFamily: 'var(--font-clash-display)' }}>{account.name}</h3>
-                    </div>
-                    <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center">
-                      {getAccountIcon(account.type)}
-                    </div>
-                  </div>
-
-                  <div className="mt-4">
-                    <p className="text-white text-xs opacity-80">Número de cuenta</p>
-                    <p className="text-white font-mono text-sm">{account.number}</p>
-                  </div>
-
-                  <div className="mt-4">
-                    <p className="text-white text-xs opacity-80">
-                      {account.type === "credit" ? "Saldo actual" : "Saldo disponible"}
-                    </p>
-                    <p className="text-white text-xl font-bold mt-1" style={{ fontFamily: 'var(--font-clash-display)' }}>
-                      {formatCurrency(account.balance, account.currency)}
-                    </p>
-
-                    {account.type === "credit" && account.limit && (
-                      <div className="mt-2">
-                        <div className="flex justify-between text-xs text-white/80">
-                          <span>Límite: {formatCurrency(account.limit, account.currency)}</span>
-                          <span>Disponible: {formatCurrency(account.availableCredit, account.currency)}</span>
-                        </div>
-                        <div className="mt-1 h-1.5 bg-white/20 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-white"
-                            style={{ width: `${(account.balance / account.limit) * 100}%` }}
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </div>
+        {/* Movimientos recientes */}
+        <div className="rounded-2xl bg-white p-4 shadow-md">
+          <h2 className="text-lg font-bold text-[#1C3B5A] mb-3" style={{ fontFamily: 'var(--font-clash-display)' }}>Movimientos recientes</h2>
+          <ul className="divide-y divide-gray-100">
+            {movimientos.map((mov, i) => (
+              <li key={i} className="flex items-center py-2 gap-3">
+                <div className={`h-8 w-8 rounded-full flex items-center justify-center ${mov.tipo === 'ingreso' ? 'bg-[#E6F7ED]' : 'bg-[#FFF0F0]'}`}> 
+                  {mov.tipo === 'ingreso' ? <DollarSign className="text-[#00C96B]" /> : <CreditCard className="text-[#F87171]" />}
                 </div>
-
-                <div className="p-3 bg-white rounded-b-2xl">
-                  <div className="flex justify-between items-center">
-                    <div className="text-sm text-gray-500" style={{ fontFamily: 'var(--font-roboto)' }}>
-                      {account.type === "savings" && account.interestRate
-                        ? `Tasa de interés: ${account.interestRate}% anual`
-                        : account.type === "credit"
-                          ? "Toca para ver detalles y movimientos"
-                          : "Toca para ver detalles y movimientos"}
-                    </div>
-                    <Button variant="ghost" size="sm" className="text-[#00C96B] font-medium">
-                      Ver detalles
-                    </Button>
-                  </div>
+                <div className="flex-1">
+                  <div className="font-medium text-sm text-gray-900">{mov.descripcion}</div>
+                  <div className="text-xs text-gray-400">{mov.detalle}</div>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+                <div className={`text-sm font-bold ${mov.tipo === 'ingreso' ? 'text-[#00C96B]' : 'text-[#F87171]'}`}>{mov.monto > 0 ? '+' : ''}${Math.abs(mov.monto).toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+                <div className="text-xs text-gray-400 ml-2 whitespace-nowrap">{mov.fecha}</div>
+              </li>
+            ))}
+          </ul>
         </div>
 
-        {/* Personalized recommendation */}
-        <Card className="border-l-4 border-l-[#DEA742] mt-6 mb-4 bg-white/90 rounded-2xl shadow-md">
-          <CardContent className="p-4 md:p-5">
-            <div className="flex items-start gap-4">
-              <div className="h-10 w-10 rounded-full bg-[#f0f5fa] flex items-center justify-center flex-shrink-0">
-                <DollarSign size={20} className="text-[#1C3B5A]" />
-              </div>
-
-              <div className="flex-1">
-                <h3 className="text-base font-semibold text-[#1C3B5A]" style={{ fontFamily: 'var(--font-clash-display)' }}>
-                  Carlos, optimiza tus finanzas con una estrategia personalizada
-                </h3>
-                <p className="text-sm text-gray-500 mt-1" style={{ fontFamily: 'var(--font-roboto)' }}>
-                  Basado en tus hábitos financieros, te recomendamos distribuir tus fondos entre tus cuentas para
-                  maximizar beneficios y minimizar costos.
-                </p>
-
-                <Button variant="outline" size="sm" className="mt-3 border-[#00C96B] text-[#00C96B] font-medium">
-                  Ver recomendación
-                </Button>
+        {/* Resumen financiero */}
+        <div className="rounded-2xl bg-white p-4 shadow-md">
+          <h2 className="text-lg font-bold text-[#1C3B5A] mb-3" style={{ fontFamily: 'var(--font-clash-display)' }}>Resumen financiero</h2>
+          <div className="flex flex-col gap-2">
+            <div className="flex justify-between text-sm">
+              <span>Ingresos (Mayo):</span>
+              <span className="font-bold text-[#00C96B]">${resumen.ingresos.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span>Gastos (Mayo):</span>
+              <span className="font-bold text-[#F87171]">${resumen.gastos.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span>Balance:</span>
+              <span className="font-bold text-[#1C3B5A]">${resumen.balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+            </div>
+            {/* Barra de progreso */}
+            <div className="mt-2">
+              <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-full bg-[#00C96B]" style={{ width: `${Math.max(0, Math.min(100, (resumen.balance / resumen.ingresos) * 100))}%` }} />
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   )
