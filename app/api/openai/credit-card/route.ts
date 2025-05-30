@@ -16,19 +16,14 @@ const openai = new OpenAI({
 const schema = z.object({
     monthlyIncome: z.number(),
     employmentStatus: z.enum(["empleado", "independiente", "empresario"]),
-    timeEmployed: z.number(),
+    timeEmployed: z.string(),
     response: z.string(),
     page: z.string()
 });
 
 export async function POST(request: Request) {
   try {
-    const { text } = await request.json();
-
-    const { monthlyIncome, employmentStatus, timeEmployed } = useCreditCardStore.getState();
-
-    
-
+    const { text, monthlyIncome, employmentStatus, timeEmployed } = await request.json();
     
     const systemPrompt = `Eres un asistente virtual especializado en solicitudes de tarjetas de crédito.
     Tu objetivo es recolectar la información necesaria del usuario de manera amigable y profesional.
@@ -50,7 +45,7 @@ export async function POST(request: Request) {
     {
       "monthlyIncome": 1000000,
       "employmentStatus": "empleado",
-      "timeEmployed": 5,
+      "timeEmployed": "5 años",
       "response": "¡Gracias por proporcionar la información! Su solicitud será procesada en breve.",
       "page": "credit-card/confirmation"
     }
@@ -60,6 +55,12 @@ export async function POST(request: Request) {
 
     Si el usuario no acepta la solicitud, la página a la que debe redirigir es:
     "credit-card"
+
+    Si falta información o el usuario está corrigiendo datos, la página a la que debe redirigir es:
+    "credit-card"
+
+    IMPORTANTE:
+    No decir a donde redirigir, solo responder con el formato de la respuesta.
     `
     ;
     

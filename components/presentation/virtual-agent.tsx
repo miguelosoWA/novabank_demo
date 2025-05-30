@@ -82,6 +82,31 @@ export function VirtualAgent() {
     try {
       Logger.info('Transcripción recibida', text)
 
+      const {nombreDestinatario, amount, description} = useTransferStore.getState();
+
+      const {monthlyIncome, employmentStatus, timeEmployed} = useCreditCardStore.getState();
+
+      let body: any = {
+        text: text
+      }
+
+      if (isTransfersPage) {
+        body = {
+          text: text,
+          nombreDestinatario: nombreDestinatario,
+          amount: amount,
+          description: description
+        }
+      }
+
+      if (isCreditCardPage) {
+        body = {
+          text: text,
+          monthlyIncome: monthlyIncome,
+          employmentStatus: employmentStatus,
+          timeEmployed: timeEmployed
+        }
+      }
       // Enviar la transcripción a OpenAI
       Logger.debug('Enviando transcripción a OpenAI')
       const openaiResponse = await fetch(
@@ -93,9 +118,7 @@ export function VirtualAgent() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            text: text
-          })
+          body: JSON.stringify(body)
         }
       )
 

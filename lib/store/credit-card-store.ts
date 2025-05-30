@@ -3,12 +3,12 @@ import { create } from 'zustand'
 interface CreditCardState {
   monthlyIncome: number
   employmentStatus: "empleado" | "independiente" | "empresario"
-  timeEmployed: number
+  timeEmployed: string
   response: string
   setCreditCardData: (data: {
     monthlyIncome: number
     employmentStatus: "empleado" | "independiente" | "empresario"
-    timeEmployed: number
+    timeEmployed: string
     response: string
   }) => void
   resetCreditCardData: () => void
@@ -17,13 +17,13 @@ interface CreditCardState {
 export const useCreditCardStore = create<CreditCardState>((set) => ({
   monthlyIncome: 0,
   employmentStatus: "empleado",
-  timeEmployed: 0,
+  timeEmployed: "",
   response: "",
   setCreditCardData: (data) => set(data),
   resetCreditCardData: () => set({
     monthlyIncome: 0,
     employmentStatus: "empleado",
-    timeEmployed: 0,
+    timeEmployed: "",
     response: ""
   })
 })) 
