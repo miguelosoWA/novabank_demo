@@ -50,7 +50,7 @@ export default function CreditCardPage() {
   
 
         {/* Beneficios */}
-        <Card className="mt-6 border-0 shadow-lg bg-green-50">
+        <Card className="mt-6 border-0 shadow-lg bg-white">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Gift className="h-5 w-5 text-green-600" />

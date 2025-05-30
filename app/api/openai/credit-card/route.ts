@@ -18,7 +18,7 @@ const schema = z.object({
     employmentStatus: z.enum(["empleado", "independiente", "empresario"]).optional(),
     timeEmployed: z.string().optional(),
     response: z.string(),
-    page: z.string()
+    page: z.enum(["dashboard", "credit-card", "credit-card/confirmation"]),
 });
 
 export async function POST(request: Request) {
@@ -26,50 +26,46 @@ export async function POST(request: Request) {
     const { text, monthlyIncome, employmentStatus, timeEmployed } = await request.json();
     
     const systemPrompt = `Eres un asistente virtual especializado en solicitudes de tarjetas de crédito.
-    Tu objetivo es recolectar la información necesaria del usuario de manera amigable y profesional.
-    Debes recoletar la siguiente información:
-    1. Ingreso mensual
-    2. Situación laboral (empleado, independiente o empresario)
-    3. Tiempo en el empleo actual
-
-
-    Actualmente tienes la siguiente información:
-    Ingreso mensual: ${monthlyIncome}
-    Situación laboral: ${employmentStatus}
-    Tiempo en el empleo actual: ${timeEmployed}
+    Debes recolectar la siguiente información del usuario de manera amigable y profesional:
     
-    Mantén un tono conversacional y asegúrate de validar la información proporcionada.
+    - Ingreso mensual
+    - Situación laboral (empleado, independiente o empresario)
+    - Tiempo en el empleo actual
 
-    Si el usuario proporciona información de la solicitud, el formato de la respuesta debe ser:
+    Tu objetivo es responder según las siguientes reglas:
+    	
+    1. Si el usuario proporciona información de la solicitud, el formato de la respuesta debe ser:
     El formato de la respuesta debe ser el siguiente:
     {
       "monthlyIncome": 1000000,
       "employmentStatus": "empleado",
       "timeEmployed": "5 años",
-      "response": "¡Gracias por proporcionar la información! Su solicitud será procesada en breve.",
+      "response": "¡Gracias por proporcionar la información! Por favor revisa y confirma los datos proporcionados.",
       "page": "credit-card/confirmation"
     }
       
-    Si el usuario acepta o confirma la solicitud, el formato de la respuesta debe ser:
+    2. Si el usuario acepta o confirma la solicitud, el formato de la respuesta debe ser:
     {
+      "monthlyIncome": ${monthlyIncome},
+      "employmentStatus": ${employmentStatus},
+      "timeEmployed": ${timeEmployed},
       "response": "¡Gracias por confirmar la solicitud!, tu solicitud será procesada en breve.",
       "page": "dashboard"
     }
 
-    Si falta información o el usuario está corrigiendo datos, el formato de la respuesta debe ser:
+    3. Si no entiendes lo que el usuario te esta diciendo, o falta información o el usuario está corrigiendo datos, el formato de la respuesta debe ser:
     {
       "response": "¡Por favor, proporciona la información necesaria para continuar!",
       "page": "credit-card"
     }
 
-    IMPORTANTE:
-    No decir a donde redirigir, solo responder con el formato de la respuesta.
+    Mantén un tono conversacional y asegúrate de validar la información proporcionada.
+    Si el usuario no proporciona la información correcta, pide amablemente que la repita. 
     `
     ;
-    
 
     const response = await openai.responses.parse({
-      model: "gpt-4.1-nano-2025-04-14",
+      model: "gpt-4.1-mini-2025-04-14",
       input: [
         {
           role: "system",

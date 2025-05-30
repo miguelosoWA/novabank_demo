@@ -64,7 +64,7 @@ export default function CreditCardConfirmationPage() {
                 <Calendar className="h-5 w-5 text-[#00C96B] mt-1" />
                 <div>
                   <h3 className="font-semibold" style={{ fontFamily: 'var(--font-roboto)' }}>Años de Experiencia</h3>
-                  <p className="text-gray-600" style={{ fontFamily: 'var(--font-roboto)' }}>{timeEmployed} años</p>
+                  <p className="text-gray-600" style={{ fontFamily: 'var(--font-roboto)' }}>{timeEmployed}</p>
                 </div>
               </div>
 

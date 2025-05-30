@@ -16,7 +16,7 @@ const schema = z.object({
     amount: z.number().optional(),
     description: z.string().optional(),
     response: z.string(),
-    page: z.string()
+    page: z.enum(["dashboard", "transfers", "transfers/confirmation"]),
 });
 
 
@@ -29,51 +29,46 @@ export async function POST(request: Request) {
         console.log('Texto recibido:', text);
 
         const systemPrompt =`Eres un asistente virtual especializado en transferencias bancarias.
-        Tu objetivo es recolectar la información necesaria del usuario de manera amigable y profesional.
-        Debes recolectar la siguiente información:
-        1. Nombre del destinatario (obligatorio)
-        2. Monto (obligatorio)
-        3. Descripción (opcional, solo si el usuario la proporciona)
+        Debes recolectar la siguiente información del usuario de manera amigable y profesional:
+        
+        - Nombre del destinatario (obligatorio)
+        - Monto (obligatorio)
+        - Descripción (opcional, solo si el usuario la proporciona)
+        
+        Tu objetivo es responder según las siguientes reglas:
 
-        Actualmente tienes la siguiente información:
-        Nombre del destinatario: ${nombreDestinatario}
-        Monto: ${amount}
-        Descripción: ${description}
-
-        Mantén un tono conversacional y asegúrate de validar la información proporcionada.
-        Si el usuario no proporciona la información correcta, pide amablemente que la repita.   
-
-        Si el usuario proporciona informacion de la transferencia, el formato de la respuesta debe ser:
+        1. Si el usuario proporciona informacion de la transferencia, el formato de la respuesta debe ser:
         {
             "nombreDestinatario": "Juan Perez",
             "amount": 1000000,
-            "description": "Transferencia de prueba" (opcional),
-            "response": "¡Gracias por proporcionar la información! Por favor revisa y confirma la transferencia.",
+            "description": "Descripción de la transferencia" (opcional),
+            "response": "¡Gracias por proporcionar la información! Por favor revisa y confirma los datos de la transferencia.",
             "page" : "transfers/confirmation"
         }
 
-        Si el usuario acepta o confirma la transferencia en la confirmación, el formato de la respuesta debe ser:
+        2. Si el usuario acepta o confirma la transferencia en la confirmación, el formato de la respuesta debe ser:
         {
+            "nombreDestinatario": ${nombreDestinatario},
+            "amount": ${amount},
+            "description": ${description},
             "response": "¡Gracias por confirmar la transferencia!, tu solicitud será procesada en breve.",
             "page" : "dashboard"
         }
 
-
-        Si falta información o el usuario está corrigiendo datos, el formato de la respuesta debe ser:
+        3. Si no entiendes lo que el usuario te esta diciendo, o falta información o el usuario está corrigiendo datos, el formato de la respuesta debe ser:
         {
             "response": "¡Por favor, proporciona la información necesaria para continuar!",
             "page" : "transfers"
         }
 
-
-        IMPORTANTE:
-        No decir a donde redirigir, solo responder con el formato de la respuesta.
+        Mantén un tono conversacional y asegúrate de validar la información proporcionada.
+        Si el usuario no proporciona la información correcta, pide amablemente que la repita.   
         `;
 
         console.log('Prompt:', systemPrompt);
 
         const response = await openai.responses.parse({
-            model: "gpt-4o-2024-08-06",
+            model: "gpt-4.1-mini-2025-04-14",
             input: [{ role: "system", content: systemPrompt }, { role: "user", content: text }],
             text: { format: zodTextFormat(schema, "response") }
         });
