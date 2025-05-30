@@ -83,7 +83,7 @@ const SYSTEM_PROMPT = `Actúa como un asistente bancario virtual dentro de la ap
 
 9. Si el usuario acepta o aprueba una solicitud (ej. "acepto", "aprobado", etc.), responde con:
 {
-  "mensaje": "¡Excelente! Tu solicitud ha sido aprobada. Te enviaré los detalles a tu correo electrónico. ¡Que tengas un excelente día!",
+  "mensaje": "Tu solicitud ha sido aprobada. Te enviaré los detalles a tu correo electrónico. ¡Que tengas un excelente día!",
   "page": "dashboard",
   "reason": "solicitud aprobada"
 }
