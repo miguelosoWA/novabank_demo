@@ -56,7 +56,7 @@ export async function POST(request: Request) {
             "page" : "transfers/confirmation"
         }
 
-        Si el usuario acepta la transferencia en la confirmación, la página a la que debe redirigir es:
+        Si el usuario acepta o confirma la transferencia en la confirmación, la página a la que debe redirigir es:
         "dashboard"
 
         Si el usuario indica que quiere hacer otra transferencia después de aceptar, la página a la que debe redirigir es:

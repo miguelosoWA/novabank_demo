@@ -750,12 +750,12 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: "tween", duration: 0.6, ease: "easeOut" }}
-          className="relative h-[95%] flex items-center justify-center"
+          className="relative h-[96%] flex items-center justify-center"
         >
           {/* Video with background image that shows when no video content is playing */}
           <video
             ref={videoRef}
-            className="video-no-controls video-smooth-transition h-[95%] w-auto object-contain object-bottom mt-auto"
+            className="video-no-controls video-smooth-transition h-[96%] w-auto object-contain object-bottom mt-auto"
             playsInline
             muted={true}
             preload="metadata"
@@ -765,6 +765,7 @@ export const StreamingAgent = forwardRef<StreamingAgentRef, StreamingAgentProps>
               visibility: 'visible',
               display: 'block',
               background: 'transparent',
+              marginTop: '43px', // Move video down by 2 pixels
             }}
             // Hide all default video controls and indicators
             controls={false}
