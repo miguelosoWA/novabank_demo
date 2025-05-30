@@ -13,9 +13,9 @@ export default function TransferConfirmation() {
 
   useEffect(() => {
     // Si no hay datos de transferencia, redirigir a la página de transferencias
-    if (!nombreDestinatario || !amount) {
-      router.push('/transfers')
-    }
+    // if (!nombreDestinatario || !amount) {
+    //   router.push('/transfers')
+    // }
   }, [nombreDestinatario, amount, router])
 
   const handleComplete = () => {
@@ -24,7 +24,7 @@ export default function TransferConfirmation() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-start pb-16 md:pb-20 bg-[#DDF3E6]">
+    <div className="flex flex-col items-center justify-start bg-[#DDF3E6]">
       {/* Banner superior */}
       <div className="w-full max-w-xl rounded-t-2xl bg-[#00C96B] flex justify-center items-center py-6 shadow-sm">
         <span className="text-2xl md:text-3xl text-white" style={{ fontFamily: 'var(--font-clash-display)' }}>
@@ -57,10 +57,6 @@ export default function TransferConfirmation() {
               </div>
             </div>
 
-            {/* Mensaje de Confirmación */}
-            <div className="mt-6 p-4 bg-green-50 rounded-lg">
-              <p className="text-green-800 text-sm" style={{ fontFamily: 'var(--font-roboto)' }}>{response}</p>
-            </div>
 
             {/* Botón de Completar */}
             <div className="mt-6">
@@ -75,7 +71,7 @@ export default function TransferConfirmation() {
         </Card>
 
         {/* Mensaje de Seguridad */}
-        <div className="mt-6 text-center text-gray-600 flex items-center justify-center gap-2">
+        <div className="mt-6 text-center text-gray-600 flex items-center justify-center gap-2 mb-10">
           <Shield className="h-5 w-5 text-[#00C96B]" />
           <p style={{ fontFamily: 'var(--font-roboto)' }}>Tu transferencia está siendo procesada de manera segura</p>
         </div>

@@ -120,7 +120,7 @@ export default function Dashboard() {
       <main className="min-h-screen p-0 bg-[#c9e6d4]">
         <div className="max-w-md mx-auto">
           {/* Header */}
-          <div className="bg-[#15d05f] text-white py-6 px-6 shadow-m">
+          <div className="bg-[#2D7A4A] text-white py-6 px-6 shadow-m">
             <h1 className="text-2xl font-bold text-center">Oportunidades para ti</h1>
           </div>
 

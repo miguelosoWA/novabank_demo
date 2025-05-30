@@ -105,7 +105,7 @@ export default function LoginPage() {
           <div className="mt-8 text-center">
             <p className="text-sm text-white">
               ¿Nuevo aquí?{" "}
-              <Link href="/register" className="font-semibold text-[#6ECE3C] hover:text-[#8CF05D]">
+              <Link href="/login" className="font-semibold text-[#6ECE3C] hover:text-[#8CF05D]">
                 Crea tu cuenta
               </Link>
             </p>

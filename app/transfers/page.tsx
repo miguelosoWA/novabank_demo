@@ -17,8 +17,8 @@ const TransfersContent = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-start pb-16 md:pb-20 bg-[#DDF3E6]">
       {/* Banner superior */}
-      <div className="w-full max-w-xl rounded-t-2xl bg-[#00C96B] flex justify-center items-center py-6 shadow-sm">
-        <span className="text-2xl md:text-3xl text-white" style={{ fontFamily: 'var(--font-clash-display)' }}>
+      <div className="w-full max-w-xl rounded-t-1xl bg-[#2D7A4A] flex justify-center items-center py-6 shadow-sm mb-5">
+        <span className="text-3xl md:text-3xl text-white" style={{ fontFamily: 'var(--font-clash-display)' }}>
           Transferencias
         </span>
       </div>
@@ -82,7 +82,7 @@ const TransfersContent = () => {
         </div>
 
         {/* Botón de Continuar */}
-        <div className="mt-8 flex justify-center">
+        {/* <div className="mt-8 flex justify-center">
           <Button
             onClick={handleContinue}
             className="bg-[#00C96B] hover:bg-[#00B05A] text-white px-8 py-6 rounded-xl text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
@@ -90,7 +90,7 @@ const TransfersContent = () => {
             Continuar con la transferencia
             <ArrowRight className="h-5 w-5" />
           </Button>
-        </div>
+        </div> */}
 
         {/* Mensaje de Seguridad */}
         <div className="mt-8 text-center text-gray-600 flex items-center justify-center gap-2">

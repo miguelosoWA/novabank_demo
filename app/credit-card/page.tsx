@@ -46,11 +46,11 @@ function getCardBgColor(name: string) {
 export default function CreditCardPage() {
   return (
     <div className="px-6 py-0" >
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto mb-10">
   
 
         {/* Beneficios */}
-        <Card className="mt-6 border-0 shadow-lg bg-green-50">
+        <Card className="mt-6 border-0 shadow-lg bg-white">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Gift className="h-5 w-5 text-green-600" />
@@ -119,7 +119,7 @@ export default function CreditCardPage() {
           </CardContent>
         </Card>
 
-        {/* Tarjetas del Usuario */}
+        {/* Tarjetas del Usuario
         <div className="mt-6">
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <CreditCard className="h-5 w-5 text-blue-600" />
@@ -153,7 +153,7 @@ export default function CreditCardPage() {
               </Card>
             ))}
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   )
