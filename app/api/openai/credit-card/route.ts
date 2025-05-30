@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { zodTextFormat } from "openai/helpers/zod";
 import { z } from "zod";
+import { useCreditCardStore } from "@/lib/store/credit-card-store"
 
 
 if (!process.env.OPENAI_API_KEY) {
@@ -13,37 +14,58 @@ const openai = new OpenAI({
 });
 
 const schema = z.object({
-    monthlyIncome: z.number(),
-    employmentStatus: z.enum(["empleado", "independiente", "empresario"]),
-    timeEmployed: z.number(),
+    monthlyIncome: z.number().optional(),
+    employmentStatus: z.enum(["empleado", "independiente", "empresario"]).optional(),
+    timeEmployed: z.string().optional(),
     response: z.string(),
+    page: z.enum(["dashboard", "credit-card", "credit-card/confirmation"]),
 });
 
 export async function POST(request: Request) {
   try {
-    const { text } = await request.json();
+    const { text, monthlyIncome, employmentStatus, timeEmployed } = await request.json();
     
     const systemPrompt = `Eres un asistente virtual especializado en solicitudes de tarjetas de crédito.
-    Tu objetivo es recolectar la información necesaria del usuario de manera amigable y profesional.
-    Debes recoletar la siguiente información:
-    4. Ingreso mensual
-    5. Situación laboral (empleado, independiente o empresario)
-    6. Tiempo en el empleo actual
+    Debes recolectar la siguiente información del usuario de manera amigable y profesional:
     
-    Mantén un tono conversacional y asegúrate de validar la información proporcionada.
-    Cuando hayas recolectado toda la información, agradece al usuario y confirma que su solicitud será procesada.
-    
+    - Ingreso mensual
+    - Situación laboral (empleado, independiente o empresario)
+    - Tiempo en el empleo actual
+
+    Tu objetivo es responder según las siguientes reglas:
+    	
+    1. Si el usuario proporciona información de la solicitud, el formato de la respuesta debe ser:
     El formato de la respuesta debe ser el siguiente:
     {
       "monthlyIncome": 1000000,
       "employmentStatus": "empleado",
-      "timeEmployed": 5,
-      "response": "¡Gracias por proporcionar la información! Su solicitud será procesada en breve."
-    }`;
-    
+      "timeEmployed": "5 años",
+      "response": "¡Gracias por proporcionar la información! Por favor revisa y confirma los datos proporcionados.",
+      "page": "credit-card/confirmation"
+    }
+      
+    2. Si el usuario acepta o confirma la solicitud, el formato de la respuesta debe ser:
+    {
+      "monthlyIncome": ${monthlyIncome},
+      "employmentStatus": ${employmentStatus},
+      "timeEmployed": ${timeEmployed},
+      "response": "¡Gracias por confirmar la solicitud!, tu solicitud será procesada en breve.",
+      "page": "dashboard"
+    }
+
+    3. Si no entiendes lo que el usuario te esta diciendo, o falta información o el usuario está corrigiendo datos, el formato de la respuesta debe ser:
+    {
+      "response": "¡Por favor, proporciona la información necesaria para continuar!",
+      "page": "credit-card"
+    }
+
+    Mantén un tono conversacional y asegúrate de validar la información proporcionada.
+    Si el usuario no proporciona la información correcta, pide amablemente que la repita. 
+    `
+    ;
 
     const response = await openai.responses.parse({
-      model: "gpt-4.1-nano-2025-04-14",
+      model: "gpt-4.1-mini-2025-04-14",
       input: [
         {
           role: "system",

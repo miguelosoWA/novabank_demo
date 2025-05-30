@@ -1,50 +1,51 @@
+import Image from 'next/image'
+
 interface LogoProps {
   size?: "sm" | "md" | "lg"
-  variant?: "default" | "white"
 }
 
-export function Logo({ size = "md", variant = "default" }: LogoProps) {
+export function Logo({ size = "md" }: LogoProps) {
   const sizes = {
-    sm: "h-8",
-    md: "h-12",
-    lg: "h-16",
+    sm: { width: 32, height: 32, textSize: "lg" },
+    md: { width: 48, height: 48, textSize: "xl" },
+    lg: { width: 64, height: 64, textSize: "2xl" },
   }
 
+  if (size === "sm") {
+    return (
+      <div className="flex items-center">
+        <Image
+          src="/icon-192x192.png"
+          alt="Insight Banking Logo"
+          width={30}
+          height={30}
+        />
+        <div className="ml-2 flex flex-col justify-center">
+          <div>
+            <span className="text-white font-bold text-lg leading-tight">INSIGHT</span>
+            <span className="text-[#6ABE7A] font-light text-lg ml-1 leading-tight">BANKING</span>
+          </div>
+          <p className="text-xs text-white leading-tight">
+            By <span className="font-semibold text-white">sofka</span><span className="text-[#F58220]">_</span>
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  const currentSize = sizes[size]
   return (
     <div className="flex items-center gap-2">
-      <div className={`relative ${sizes[size]}`} style={{ aspectRatio: "1" }}>
-        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-          {/* Stylized N with shield-like shape */}
-          <path
-            d="M20 20L20 80H35L80 20V80H65"
-            stroke={variant === "default" ? "#1C3B5A" : "#FFFFFF"}
-            strokeWidth="12"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-
-          {/* Accent elements */}
-          <path
-            d="M20 80L80 80"
-            stroke={variant === "default" ? "#DEA742" : "#DEA742"}
-            strokeWidth="6"
-            strokeLinecap="round"
-          />
-
-          {/* Digital element - horizontal lines */}
-          <path
-            d="M30 90L70 90"
-            stroke={variant === "default" ? "#DEA742" : "#DEA742"}
-            strokeWidth="4"
-            strokeLinecap="round"
-          />
-
-          {/* Small accent dot */}
-          <circle cx="50" cy="15" r="5" fill={variant === "default" ? "#DEA742" : "#DEA742"} />
-        </svg>
+      <div className={`relative w-[${currentSize.width}px] h-[${currentSize.height}px]`}>
+        <Image
+          src="/icon-192x192.png"
+          alt="Insight Banking Logo"
+          width={currentSize.width}
+          height={currentSize.height}
+        />
       </div>
       <div
-        className={`font-bold text-${size === "sm" ? "lg" : size === "md" ? "xl" : "2xl"} ${variant === "default" ? "text-[#1C3B5A]" : "text-white"}`}
+        className={`font-bold text-${currentSize.textSize} text-[#1C3B5A]`}
       >
         Insight Banking by Sofka
       </div>

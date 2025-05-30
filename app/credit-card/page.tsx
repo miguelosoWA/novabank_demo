@@ -35,17 +35,25 @@ const userCards: UserCreditCard[] = [
   }
 ]
 
+// Función para obtener el color de fondo según el nombre de la tarjeta
+function getCardBgColor(name: string) {
+  if (name.toLowerCase().includes('gold')) return 'bg-[#DEA742] text-white';
+  if (name.toLowerCase().includes('clásica')) return 'bg-[#1C3B5A] text-white';
+  if (name.toLowerCase().includes('platinum')) return 'bg-[#4B5563] text-white';
+  return 'bg-white';
+}
+
 export default function CreditCardPage() {
   return (
-    <div className="px-2 py-6">
+    <div className="px-6 py-0" >
       <div className="max-w-4xl mx-auto">
   
 
         {/* Beneficios */}
-        <Card className="mt-6 border-0 shadow-lg">
+        <Card className="mt-6 border-0 shadow-lg bg-white">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <Gift className="h-5 w-5 text-blue-600" />
+              <Gift className="h-5 w-5 text-green-600" />
               Beneficios de tu Tarjeta
             </CardTitle>
           </CardHeader>
@@ -77,31 +85,31 @@ export default function CreditCardPage() {
         </Card>
 
         {/* Requisitos */}
-        <Card className="mt-6 border-0 shadow-lg">
+        <Card className="mt-6 border-0 shadow-lg bg-yellow-50">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <Shield className="h-5 w-5 text-blue-600" />
+              <Shield className="h-5 w-5 text-yellow-600" />
               Requisitos
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-start gap-3">
-                <Clock className="h-5 w-5 text-blue-500 mt-1" />
+                <Clock className="h-5 w-5 text-yellow-500 mt-1" />
                 <div>
                   <h3 className="font-semibold">Edad Mínima</h3>
                   <p className="text-sm text-gray-600">Mayor de 18 años</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <Clock className="h-5 w-5 text-blue-500 mt-1" />
+                <Clock className="h-5 w-5 text-yellow-500 mt-1" />
                 <div>
                   <h3 className="font-semibold">Ingresos Mínimos</h3>
                   <p className="text-sm text-gray-600">Ingresos mensuales superiores a 2 SMMLV</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <Clock className="h-5 w-5 text-blue-500 mt-1" />
+                <Clock className="h-5 w-5 text-yellow-500 mt-1" />
                 <div>
                   <h3 className="font-semibold">Historial Crediticio</h3>
                   <p className="text-sm text-gray-600">Sin reportes negativos en centrales de riesgo</p>
@@ -119,25 +127,25 @@ export default function CreditCardPage() {
           </h2>
           <div className="space-y-4">
             {userCards.map((card) => (
-              <Card key={card.id} className="border-0 shadow-lg">
+              <Card key={card.id} className={`border-0 shadow-lg rounded-2xl ${getCardBgColor(card.name)}`}>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center justify-between">
+                  <CardTitle className="text-lg flex items-center justify-between" style={{ fontFamily: 'var(--font-roboto)' }}>
                     <span>{card.name}</span>
-                    <span className="text-sm font-normal text-gray-500">{card.number}</span>
+                    <span className="text-sm font-normal text-gray-200">{card.number}</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-600">Línea de Crédito</span>
+                      <span className="text-gray-200">Línea de Crédito</span>
                       <span className="font-semibold">${card.limit.toLocaleString('es-CO')} COP</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-600">Disponible</span>
-                      <span className="font-semibold text-green-600">${card.available.toLocaleString('es-CO')} COP</span>
+                      <span className="text-gray-200">Disponible</span>
+                      <span className="font-semibold text-green-200">${card.available.toLocaleString('es-CO')} COP</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-600">Fecha de Corte</span>
+                      <span className="text-gray-200">Fecha de Corte</span>
                       <span className="font-semibold">{card.dueDate}</span>
                     </div>
                   </div>

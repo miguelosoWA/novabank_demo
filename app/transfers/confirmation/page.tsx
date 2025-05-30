@@ -2,10 +2,10 @@
 
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useTransferStore } from "@/lib/store/transfer-store"
-import { Shield, CheckCircle2 } from "lucide-react"
+import { Shield, CheckCircle2, Info } from "lucide-react"
 
 export default function TransferConfirmation() {
   const router = useRouter()
@@ -24,46 +24,49 @@ export default function TransferConfirmation() {
   }
 
   return (
-    <div className="px-2 py-6">
-      <div className="max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-green-600 to-green-800 text-white p-6 rounded-t-2xl">
-          <div className="flex items-center justify-center gap-3">
-            <CheckCircle2 className="h-8 w-8" />
-            <h1 className="text-xl font-semibold">Transferencia Confirmada</h1>
-          </div>
-        </div>
-
-        {/* Detalles de la Transferencia */}
-        <Card className="mt-4 border-0 shadow-lg">
-          <CardContent className="p-6">
+    <div className="min-h-screen flex flex-col items-center justify-start pb-16 md:pb-20 bg-[#DDF3E6]">
+      {/* Banner superior */}
+      <div className="w-full max-w-xl rounded-t-2xl bg-[#00C96B] flex justify-center items-center py-6 shadow-sm">
+        <span className="text-2xl md:text-3xl text-white" style={{ fontFamily: 'var(--font-clash-display)' }}>
+          Transferencia Confirmada
+        </span>
+      </div>
+      <div className="w-full max-w-xl px-4 -mt-6">
+        <Card className="mt-6 border-0 shadow-lg rounded-2xl bg-white">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2" style={{ fontFamily: 'var(--font-clash-display)', color: '#003C1A' }}>
+              <Info className="h-5 w-5 text-[#00C96B]" />
+              Detalles de la Transferencia
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
             <div className="space-y-6">
               <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                <span className="text-gray-600">Nombre Destinatario</span>
-                <span className="font-semibold text-gray-900">{nombreDestinatario}</span>
+                <span className="text-gray-600" style={{ fontFamily: 'var(--font-roboto)' }}>Nombre Destinatario</span>
+                <span className="font-semibold text-gray-900" style={{ fontFamily: 'var(--font-roboto)' }}>{nombreDestinatario}</span>
               </div>
 
               <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                <span className="text-gray-600">Monto</span>
-                <span className="font-semibold text-gray-900">${amount.toLocaleString('es-CO')} COP</span>
+                <span className="text-gray-600" style={{ fontFamily: 'var(--font-roboto)' }}>Monto</span>
+                <span className="font-semibold text-gray-900" style={{ fontFamily: 'var(--font-roboto)' }}>${amount.toLocaleString('es-CO')} COP</span>
               </div>
 
               <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                <span className="text-gray-600">Descripción</span>
-                <span className="font-semibold text-gray-900">{description}</span>
+                <span className="text-gray-600" style={{ fontFamily: 'var(--font-roboto)' }}>Descripción</span>
+                <span className="font-semibold text-gray-900" style={{ fontFamily: 'var(--font-roboto)' }}>{description}</span>
               </div>
             </div>
 
             {/* Mensaje de Confirmación */}
             <div className="mt-6 p-4 bg-green-50 rounded-lg">
-              <p className="text-green-800 text-sm">{response}</p>
+              <p className="text-green-800 text-sm" style={{ fontFamily: 'var(--font-roboto)' }}>{response}</p>
             </div>
 
             {/* Botón de Completar */}
             <div className="mt-6">
               <Button
                 onClick={handleComplete}
-                className="w-full bg-green-600 hover:bg-green-700 text-white py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                className="w-full bg-[#00C96B] hover:bg-[#00B05A] text-white py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
               >
                 Confirmar Transferencia
               </Button>
@@ -73,8 +76,8 @@ export default function TransferConfirmation() {
 
         {/* Mensaje de Seguridad */}
         <div className="mt-6 text-center text-gray-600 flex items-center justify-center gap-2">
-          <Shield className="h-5 w-5 text-green-600" />
-          <p>Tu transferencia está siendo procesada de manera segura</p>
+          <Shield className="h-5 w-5 text-[#00C96B]" />
+          <p style={{ fontFamily: 'var(--font-roboto)' }}>Tu transferencia está siendo procesada de manera segura</p>
         </div>
       </div>
     </div>

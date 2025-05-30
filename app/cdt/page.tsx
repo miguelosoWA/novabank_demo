@@ -10,36 +10,76 @@ export default function WithdrawalPage() {
   const availableBalance = 18500.75 // Simulado, normalmente vendría de la API
 
   return (
-    <div className="space-y-8 px-4 md:px-6 lg:px-8 pb-16 md:pb-20 max-w-screen-md mx-auto">
-     
-      <div className="bg-white rounded-xl p-4">
-        <h3 className="text-l font-semibold text-[#1C3B5A] mb-6">Características clave de un Certificado de Depósito a Término:</h3>
-        <ul className="space-y-3 text-left">
-          <li className="flex items-start">
-            <span className="text-[#1C3B5A] mr-3">•</span>
-            <span className="text-gray-700">Plazo fijo. El dinero se deposita por un período específico (desde 30 días hasta varios años). No puede retirarse antes sin penalización.</span>
-          </li>
-          <li className="flex items-start">
-            <span className="text-[#1C3B5A] mr-3">•</span>
-            <span className="text-gray-700">Tasa de interés conocida. Desde el inicio te decimos cuánto ganarás al final del plazo (interés fijo o variable según el producto).</span>
-          </li>
-          <li className="flex items-start">
-            <span className="text-[#1C3B5A] mr-3">•</span>
-            <span className="text-gray-700">Bajo riesgo. Es una inversión segura, respaldada por nosotros.</span>
-          </li>
-          <li className="flex items-start">
-            <span className="text-[#1C3B5A] mr-3">•</span>
-            <span className="text-gray-700">Rendimiento garantizado. El rendimiento está asegurado siempre que se cumpla el plazo pactado.</span>
-          </li>
-          <li className="flex items-start">
-            <span className="text-[#1C3B5A] mr-3">•</span>
-            <span className="text-gray-700">Cobertura del Fogafín. En Colombia, los CDT emitidos por entidades financieras vigiladas están cubiertos por el Fondo de Garantías de Instituciones Financieras.</span>
-          </li>
-          <li className="flex items-start">
-            <span className="text-[#1C3B5A] mr-3">•</span>
-            <span className="text-gray-700">No es líquido. No se puede disponer del dinero antes del vencimiento sin incurrir en penalidades o perder rendimientos.</span>
-          </li>
-        </ul>
+    <div className="pb-12 bg-[#cae6d5]">
+      {/* Header */}
+      <div className="bg-[#2D7A4A] text-white py-4 px-6">
+        <div className="max-w-4xl mx-auto">
+            <div className="text-xl font-medium">Certificado de Depósito a Término (CDT)</div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="max-w-4xl mx-auto px-6 py-0">
+        {/* Características clave section */}
+        <div className="bg-white shadow-sm overflow-hidden">
+          
+          <div className="p-4">
+            <div className="space-y-6">
+              <h3 className="text-xl font-semibold text-[#fd7524]">Características clave</h3>
+              {/* Plazo fijo */}
+              <div className="flex items-start gap-4">
+                <div className="w-6 h-6 bg-[#FF6B35] rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <div className="w-2 h-2 bg-white rounded-full"></div>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-800 mb-2">Plazo fijo.</h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    El dinero se deposita por un período específico (desde 30 días hasta varios años). No puede retirarse antes sin penalización.
+                  </p>
+                </div>
+              </div>
+
+              {/* Tasa de interés conocida */}
+              <div className="flex items-start gap-4">
+                <div className="w-6 h-6 bg-[#FF6B35] rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <div className="w-2 h-2 bg-white rounded-full"></div>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-800 mb-2">Tasa de interés conocida.</h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    Desde el inicio te decimos cuánto ganarás al final del plazo (interés fijo o variable según el producto).
+                  </p>
+                </div>
+              </div>
+
+              {/* Bajo riesgo */}
+              <div className="flex items-start gap-4">
+                <div className="w-6 h-6 bg-[#FF6B35] rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <div className="w-2 h-2 bg-white rounded-full"></div>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-800 mb-2">Bajo riesgo.</h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    Es una inversión segura, respaldada por nosotros.
+                  </p>
+                </div>
+              </div>
+
+              {/* Rendimiento garantizado */}
+              <div className="flex items-start gap-4">
+                <div className="w-6 h-6 bg-[#FF6B35] rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <div className="w-2 h-2 bg-white rounded-full"></div>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-800 mb-2">Rendimiento garantizado.</h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    El rendimiento está asegurado siempre que se cumpla el plazo pactado.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )
