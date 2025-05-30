@@ -27,15 +27,15 @@ export default function CreditCardConfirmationPage() {
     <div className="px-2 py-2">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="bg-[#15d05f] text-white p-6 rounded-t-2xl">
+        <div className="bg-[#15d05f] text-white p-6 rounded-t-2xl shadow-lg  mt-5">
           <div className="flex items-center justify-center gap-3">
-            <CheckCircle2 className="h-8 w-8" />
+            <CheckCircle2 className="h-6 w-8" />
             <h1 className="text-xl font-semibold">Solicitud Recibida</h1>
           </div>
         </div>
 
         {/* Mensaje de Confirmación */}
-        <Card className="mt-6 border-0 shadow-lg rounded-2xl bg-white">
+        <Card className="mt-3 border-0 shadow-lg rounded-2xl bg-white">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2" style={{ fontFamily: 'var(--font-clash-display)', color: '#003C1A' }}>
               <CheckCircle2 className="h-5 w-5 text-[#00C96B]" />
