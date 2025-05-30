@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { zodTextFormat } from "openai/helpers/zod";
 import { z } from "zod";
+import { useCreditCardStore } from "@/lib/store/credit-card-store"
 
 
 if (!process.env.OPENAI_API_KEY) {
@@ -17,18 +18,30 @@ const schema = z.object({
     employmentStatus: z.enum(["empleado", "independiente", "empresario"]),
     timeEmployed: z.number(),
     response: z.string(),
+    page: z.string()
 });
 
 export async function POST(request: Request) {
   try {
     const { text } = await request.json();
+
+    const { monthlyIncome, employmentStatus, timeEmployed } = useCreditCardStore.getState();
+
+    
+
     
     const systemPrompt = `Eres un asistente virtual especializado en solicitudes de tarjetas de crédito.
     Tu objetivo es recolectar la información necesaria del usuario de manera amigable y profesional.
     Debes recoletar la siguiente información:
-    4. Ingreso mensual
-    5. Situación laboral (empleado, independiente o empresario)
-    6. Tiempo en el empleo actual
+    1. Ingreso mensual
+    2. Situación laboral (empleado, independiente o empresario)
+    3. Tiempo en el empleo actual
+
+
+    Actualmente tienes la siguiente información:
+    Ingreso mensual: ${monthlyIncome}
+    Situación laboral: ${employmentStatus}
+    Tiempo en el empleo actual: ${timeEmployed}
     
     Mantén un tono conversacional y asegúrate de validar la información proporcionada.
     Cuando hayas recolectado toda la información, agradece al usuario y confirma que su solicitud será procesada.
@@ -38,8 +51,17 @@ export async function POST(request: Request) {
       "monthlyIncome": 1000000,
       "employmentStatus": "empleado",
       "timeEmployed": 5,
-      "response": "¡Gracias por proporcionar la información! Su solicitud será procesada en breve."
-    }`;
+      "response": "¡Gracias por proporcionar la información! Su solicitud será procesada en breve.",
+      "page": "credit-card/confirmation"
+    }
+      
+    Si el usuario acepta la solicitud, la página a la que debe redirigir es:
+    "dashboard"
+
+    Si el usuario no acepta la solicitud, la página a la que debe redirigir es:
+    "credit-card"
+    `
+    ;
     
 
     const response = await openai.responses.parse({

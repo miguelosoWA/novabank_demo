@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { zodTextFormat } from "openai/helpers/zod";
 import { z } from "zod";
+import { useTransferStore } from "@/lib/store/transfer-store"
 
 if (!process.env.OPENAI_API_KEY) {
     throw new Error('OPENAI_API_KEY no está configurada en las variables de entorno');
@@ -16,6 +17,7 @@ const schema = z.object({
     amount: z.number(),
     description: z.string(),
     response: z.string(),
+    page: z.string()
 });
 
 
@@ -25,6 +27,8 @@ export async function POST(request: Request) {
         
         const {text}  = await request.json();
 
+        const { nombreDestinatario, amount, description } = useTransferStore.getState();
+
         console.log('Texto recibido:', text);
 
         const systemPrompt =`Eres un asistente virtual especializado en transferencias bancarias.
@@ -33,6 +37,11 @@ export async function POST(request: Request) {
         1. Nombre del destinatario
         2. Monto
         3. Descripción
+
+        Actualmente tienes la siguiente información:
+        Nombre del destinatario: ${nombreDestinatario}
+        Monto: ${amount}
+        Descripción: ${description}
 
 
         Mantén un tono conversacional y asegúrate de validar la información proporcionada.
@@ -44,8 +53,16 @@ export async function POST(request: Request) {
             "nombreDestinatario": "Juan Perez",
             "amount": 1000000,
             "description": "Transferencia de prueba",
-            "response": "¡Gracias por proporcionar la información! Su solicitud será procesada en breve. Por favor, acepta para proceder"
-        }`;
+            "response": "¡Gracias por proporcionar la información! Su solicitud será procesada en breve. Por favor, acepta para proceder",
+            "page" : "transfers/confirmation"
+        }
+
+        Si el usuario acepta la solicitud, la página a la que debe redirigir es:
+        "dashboard"
+
+        Si el usuario no acepta la solicitud, la página a la que debe redirigir es:
+        "transfers"
+        `;
 
         const response = await openai.responses.parse({
             model: "gpt-4o-2024-08-06",
