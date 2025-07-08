@@ -3,8 +3,7 @@
 import { useState, useRef, useEffect } from "react"
 import {useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
-import { StreamingAgent } from "@/components/presentation/streaming-agent"
-import { VoiceRecognition } from "@/components/presentation/voice-recognition"
+import { GeminiVirtualAgent, GeminiVirtualAgentRef } from "@/components/presentation/gemini-virtual-agent"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -40,12 +39,12 @@ export default function VirtualAgent() {
     employmentStatus: "",
     timeEmployed: ""
   })
-  const streamingAgentRef = useRef<{ sendMessage: (text: string) => void }>(null)
+  const geminiAgentRef = useRef<GeminiVirtualAgentRef>(null)
   const [isStreamReady, setIsStreamReady] = useState(false)
   const [hasStarted, setHasStarted] = useState(false)
 
   const handleStart = async () => {
-    if (streamingAgentRef.current && isStreamReady) {
+    if (geminiAgentRef.current && isStreamReady) {
       try {
         const initialMessage = `¡Hola Carlos! Sofia aqui de nuevo. 
         Para poder continuar con tu solicitud, necesito que me des algunos datos de tu perfil. 
@@ -53,7 +52,7 @@ export default function VirtualAgent() {
         Segundo, cual es tu situacion laboral
         Por ultimo, cuantos años llevas en tu empleo actual?`
         
-        await streamingAgentRef.current.sendMessage(initialMessage)
+        await geminiAgentRef.current.sendMessage(initialMessage)
         setHasStarted(true)
       } catch (error) {
         console.error("Error al iniciar la conversación:", error)
@@ -84,11 +83,11 @@ export default function VirtualAgent() {
       const result = await openaiResponse.json()
       
       // Enviar respuesta al avatar
-      if (result.response && streamingAgentRef.current) {
+      if (result.response && geminiAgentRef.current) {
         const responseText = result.response.response
         
         // Enviar el texto al avatar
-        streamingAgentRef.current.sendMessage(responseText)
+        geminiAgentRef.current.sendMessage(responseText)
 
         // Actualizar el formulario con la información recolectada
         const openAIResponse = result.response as OpenAIResponse
@@ -118,9 +117,9 @@ export default function VirtualAgent() {
   }
 
   const handleComplete = async () => {
-    if (streamingAgentRef.current) {
+    if (geminiAgentRef.current) {
       const completionMessage = "¡Perfecto Carlos! He recibido toda la información necesaria. Tu solicitud será procesada y te notificaremos el resultado en breve. ¡Gracias por confiar en nosotros!"
-      streamingAgentRef.current.sendMessage(completionMessage)
+      geminiAgentRef.current.sendMessage(completionMessage)
       
       // Esperar 5 segundos antes de redirigir para que el mensaje se reproduzca
       setTimeout(() => {
@@ -135,14 +134,14 @@ export default function VirtualAgent() {
     <div className="flex flex-col h-screen overflow-hidden">
       {/* Asistente virtual - parte superior */}
       <div className="w-full h-1/2 min-h-[350px] border-b border-gray-200 pt-16 relative">
-        <StreamingAgent
-          ref={streamingAgentRef}
-          apiKey={process.env.DID_API_KEY || ""}
+        <GeminiVirtualAgent
+          ref={geminiAgentRef}
+          apiKey={process.env.GEMINI_API_KEY || ""}
           onStreamReady={() => {
             console.log("Stream ready")
             setIsStreamReady(true)
           }}
-          onStreamError={(error) => console.error("Stream error:", error)}
+          onStreamError={(error: string) => console.error("Stream error:", error)}
         />
         
         {/* Botón de inicio a la izquierda */}
@@ -157,15 +156,7 @@ export default function VirtualAgent() {
           </div>
         )}
 
-        {/* Botón de grabación posicionado en la esquina inferior derecha */}
-        {hasStarted && (
-          <div className="absolute bottom-4 right-4">
-            <VoiceRecognition 
-              onSpeechRecognized={handleSpeechRecognized}
-              className="w-16 h-16"
-            />
-          </div>
-        )}
+        {/* Voice recognition is now built into the Gemini agent */}
       </div>
 
       {/* Formulario - parte inferior */}

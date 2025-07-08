@@ -1,13 +1,13 @@
 # Insight Banking by Sofka - Asistente Virtual
 
 ## Descripción
-Insight Banking by Sofka es una aplicación bancaria que incluye un asistente virtual interactivo. El asistente utiliza la API de D-ID para generar un avatar animado que puede comunicarse con los usuarios a través de voz y texto.
+Insight Banking by Sofka es una aplicación bancaria que incluye un asistente virtual interactivo. El asistente utiliza Google Gemini Live Audio para generar respuestas de voz en tiempo real que pueden comunicarse con los usuarios a través de voz y texto.
 
 ## Características Principales
 
 ### Asistente Virtual
-- Avatar animado con expresiones faciales realistas
-- Reconocimiento de voz en tiempo real
+- Respuestas de voz en tiempo real con Google Gemini
+- Reconocimiento de voz integrado
 - Respuestas en lenguaje natural
 - Navegación contextual basada en la conversación
 - Sistema de logging detallado para monitoreo y depuración
@@ -16,31 +16,24 @@ Insight Banking by Sofka es una aplicación bancaria que incluye un asistente vi
 - **Frontend**: Next.js 14 con App Router
 - **Estilos**: Tailwind CSS
 - **Animaciones**: Framer Motion
-- **Avatar**: D-ID API (Clips)
-- **Voz**: Microsoft Azure (es-MX-DaliaNeural)
-- **IA**: OpenAI GPT-4
+- **Voz y IA**: Google Gemini Live Audio
+- **Procesamiento**: OpenAI GPT-4
 
 ## Configuración del Proyecto
 
 ### Requisitos Previos
 - Node.js 18.17 o superior
-- Cuenta en D-ID
+- Cuenta en Google AI Studio (Gemini)
 - Cuenta en OpenAI
-- Cuenta en Microsoft Azure (para voz)
 
 ### Variables de Entorno
 Crear un archivo `.env.local` con las siguientes variables:
 ```env
-# D-ID API
-DID_API_KEY=tu_api_key_de_did
-NEXT_PUBLIC_DID_API_URL=https://api.d-id.com
+# Google Gemini API
+GEMINI_API_KEY=tu_api_key_de_gemini
 
 # OpenAI
 OPENAI_API_KEY=tu_api_key_de_openai
-
-# Microsoft Azure (opcional, para voz)
-AZURE_SPEECH_KEY=tu_api_key_de_azure
-AZURE_SPEECH_REGION=tu_region_de_azure
 ```
 
 ### Instalación
@@ -86,33 +79,33 @@ El proyecto implementa un sistema de logging detallado para facilitar el monitor
 
 ### Componentes con Logging
 - **VirtualAgent**: Logging de interacciones y estado
-- **StreamingAgent**: Logging de conexión y streaming
-- **VoiceRecognition**: Logging de reconocimiento de voz
+- **GeminiVirtualAgent**: Logging de conexión y streaming
+- **VoiceRecognition**: Logging de reconocimiento de voz (integrado en Gemini)
 
 ### Visualización de Logs
 Los logs se pueden ver en la consola del navegador (F12) y están categorizados por componente:
 ```
 [VirtualAgent] ℹ️ Mensaje de información
-[StreamingAgent] ❌ Error en conexión
+[GeminiVirtualAgent] ❌ Error en conexión
 [VoiceRecognition] ✅ Voz reconocida
 ```
 
-## API de D-ID (Clips)
+## Google Gemini Live Audio
 
-El proyecto utiliza la API de Clips de D-ID para generar el avatar virtual:
+El proyecto utiliza Google Gemini Live Audio para generar respuestas de voz en tiempo real:
 
 ### Características
-- Streaming en tiempo real
-- Expresiones faciales realistas
-- Sincronización de labios
+- Streaming de audio en tiempo real
+- Reconocimiento de voz integrado
+- Respuestas de voz naturales
 - Manejo de errores robusto
 - Reconexión automática
 
 ### Configuración
 ```typescript
-const PRESENTER_TYPE = 'clip'
-const PRESENTER_ID = 'rian-pbMoTzs7an'
-const DRIVER_ID = 'czarwf1D01'
+const model = 'gemini-2.5-flash-preview-native-audio-dialog'
+const voiceConfig = { prebuiltVoiceConfig: { voiceName: 'Orus' } }
+const languageCode = 'es-ES'
 ```
 
 ## Contribución
