@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { zodTextFormat } from "openai/helpers/zod";
 import { z } from "zod";
+import { getContextById } from '@/lib/conversation-contexts';
 
 if (!process.env.OPENAI_API_KEY) {
   throw new Error('OPENAI_API_KEY no está configurada en las variables de entorno');
@@ -114,15 +115,19 @@ export async function POST(request: Request) {
       );
     }
 
-    const { text } = body;
-    console.log('Texto a procesar:', text);
+    const { text, contextId = 'general' } = body;
+    console.log('Texto a procesar:', text, 'Contexto:', contextId);
+
+    // Obtener el contexto específico
+    const context = getContextById(contextId);
+    console.log('Contexto cargado:', context.name);
 
     const response = await openai.responses.parse({
       model: "gpt-4.1-nano-2025-04-14",
       input: [
         {
           role: "system",
-          content: SYSTEM_PROMPT
+          content: context.systemPrompt
         },
         {
           role: "user",
