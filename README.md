@@ -1,46 +1,38 @@
 # Insight Banking by Sofka - Asistente Virtual
 
 ## Descripción
-Insight Banking by Sofka es una aplicación bancaria que incluye un asistente virtual interactivo. El asistente utiliza la API de D-ID para generar un avatar animado que puede comunicarse con los usuarios a través de voz y texto.
+Insight Banking by Sofka es una aplicación bancaria que incluye un asistente virtual interactivo. El asistente utiliza la API de OpenAI Realtime para generar un avatar virtual que puede comunicarse con los usuarios a través de voz y texto en tiempo real.
 
 ## Características Principales
 
 ### Asistente Virtual
-- Avatar animado con expresiones faciales realistas
+- Avatar virtual con comunicación en tiempo real
 - Reconocimiento de voz en tiempo real
-- Respuestas en lenguaje natural
+- Respuestas en lenguaje natural usando OpenAI GPT-4
 - Navegación contextual basada en la conversación
 - Sistema de logging detallado para monitoreo y depuración
+- Conexión WebRTC para comunicación de baja latencia
 
 ### Tecnologías Utilizadas
 - **Frontend**: Next.js 14 con App Router
 - **Estilos**: Tailwind CSS
 - **Animaciones**: Framer Motion
-- **Avatar**: D-ID API (Clips)
-- **Voz**: Microsoft Azure (es-MX-DaliaNeural)
+- **Avatar**: OpenAI Realtime API
+- **Voz**: OpenAI Realtime API
 - **IA**: OpenAI GPT-4
+- **Comunicación**: WebRTC
 
 ## Configuración del Proyecto
 
 ### Requisitos Previos
 - Node.js 18.17 o superior
-- Cuenta en D-ID
-- Cuenta en OpenAI
-- Cuenta en Microsoft Azure (para voz)
+- Cuenta en OpenAI con acceso a Realtime API
 
 ### Variables de Entorno
 Crear un archivo `.env.local` con las siguientes variables:
 ```env
-# D-ID API
-DID_API_KEY=tu_api_key_de_did
-NEXT_PUBLIC_DID_API_URL=https://api.d-id.com
-
 # OpenAI
 OPENAI_API_KEY=tu_api_key_de_openai
-
-# Microsoft Azure (opcional, para voz)
-AZURE_SPEECH_KEY=tu_api_key_de_azure
-AZURE_SPEECH_REGION=tu_region_de_azure
 ```
 
 ### Instalación
@@ -86,33 +78,33 @@ El proyecto implementa un sistema de logging detallado para facilitar el monitor
 
 ### Componentes con Logging
 - **VirtualAgent**: Logging de interacciones y estado
-- **StreamingAgent**: Logging de conexión y streaming
+- **RealtimeAgent**: Logging de conexión WebRTC y streaming
 - **VoiceRecognition**: Logging de reconocimiento de voz
 
 ### Visualización de Logs
 Los logs se pueden ver en la consola del navegador (F12) y están categorizados por componente:
 ```
 [VirtualAgent] ℹ️ Mensaje de información
-[StreamingAgent] ❌ Error en conexión
+[RealtimeAgent] ❌ Error en conexión
 [VoiceRecognition] ✅ Voz reconocida
 ```
 
-## API de D-ID (Clips)
+## API de OpenAI Realtime
 
-El proyecto utiliza la API de Clips de D-ID para generar el avatar virtual:
+El proyecto utiliza la API de OpenAI Realtime para generar el avatar virtual:
 
 ### Características
-- Streaming en tiempo real
-- Expresiones faciales realistas
-- Sincronización de labios
+- Streaming en tiempo real con WebRTC
+- Comunicación de voz bidireccional
+- Respuestas en lenguaje natural
 - Manejo de errores robusto
 - Reconexión automática
+- Tokens ephemeral para seguridad
 
 ### Configuración
 ```typescript
-const PRESENTER_TYPE = 'clip'
-const PRESENTER_ID = 'rian-pbMoTzs7an'
-const DRIVER_ID = 'czarwf1D01'
+const model = "gpt-4o-realtime-preview-2025-06-03"
+const voice = "alloy" // También disponible: 'echo', 'fable', 'onyx', 'nova', 'shimmer'
 ```
 
 ## Contribución

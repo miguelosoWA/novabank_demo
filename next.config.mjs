@@ -42,7 +42,7 @@ const nextConfig = {
     ]
   },
   env: {
-    DID_API_KEY: process.env.DID_API_KEY,
+    // OpenAI API key is handled server-side for security
   },
 }
 

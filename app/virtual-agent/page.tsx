@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react"
 import {useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
-import { StreamingAgent } from "@/components/presentation/streaming-agent"
+import { RealtimeAgent, RealtimeAgentRef } from "@/components/presentation/realtime-agent"
 import { VoiceRecognition } from "@/components/presentation/voice-recognition"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -40,7 +40,7 @@ export default function VirtualAgent() {
     employmentStatus: "",
     timeEmployed: ""
   })
-  const streamingAgentRef = useRef<{ sendMessage: (text: string) => void }>(null)
+  const streamingAgentRef = useRef<RealtimeAgentRef>(null)
   const [isStreamReady, setIsStreamReady] = useState(false)
   const [hasStarted, setHasStarted] = useState(false)
 
@@ -135,14 +135,13 @@ export default function VirtualAgent() {
     <div className="flex flex-col h-screen overflow-hidden">
       {/* Asistente virtual - parte superior */}
       <div className="w-full h-1/2 min-h-[350px] border-b border-gray-200 pt-16 relative">
-        <StreamingAgent
+        <RealtimeAgent
           ref={streamingAgentRef}
-          apiKey={process.env.DID_API_KEY || ""}
           onStreamReady={() => {
             console.log("Stream ready")
             setIsStreamReady(true)
           }}
-          onStreamError={(error) => console.error("Stream error:", error)}
+          onStreamError={(error: string) => console.error("Stream error:", error)}
         />
         
         {/* Botón de inicio a la izquierda */}

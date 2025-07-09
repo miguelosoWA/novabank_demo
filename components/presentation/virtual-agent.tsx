@@ -1,8 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { StreamingAgent } from "./streaming-agent"
-import { VoiceRecognition } from "./voice-recognition"
+import { RealtimeAgent, RealtimeAgentRef } from "./realtime-agent"
 import { useRouter, usePathname } from "next/navigation"
 import { useTransferStore } from '@/lib/store/transfer-store'
 import { useCreditCardStore } from '@/lib/store/credit-card-store'
@@ -30,7 +29,8 @@ export function VirtualAgent() {
   const [isStreamReady, setIsStreamReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [connectionState, setConnectionState] = useState<'connecting' | 'connected' | 'error' | 'disconnected'>('disconnected')
-  const streamingAgentRef = useRef<{ sendMessage: (text: string) => void }>(null)
+  const [isMicrophoneActive, setIsMicrophoneActive] = useState(false)
+  const streamingAgentRef = useRef<RealtimeAgentRef>(null)
   const router = useRouter()
   const pathname = usePathname()
   const isMountedRef = useRef(true)
@@ -41,24 +41,11 @@ export function VirtualAgent() {
 
   const handleStreamReady = () => {
     if (!isMountedRef.current) return
-    Logger.info('Stream listo para recibir mensajes')
+    Logger.info('Conexión de voz establecida')
     setIsStreamReady(true)
     setConnectionState('connected')
     setError(null) // Clear any previous errors when connection is successful
-    
-    // Send initial welcome message to make the avatar appear
-    if (streamingAgentRef.current) {
-      const initialMessage = `<break time="100ms"/>`
-      Logger.info('Enviando mensaje inicial al avatar', { message: initialMessage })
-      
-      // Small delay to ensure the stream is fully ready
-      setTimeout(() => {
-        if (streamingAgentRef.current && isMountedRef.current) {
-          streamingAgentRef.current.sendMessage(initialMessage)
-          Logger.success('Mensaje inicial enviado al avatar')
-        }
-      }, 1000)
-    }
+    Logger.success('Sistema de voz directa listo')
   }
 
   const handleStreamError = (error: string) => {
@@ -76,14 +63,20 @@ export function VirtualAgent() {
     setConnectionState('error')
   }
 
-  const handleSpeechRecognized = async (text: string) => {
+  const handleMicrophoneToggle = () => {
+    if (streamingAgentRef.current) {
+      const newState = streamingAgentRef.current.toggleMicrophone()
+      setIsMicrophoneActive(newState)
+    }
+  }
+
+  const handleAgentTextResponse = async (text: string) => {
     if (!isMountedRef.current) return
     
     try {
-      Logger.info('Transcripción recibida', text)
+      Logger.info('Texto recibido del agente Realtime', text)
 
       const {nombreDestinatario, amount, description} = useTransferStore.getState();
-
       const {monthlyIncome, employmentStatus, timeEmployed} = useCreditCardStore.getState();
 
       let body: any = {
@@ -107,8 +100,9 @@ export function VirtualAgent() {
           timeEmployed: timeEmployed
         }
       }
-      // Enviar la transcripción a OpenAI
-      Logger.debug('Enviando transcripción a OpenAI')
+
+      // Enviar el texto del agente a OpenAI para procesamiento
+      Logger.debug('Enviando texto del agente a OpenAI para procesamiento')
       const openaiResponse = await fetch(
         isTransfersPage ? '/api/openai/transfers' : 
         isCreditCardPage ? '/api/openai/credit-card' : 
@@ -134,14 +128,11 @@ export function VirtualAgent() {
       const result = await openaiResponse.json()
       Logger.info('Respuesta de OpenAI recibida', result)
 
-      // Enviar respuesta al avatar
-      if (result.response && streamingAgentRef.current && isMountedRef.current) {
+      // Procesar la respuesta para navegación
+      if (result.response && isMountedRef.current) {
         if (isTransfersPage) {
           // Guardar los datos de la transferencia en el store
           setTransferData(result.response)
-          // Enviar solo el mensaje de respuesta al avatar
-          streamingAgentRef.current.sendMessage(result.response.response)
-
           if (result.response.page){
             router.push(`/${result.response.page}`)
           } else {
@@ -150,28 +141,24 @@ export function VirtualAgent() {
         } else if (isCreditCardPage) {
           // Guardar los datos de la tarjeta de crédito en el store
           setCreditCardData(result.response)
-          // Enviar solo el mensaje de respuesta al avatar
-          streamingAgentRef.current.sendMessage(result.response.response)
-
           if (result.response.page){
             router.push(`/${result.response.page}`)
           } else {
             router.push('/credit-card/confirmation')
           }
         } else {
-          const { text: responseText, page, reason } = result.response
-          streamingAgentRef.current.sendMessage(responseText)
+          const { page } = result.response
           if (page) {
             router.push(`/${page}`)
           }
         }
-        Logger.success('Respuesta enviada al avatar')
+        Logger.success('Navegación procesada')
       } else {
         Logger.warn('Respuesta de OpenAI sin datos esperados', { result })
       }
     } catch (err) {
       if (isMountedRef.current) {
-        Logger.error('Error al procesar la transcripción', err)
+        Logger.error('Error al procesar el texto del agente', err)
         setError("Error al procesar la solicitud")
       }
     }
@@ -182,9 +169,19 @@ export function VirtualAgent() {
     Logger.info('Componente VirtualAgent montado')
     isMountedRef.current = true
     
+    // Escuchar eventos de texto del agente Realtime
+    const handleAgentTextEvent = (event: CustomEvent) => {
+      if (event.detail && event.detail.text) {
+        handleAgentTextResponse(event.detail.text)
+      }
+    }
+    
+    window.addEventListener('agentTextResponse', handleAgentTextEvent as EventListener)
+    
     return () => {
       Logger.info('Componente VirtualAgent desmontado')
       isMountedRef.current = false
+      window.removeEventListener('agentTextResponse', handleAgentTextEvent as EventListener)
     }
   }, [])
 
@@ -215,9 +212,8 @@ export function VirtualAgent() {
         </div>
       )}
 
-      <StreamingAgent
+      <RealtimeAgent
         ref={streamingAgentRef}
-        apiKey={process.env.DID_API_KEY || ""}
         onStreamReady={handleStreamReady}
         onStreamError={handleStreamError}
       />
@@ -225,7 +221,28 @@ export function VirtualAgent() {
       {/* Botón de micrófono */}
       {isStreamReady && (
         <div className="absolute bottom-6 right-6">
-          <VoiceRecognition onSpeechRecognized={handleSpeechRecognized} />
+          <button
+            onClick={handleMicrophoneToggle}
+            className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-200 ${
+              isMicrophoneActive 
+                ? 'bg-red-500 hover:bg-red-600 shadow-lg' 
+                : 'bg-green-500 hover:bg-green-600 shadow-lg'
+            }`}
+            title={isMicrophoneActive ? 'Desactivar micrófono' : 'Activar micrófono'}
+          >
+            {isMicrophoneActive ? (
+              <div className="flex flex-col items-center">
+                <div className="w-2 h-2 bg-white rounded-full animate-pulse mb-1"></div>
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
+              </div>
+            ) : (
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+              </svg>
+            )}
+          </button>
         </div>
       )}
     </div>
