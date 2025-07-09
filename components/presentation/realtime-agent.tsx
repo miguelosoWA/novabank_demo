@@ -2,6 +2,17 @@
 
 import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from "react"
 import { motion } from "framer-motion"
+import { getContextById, type ConversationContext } from "@/lib/conversation-contexts"
+
+// Declarar CustomEvent para TypeScript
+declare global {
+  interface WindowEventMap {
+    'agentTextResponse': CustomEvent<{ text: string }>
+    'userTextResponse': CustomEvent<{ text: string }>
+  }
+}
+
+// Tipos para el sistema de navegación
 
 // Logger utility
 const Logger = {
@@ -25,6 +36,7 @@ const Logger = {
 interface RealtimeAgentProps {
   onStreamReady?: () => void
   onStreamError?: (error: string) => void
+  contextId?: string
 }
 
 export interface RealtimeAgentRef {
@@ -34,19 +46,21 @@ export interface RealtimeAgentRef {
 }
 
 export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
-  ({ onStreamReady, onStreamError }, ref) => {
+  ({ onStreamReady, onStreamError, contextId = 'general' }, ref) => {
     const [isConnected, setIsConnected] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [connectionState, setConnectionState] = useState<'connecting' | 'connected' | 'error' | 'disconnected'>('disconnected')
     const [isInitializing, setIsInitializing] = useState(false)
     const [isDataChannelAvailable, setIsDataChannelAvailable] = useState(false)
     const [isMicrophoneActive, setIsMicrophoneActive] = useState(false)
+    const [currentContext, setCurrentContext] = useState<ConversationContext>(getContextById(contextId))
     
     const peerConnectionRef = useRef<RTCPeerConnection | null>(null)
     const dataChannelRef = useRef<RTCDataChannel | null>(null)
     const audioRef = useRef<HTMLAudioElement | null>(null)
     const audioTrackRef = useRef<MediaStreamTrack | null>(null)
     const isMountedRef = useRef(true)
+    const userTextRef = useRef<string>('')
 
     // Expose connection status and microphone control through ref
     useImperativeHandle(ref, () => ({
@@ -60,6 +74,10 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
           audioTrackRef.current.enabled = newState
           setIsMicrophoneActive(newState)
           Logger.info(`Micrófono ${newState ? 'activado' : 'desactivado'}`)
+          
+          // El micrófono ahora se maneja por el AudioRecorder
+          Logger.info(`Micrófono ${newState ? 'activado' : 'desactivado'} - Grabación manejada por AudioRecorder`)
+          
           return newState
         }
         return false
@@ -95,7 +113,7 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            voice: 'alloy' // You can change this to other voices like 'echo', 'fable', 'onyx', 'nova', 'shimmer'
+            voice: currentContext.voice
           })
         })
 
@@ -208,6 +226,9 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
                 detail: { text: data.text } 
               })
               window.dispatchEvent(textEvent)
+            } else if (data.type === 'user_text') {
+              // Texto transcrito del usuario - ya no emitir evento, se maneja por AudioRecorder
+              Logger.info('Texto del usuario transcrito (manejado por AudioRecorder)', data.text)
             } else if (data.type === 'audio') {
               Logger.info('Audio recibido del agente')
             } else if (data.type === 'conversation_started') {
@@ -334,6 +355,17 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
       setConnectionState('disconnected')
     }
 
+    // Update context when contextId changes
+    useEffect(() => {
+      const newContext = getContextById(contextId)
+      setCurrentContext(newContext)
+      Logger.info('Contexto actualizado', { 
+        contextId, 
+        contextName: newContext.name,
+        voice: newContext.voice 
+      })
+    }, [contextId])
+
     // Initialize on mount
     useEffect(() => {
       Logger.info('Componente montado, iniciando conexión')
@@ -388,20 +420,25 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
             <div className="text-center">
               <h3 className="text-xl font-semibold text-gray-800 mb-2">
                 {connectionState === 'connecting' && 'Conectando...'}
-                {connectionState === 'connected' && 'Sofía - Asistente Virtual'}
+                {connectionState === 'connected' && `Sofía - ${currentContext.name}`}
                 {connectionState === 'error' && 'Error de conexión'}
                 {connectionState === 'disconnected' && 'Desconectado'}
               </h3>
               <p className="text-gray-600">
                 {connectionState === 'connecting' && 'Estableciendo conexión de voz...'}
-                {connectionState === 'connected' && 'Presiona el botón para hablar con Sofía'}
+                {connectionState === 'connected' && currentContext.welcomeMessage}
                 {connectionState === 'error' && 'No se pudo conectar con el agente'}
                 {connectionState === 'disconnected' && 'Conexión perdida'}
               </p>
               {connectionState === 'connected' && (
-                <p className="text-sm text-blue-600 mt-2">
-                  🎤 Micrófono controlado por el usuario
-                </p>
+                <div className="mt-2 space-y-1">
+                  <p className="text-sm text-blue-600">
+                    🎤 Micrófono controlado por el usuario
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {currentContext.description}
+                  </p>
+                </div>
               )}
             </div>
           </div>
