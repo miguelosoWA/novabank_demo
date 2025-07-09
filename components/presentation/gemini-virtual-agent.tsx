@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from "react"
 import { GoogleGenAI, LiveServerMessage, Modality, Session } from '@google/genai'
-import { createBlob, decode, decodeAudioData } from '@/lib/utils'
+import { createAudioData, decode, decodeAudioData, createWavFromPCM } from '@/lib/utils'
 import { useRouter, usePathname } from "next/navigation"
 import { useTransferStore } from '@/lib/store/transfer-store'
 import { useCreditCardStore } from '@/lib/store/credit-card-store'
@@ -66,6 +66,10 @@ export const GeminiVirtualAgent = forwardRef<GeminiVirtualAgentRef, GeminiVirtua
     const audioWorkletNodeRef = useRef<AudioWorkletNode | null>(null)
     const nextStartTimeRef = useRef<number>(0)
     const sourcesRef = useRef<Set<AudioBufferSourceNode>>(new Set())
+    
+    // Response queue for handling multiple audio responses
+    const responseQueueRef = useRef<ArrayBuffer[]>([])
+    const isPlayingRef = useRef<boolean>(false)
     
     // Gemini client and session
     const clientRef = useRef<GoogleGenAI | null>(null)
@@ -153,10 +157,7 @@ export const GeminiVirtualAgent = forwardRef<GeminiVirtualAgentRef, GeminiVirtua
           },
           config: {
             responseModalities: [Modality.AUDIO],
-            speechConfig: {
-              voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Orus' } },
-            //   languageCode: 'es-US'
-            },
+            systemInstruction: "You are a helpful banking assistant named Sofia. Answer in Spanish in a friendly and professional tone."
           },
         })
         
@@ -167,23 +168,19 @@ export const GeminiVirtualAgent = forwardRef<GeminiVirtualAgentRef, GeminiVirtua
       }
     }
 
-    // Handle messages from Gemini
-    const handleGeminiMessage = async (message: LiveServerMessage) => {
-      try {
-        const audio = message.serverContent?.modelTurn?.parts?.[0]?.inlineData
+    // Play audio from queue
+    const playAudioFromQueue = async () => {
+      if (isPlayingRef.current || responseQueueRef.current.length === 0 || !outputAudioContextRef.current) {
+        return
+      }
 
-        if (audio && audio.data && outputAudioContextRef.current) {
-          nextStartTimeRef.current = Math.max(
-            nextStartTimeRef.current,
-            outputAudioContextRef.current.currentTime,
-          )
-
-          const audioBuffer = await decodeAudioData(
-            decode(audio.data),
-            outputAudioContextRef.current,
-            24000,
-            1,
-          )
+      isPlayingRef.current = true
+      
+      while (responseQueueRef.current.length > 0) {
+        const wavBuffer = responseQueueRef.current.shift()!
+        
+        try {
+          const audioBuffer = await outputAudioContextRef.current.decodeAudioData(wavBuffer)
           
           const source = outputAudioContextRef.current.createBufferSource()
           source.buffer = audioBuffer
@@ -196,17 +193,83 @@ export const GeminiVirtualAgent = forwardRef<GeminiVirtualAgentRef, GeminiVirtua
           nextStartTimeRef.current = nextStartTimeRef.current + audioBuffer.duration
           sourcesRef.current.add(source)
           
-          Logger.info('Audio response played')
+          Logger.info('Audio response played from queue')
+          
+          // Wait for this audio to finish before playing next
+          await new Promise(resolve => {
+            source.addEventListener('ended', resolve, { once: true })
+          })
+        } catch (audioError) {
+          Logger.error('Error processing audio from queue', audioError)
+        }
+      }
+      
+      isPlayingRef.current = false
+    }
+
+    // Handle messages from Gemini
+    const handleGeminiMessage = async (message: LiveServerMessage) => {
+      try {
+        Logger.debug('Received message from Gemini', { message })
+        
+        // Handle audio responses
+        if (message.data && outputAudioContextRef.current) {
+          try {
+            // Convert base64 audio data to PCM
+            const pcmData = decode(message.data);
+            
+            // Create WAV file from PCM data
+            const wavBuffer = createWavFromPCM(pcmData, 24000);
+            
+            // Add to response queue
+            responseQueueRef.current.push(wavBuffer)
+            
+            // Start playing if not already playing
+            if (!isPlayingRef.current) {
+              playAudioFromQueue()
+            }
+            
+            Logger.info('Audio response queued')
+          } catch (audioError) {
+            Logger.error('Error processing audio response', audioError)
+          }
+        }
+
+        // Handle server content (alternative audio format)
+        const audio = message.serverContent?.modelTurn?.parts?.[0]?.inlineData
+        if (audio && audio.data && outputAudioContextRef.current) {
+          try {
+            // Convert base64 audio data to PCM
+            const pcmData = decode(audio.data);
+            
+            // Create WAV file from PCM data
+            const wavBuffer = createWavFromPCM(pcmData, 24000);
+            
+            // Add to response queue
+            responseQueueRef.current.push(wavBuffer)
+            
+            // Start playing if not already playing
+            if (!isPlayingRef.current) {
+              playAudioFromQueue()
+            }
+            
+            Logger.info('Audio response queued (server content)')
+          } catch (audioError) {
+            Logger.error('Error processing server content audio', audioError)
+          }
         }
 
         const interrupted = message.serverContent?.interrupted
         if (interrupted) {
+          // Clear queue and stop all audio
+          responseQueueRef.current = []
           for (const source of sourcesRef.current.values()) {
             source.stop()
             sourcesRef.current.delete(source)
           }
           nextStartTimeRef.current = 0
-          Logger.info('Audio interrupted')
+          isPlayingRef.current = false
+          Logger.info('Audio interrupted and queue cleared')
         }
 
         // Handle text responses for navigation
@@ -334,11 +397,41 @@ export const GeminiVirtualAgent = forwardRef<GeminiVirtualAgentRef, GeminiVirtua
             Logger.success('AudioWorkletNode created successfully')
 
             // Handle audio data from worklet
+            let audioChunks: Float32Array[] = []
+            let lastSendTime = 0
+            
             audioWorkletNodeRef.current.port.onmessage = (event) => {
               if (event.data.type === 'audioData' && sessionRef.current) {
                 const pcmData = new Float32Array(event.data.data)
-                const audioBlob = createBlob(pcmData) as any
-                sessionRef.current.sendRealtimeInput({ media: audioBlob })
+                audioChunks.push(pcmData)
+                
+                const currentTime = Date.now()
+                // Send audio every 500ms or when we have enough data
+                if (currentTime - lastSendTime > 500 || audioChunks.length >= 4) {
+                  // Combine audio chunks
+                  const totalLength = audioChunks.reduce((sum, chunk) => sum + chunk.length, 0)
+                  const combinedAudio = new Float32Array(totalLength)
+                  let offset = 0
+                  
+                  for (const chunk of audioChunks) {
+                    combinedAudio.set(chunk, offset)
+                    offset += chunk.length
+                  }
+                  
+                  const audioData = createAudioData(combinedAudio)
+                  Logger.debug('Sending audio data to Gemini', { 
+                    dataLength: audioData.data.length,
+                    mimeType: audioData.mimeType,
+                    chunks: audioChunks.length
+                  })
+                  
+                  sessionRef.current.sendRealtimeInput({
+                    audio: audioData
+                  })
+                  
+                  audioChunks = []
+                  lastSendTime = currentTime
+                }
               }
             }
 
@@ -356,12 +449,42 @@ export const GeminiVirtualAgent = forwardRef<GeminiVirtualAgentRef, GeminiVirtua
               1,
             )
 
+            let audioChunks: Float32Array[] = []
+            let lastSendTime = 0
+            
             scriptProcessor.onaudioprocess = (audioProcessingEvent) => {
               if (sessionRef.current) {
                 const inputBuffer = audioProcessingEvent.inputBuffer
                 const pcmData = inputBuffer.getChannelData(0)
-                const audioBlob = createBlob(pcmData) as any
-                sessionRef.current.sendRealtimeInput({ media: audioBlob })
+                audioChunks.push(pcmData)
+                
+                const currentTime = Date.now()
+                // Send audio every 500ms or when we have enough data
+                if (currentTime - lastSendTime > 500 || audioChunks.length >= 4) {
+                  // Combine audio chunks
+                  const totalLength = audioChunks.reduce((sum, chunk) => sum + chunk.length, 0)
+                  const combinedAudio = new Float32Array(totalLength)
+                  let offset = 0
+                  
+                  for (const chunk of audioChunks) {
+                    combinedAudio.set(chunk, offset)
+                    offset += chunk.length
+                  }
+                  
+                  const audioData = createAudioData(combinedAudio)
+                  Logger.debug('Sending audio data to Gemini (ScriptProcessor)', { 
+                    dataLength: audioData.data.length,
+                    mimeType: audioData.mimeType,
+                    chunks: audioChunks.length
+                  })
+                  
+                  sessionRef.current.sendRealtimeInput({
+                    audio: audioData
+                  })
+                  
+                  audioChunks = []
+                  lastSendTime = currentTime
+                }
               }
             }
 
@@ -404,6 +527,14 @@ export const GeminiVirtualAgent = forwardRef<GeminiVirtualAgentRef, GeminiVirtua
         mediaStreamRef.current = null
       }
 
+      // Wait a bit for any final responses to come in
+      setTimeout(() => {
+        if (responseQueueRef.current.length > 0 && !isPlayingRef.current) {
+          Logger.info('Playing final audio responses')
+          playAudioFromQueue()
+        }
+      }, 1000)
+
       setStatus('Recording stopped. Click Start to begin again.')
       Logger.info('Recording stopped')
     }
@@ -412,10 +543,22 @@ export const GeminiVirtualAgent = forwardRef<GeminiVirtualAgentRef, GeminiVirtua
     const resetSession = () => {
       if (sessionRef.current) {
         sessionRef.current.close()
-        initSession()
-        setStatus('Session cleared.')
-        Logger.info('Session reset')
+        sessionRef.current = null
       }
+
+      // Clear audio queue and stop all audio
+      responseQueueRef.current = []
+      for (const source of sourcesRef.current.values()) {
+        source.stop()
+        sourcesRef.current.delete(source)
+      }
+      nextStartTimeRef.current = 0
+      isPlayingRef.current = false
+
+      // Reinitialize session
+      initSession()
+      setStatus('Session cleared.')
+      Logger.info('Session reset')
     }
 
     // Expose methods through ref

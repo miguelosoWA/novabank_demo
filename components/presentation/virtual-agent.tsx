@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import { useRouter, usePathname } from "next/navigation"
-import { GeminiVirtualAgent, GeminiVirtualAgentRef } from "./gemini-virtual-agent"
+import { VirtualAgentSelector } from "./virtual-agent-selector"
 import { useTransferStore } from '@/lib/store/transfer-store'
 import { useCreditCardStore } from '@/lib/store/credit-card-store'
 
@@ -30,7 +30,6 @@ export function VirtualAgent() {
   const [isStreamReady, setIsStreamReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [connectionState, setConnectionState] = useState<'connecting' | 'connected' | 'error' | 'disconnected'>('disconnected')
-  const geminiAgentRef = useRef<GeminiVirtualAgentRef>(null)
   const router = useRouter()
   const pathname = usePathname()
   const isMountedRef = useRef(true)
@@ -89,8 +88,7 @@ export function VirtualAgent() {
         </div>
       )}
 
-      <GeminiVirtualAgent
-        ref={geminiAgentRef}
+      <VirtualAgentSelector
         apiKey={process.env.GEMINI_API_KEY || ""}
         onStreamReady={handleStreamReady}
         onStreamError={handleStreamError}
