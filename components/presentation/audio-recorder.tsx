@@ -43,10 +43,29 @@ export function AudioRecorder({ onTranscription, isActive, onRecordingStateChang
 
   // Inicializar grabación cuando se activa
   useEffect(() => {
+    Logger.info('AudioRecorder useEffect - isActive cambiado', { 
+      isActive, 
+      isRecording, 
+      hasMediaRecorder: !!mediaRecorderRef.current 
+    })
+    
     if (isActive && !isRecording && !mediaRecorderRef.current) {
+      Logger.info('Iniciando grabación - condiciones cumplidas')
       startRecording()
     } else if (!isActive && isRecording) {
+      Logger.info('Deteniendo grabación - micrófono desactivado')
       stopRecording()
+    } else if (isActive && !isRecording && mediaRecorderRef.current) {
+      // Caso especial: MediaRecorder existe pero no está grabando
+      Logger.info('MediaRecorder existe pero no está grabando, limpiando y reiniciando')
+      cleanupMediaRecorder()
+      startRecording()
+    } else {
+      Logger.info('No se cumplen condiciones para iniciar/detener grabación', {
+        isActive,
+        isRecording,
+        hasMediaRecorder: !!mediaRecorderRef.current
+      })
     }
   }, [isActive, isRecording])
 
@@ -63,6 +82,11 @@ export function AudioRecorder({ onTranscription, isActive, onRecordingStateChang
         }
       })
 
+      Logger.info('Stream de audio obtenido', { 
+        trackCount: stream.getTracks().length,
+        trackStates: stream.getTracks().map(t => ({ kind: t.kind, enabled: t.enabled }))
+      })
+
       streamRef.current = stream
       audioChunksRef.current = []
 
@@ -75,10 +99,12 @@ export function AudioRecorder({ onTranscription, isActive, onRecordingStateChang
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
           audioChunksRef.current.push(event.data)
+          Logger.debug('Chunk de audio recibido', { size: event.data.size })
         }
       }
 
       mediaRecorder.onstop = async () => {
+        Logger.info('MediaRecorder.onstop llamado')
         await processAudio()
       }
 
@@ -93,6 +119,11 @@ export function AudioRecorder({ onTranscription, isActive, onRecordingStateChang
   }
 
   const stopRecording = () => {
+    Logger.info('stopRecording llamado', { 
+      hasMediaRecorder: !!mediaRecorderRef.current,
+      isRecording 
+    })
+    
     if (mediaRecorderRef.current && isRecording) {
       Logger.info('Deteniendo grabación')
       mediaRecorderRef.current.stop()
@@ -103,11 +134,26 @@ export function AudioRecorder({ onTranscription, isActive, onRecordingStateChang
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop())
         streamRef.current = null
+        Logger.info('Stream de audio limpiado')
       }
+    } else {
+      Logger.warn('No se puede detener grabación', { 
+        hasMediaRecorder: !!mediaRecorderRef.current,
+        isRecording 
+      })
+      // Limpiar de todas formas para evitar estados inconsistentes
+      cleanupMediaRecorder()
+      setIsRecording(false)
+      onRecordingStateChange(false)
     }
   }
 
   const processAudio = async () => {
+    Logger.info('processAudio llamado', { 
+      chunksCount: audioChunksRef.current.length,
+      totalSize: audioChunksRef.current.reduce((sum, chunk) => sum + chunk.size, 0)
+    })
+    
     if (audioChunksRef.current.length === 0) {
       Logger.warn('No hay audio para procesar')
       return
@@ -142,7 +188,9 @@ export function AudioRecorder({ onTranscription, isActive, onRecordingStateChang
       if (data.success && data.text) {
         Logger.success('Transcripción completada', { text: data.text })
         // Solo llamar a onTranscription, VirtualAgent ya está escuchando los eventos
+        Logger.info('Llamando a onTranscription con texto', { text: data.text })
         onTranscription(data.text)
+        Logger.info('onTranscription llamado exitosamente')
       } else {
         Logger.error('Transcripción falló', data)
       }
@@ -152,15 +200,31 @@ export function AudioRecorder({ onTranscription, isActive, onRecordingStateChang
     } finally {
       setIsProcessing(false)
       audioChunksRef.current = []
+      Logger.info('Procesamiento de audio finalizado')
     }
+  }
+
+  const cleanupMediaRecorder = () => {
+    Logger.info('Limpiando MediaRecorder')
+    if (mediaRecorderRef.current) {
+      if (mediaRecorderRef.current.state === 'recording') {
+        mediaRecorderRef.current.stop()
+      }
+      mediaRecorderRef.current = null
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop())
+      streamRef.current = null
+    }
+    audioChunksRef.current = []
+    Logger.info('MediaRecorder limpiado')
   }
 
   // Cleanup al desmontar
   useEffect(() => {
     return () => {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop())
-      }
+      Logger.info('AudioRecorder desmontándose, limpiando recursos')
+      cleanupMediaRecorder()
     }
   }, [])
 

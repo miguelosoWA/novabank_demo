@@ -78,8 +78,17 @@ export function VirtualAgent() {
   }
 
   const handleMicrophoneToggle = () => {
+    Logger.info('handleMicrophoneToggle llamado', { 
+      currentState: isMicrophoneActive,
+      hasRef: !!streamingAgentRef.current 
+    })
+    
     if (streamingAgentRef.current) {
       const newState = streamingAgentRef.current.toggleMicrophone()
+      Logger.info('Estado del micrófono cambiado', { 
+        oldState: isMicrophoneActive, 
+        newState 
+      })
       setIsMicrophoneActive(newState)
       
       // Guardar estado en localStorage
@@ -87,6 +96,8 @@ export function VirtualAgent() {
         localStorage.setItem('microphoneActive', newState.toString())
         Logger.info('Estado del micrófono guardado en localStorage', { newState })
       }
+    } else {
+      Logger.warn('streamingAgentRef.current no disponible')
     }
   }
 
@@ -97,7 +108,17 @@ export function VirtualAgent() {
   }
 
   const handleIntentDetection = async (text: string) => {
-    if (!isMountedRef.current) return
+    if (!isMountedRef.current) {
+      Logger.warn('Componente no montado, ignorando detección de intención')
+      return
+    }
+    
+    Logger.info('Iniciando detección de intención', { 
+      text, 
+      isProcessing: isProcessingRef.current,
+      lastProcessed: lastProcessedTextRef.current,
+      isMounted: isMountedRef.current 
+    })
     
     // Evitar procesar el mismo texto múltiples veces para intención
     if (lastProcessedTextRef.current === text || isProcessingRef.current) {
@@ -111,6 +132,11 @@ export function VirtualAgent() {
     
     isProcessingRef.current = true
     lastProcessedTextRef.current = text
+    
+    Logger.info('Estado de procesamiento actualizado', { 
+      isProcessing: isProcessingRef.current,
+      lastProcessed: lastProcessedTextRef.current 
+    })
     
     try {
       Logger.debug('Detectando intención de navegación...', { text })
@@ -165,10 +191,16 @@ export function VirtualAgent() {
         Logger.error('Error al detectar intención', err)
       }
     } finally {
+      Logger.info('Finalizando detección de intención, programando limpieza')
       // Limpiar el estado de procesamiento después de un delay
       setTimeout(() => {
-        isProcessingRef.current = false
-        lastProcessedTextRef.current = ''
+        if (isMountedRef.current) {
+          isProcessingRef.current = false
+          lastProcessedTextRef.current = ''
+          Logger.info('Estado de procesamiento limpiado')
+        } else {
+          Logger.warn('Componente desmontado durante limpieza')
+        }
       }, 2000) // 2 segundos de delay para evitar procesamiento inmediato
     }
   }
@@ -224,6 +256,11 @@ export function VirtualAgent() {
       if (typeof window !== 'undefined') {
         const savedState = localStorage.getItem('microphoneActive') === 'true'
         
+        Logger.debug('Estado del micrófono en localStorage', { 
+          savedState, 
+          currentState: isMicrophoneActive 
+        })
+        
         // Si el estado guardado es diferente al actual, sincronizar
         if (savedState !== isMicrophoneActive) {
           Logger.info('Sincronizando estado del micrófono con localStorage', { 
@@ -236,6 +273,10 @@ export function VirtualAgent() {
         // Si el micrófono debería estar activo pero no lo está en el RealtimeAgent
         if (savedState && streamingAgentRef.current) {
           const currentState = streamingAgentRef.current.isMicrophoneActive()
+          Logger.debug('Verificando estado del micrófono en RealtimeAgent', { 
+            savedState, 
+            currentState 
+          })
           if (!currentState) {
             Logger.info('Reactivar micrófono después de navegación')
             streamingAgentRef.current.toggleMicrophone()

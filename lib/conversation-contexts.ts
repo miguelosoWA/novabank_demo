@@ -123,7 +123,7 @@ Funciones principales:
 5. Asegurar la seguridad del proceso
 
 Tono: Profesional, preciso y orientado a la seguridad.`,
-    voice: 'echo',
+    voice: 'alloy',
     welcomeMessage: '¡Hola! Soy Sofía, tu especialista en transferencias. Te ayudo a realizar tu transferencia de manera segura. ¿A qué cuenta quieres transferir?',
     capabilities: ['transferencias', 'verificación de datos', 'confirmación de montos', 'seguridad'],
     navigationCommands: [
@@ -165,7 +165,7 @@ Funciones principales:
 5. Responder dudas sobre crédito
 
 Tono: Asesora, informativa y orientada a la personalización.`,
-    voice: 'fable',
+    voice: 'alloy',
     welcomeMessage: '¡Hola! Soy Sofía, tu asesora de tarjetas de crédito. Te ayudo a encontrar la tarjeta perfecta para ti. ¿Cuál es tu ingreso mensual?',
     capabilities: ['evaluación de perfil', 'recomendaciones', 'proceso de solicitud', 'asesoría crediticia'],
     navigationCommands: [
@@ -207,7 +207,7 @@ Funciones principales:
 5. Guiar en la toma de decisiones
 
 Tono: Educativa, estratégica y orientada a objetivos.`,
-    voice: 'nova',
+    voice: 'alloy',
     welcomeMessage: '¡Hola! Soy Sofía, tu asesora de inversiones. Te ayudo a hacer crecer tu dinero de manera inteligente. ¿Cuáles son tus objetivos de inversión?',
     capabilities: ['evaluación de objetivos', 'productos de inversión', 'estrategias', 'educación financiera'],
     navigationCommands: [
@@ -256,7 +256,7 @@ Funciones principales:
 5. Responder dudas específicas
 
 Tono: Educativa, segura y orientada a la estabilidad.`,
-    voice: 'shimmer',
+    voice: 'alloy',
     welcomeMessage: '¡Hola! Soy Sofía, tu especialista en CDT. Te explico cómo hacer crecer tu dinero de manera segura. ¿Te interesa conocer más sobre los Certificados de Depósito?',
     capabilities: ['explicación de productos', 'comparaciones', 'proceso de apertura', 'educación financiera'],
     navigationCommands: [
@@ -305,7 +305,7 @@ Funciones principales:
 5. Responder dudas sobre riesgos
 
 Tono: Técnica pero accesible, orientada a la educación.`,
-    voice: 'onyx',
+    voice: 'alloy',
     welcomeMessage: '¡Hola! Soy Sofía, tu especialista en Fondos de Inversión Colectiva. Te explico cómo invertir de manera profesional. ¿Quieres conocer más sobre los FIC?',
     capabilities: ['explicación de FIC', 'gestión profesional', 'diversificación', 'proceso de inversión'],
     navigationCommands: [

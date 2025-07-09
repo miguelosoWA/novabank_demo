@@ -113,7 +113,7 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            voice: currentContext.voice
+            voice: 'alloy' // Voz fija para todos los contextos
           })
         })
 
@@ -361,8 +361,7 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
       setCurrentContext(newContext)
       Logger.info('Contexto actualizado', { 
         contextId, 
-        contextName: newContext.name,
-        voice: newContext.voice 
+        contextName: newContext.name
       })
     }, [contextId])
 
