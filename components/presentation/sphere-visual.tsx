@@ -219,7 +219,15 @@ export const SphereVisual = forwardRef<any, SphereVisualProps>(
     }
 
     const startAnimation = () => {
+      let frameCount = 0
       const animate = () => {
+        frameCount++
+        const t = performance.now()
+        
+        // Reduced debug logging - every 5 seconds
+        if (frameCount % 300 === 0) {
+          console.log('[SphereVisual] Animation frame #' + frameCount + ' at:', Math.floor(t), 'ms', 'isActive:', isActive)
+        }
 
         // Update audio analysers only when active
         if (isActive) {
@@ -228,10 +236,24 @@ export const SphereVisual = forwardRef<any, SphereVisualProps>(
           }
           if (outputAnalyserRef.current) {
             outputAnalyserRef.current.update()
+            
+            // Debug: Check if we're getting real audio data
+            const data = outputAnalyserRef.current.data
+            if (data && data.length > 0) {
+              const maxLevel = Math.max(...Array.from(data))
+              if (maxLevel > 5 && Math.floor(t) % 500 < 16) {
+                console.log('[SphereVisual] Output audio detected in analyser!', { 
+                  maxLevel, 
+                  avgLevel: Array.from(data).reduce((a, b) => a + b, 0) / data.length,
+                  time: Math.floor(t)
+                })
+              }
+            }
           }
         }
 
-        const t = performance.now()
+        // Move t declaration to top for early debugging
+        // const t = performance.now() - already declared above
         const dt = (t - prevTimeRef.current) / (1000 / 60)
         prevTimeRef.current = t
 
@@ -250,24 +272,76 @@ export const SphereVisual = forwardRef<any, SphereVisualProps>(
           const outputData = (isActive && outputAnalyserRef.current?.data) || new Uint8Array(16)
           
           // Basic sphere animation even without audio
-          sphereRef.current.rotation.y += 0.01
-          sphereRef.current.rotation.x += 0.005
+          sphereRef.current.rotation.y += 0.02
+          sphereRef.current.rotation.x += 0.01
           
-          // Scale sphere based on audio output (if available)
-          const scaleMultiplier = 1 + (outputData[1] || 10) / 255 * 0.2
+          // Ensure sphere is always visible and has some base scale
+          sphereRef.current.visible = true
+          if (sphereRef.current.scale.x < 0.8) {
+            sphereRef.current.scale.setScalar(1.0)
+          }
+          
+          // Get audio levels for animation
+          let inputLevel = 0
+          let outputLevel = 0
+          
+          if (inputAnalyserRef.current && inputData.length > 0) {
+            // Calculate average audio level from frequency data
+            inputLevel = Array.from(inputData).reduce((a, b) => a + b, 0) / inputData.length
+          }
+          
+          if (outputAnalyserRef.current && outputData.length > 0) {
+            // Calculate average audio level from frequency data
+            outputLevel = Array.from(outputData).reduce((a, b) => a + b, 0) / outputData.length
+          }
+          
+          // Real audio processing only - no fake audio needed
+          
+          // Scale sphere based on audio output only
+          const audioScale = Math.max(inputLevel, outputLevel) / 255
+          const scaleMultiplier = 1.0 + audioScale * 0.3
           sphereRef.current.scale.setScalar(scaleMultiplier)
 
-          // Update emissive intensity based on audio
-          sphereMaterial.emissiveIntensity = 0.2 + (outputData[0] || 50) / 255 * 0.3
+          // Update emissive intensity based on audio only
+          sphereMaterial.emissiveIntensity = 0.1 + audioScale * 0.4
 
-          // Debug first 5 seconds
-          if (t < 5000 && Math.floor(t) % 1000 < 16) {
-            console.log('[SphereVisual] Animation frame:', { 
-              time: t,
-              sphereVisible: sphereRef.current.visible,
-              sphereScale: sphereRef.current.scale.x,
-              emissiveIntensity: sphereMaterial.emissiveIntensity,
-              hasAudioData: !!outputData[0]
+          // Update color based on audio activity only
+          if (inputLevel > 10) {
+            // Input audio detected - make sphere more red
+            sphereMaterial.color.setHex(0xff4400)
+          } else if (outputLevel > 10) {
+            // Output audio detected - make sphere more blue
+            sphereMaterial.color.setHex(0x0088ff)
+          } else {
+            // No audio - static orange color
+            sphereMaterial.color.setHex(0xff8800)
+          }
+
+          // Force audio data logging every 3 seconds
+          if (frameCount % 180 === 0) {
+            console.log('[SphereVisual] Audio data check:', { 
+              frameCount,
+              time: Math.floor(t),
+              inputLevel,
+              outputLevel,
+              hasInputAnalyser: !!inputAnalyserRef.current,
+              hasOutputAnalyser: !!outputAnalyserRef.current,
+              inputDataLength: inputData.length,
+              outputDataLength: outputData.length,
+              inputDataSample: Array.from(inputData.slice(0, 4)),
+              outputDataSample: Array.from(outputData.slice(0, 4)),
+              inputDataMax: inputData.length > 0 ? Math.max(...Array.from(inputData)) : 0,
+              outputDataMax: outputData.length > 0 ? Math.max(...Array.from(outputData)) : 0,
+              isActive
+            })
+          }
+          
+          // Additional debug for non-zero audio levels
+          if ((inputLevel > 0 || outputLevel > 0) && Math.floor(t) % 500 < 16) {
+            console.log('[SphereVisual] Audio detected!', { 
+              inputLevel, 
+              outputLevel,
+              time: Math.floor(t)
             })
           }
         }
@@ -327,6 +401,15 @@ export const SphereVisual = forwardRef<any, SphereVisualProps>(
 
     // Update audio nodes when props change
     useEffect(() => {
+      console.log('[SphereVisual] Audio nodes changed:', {
+        hasInputNode: !!inputNode,
+        hasOutputNode: !!outputNode,
+        inputNodeType: inputNode?.constructor.name,
+        outputNodeType: outputNode?.constructor.name,
+        inputContext: inputNode?.context.state,
+        outputContext: outputNode?.context.state
+      })
+
       if (inputAnalyserRef.current) {
         inputAnalyserRef.current.disconnect()
         inputAnalyserRef.current = null
@@ -337,10 +420,20 @@ export const SphereVisual = forwardRef<any, SphereVisualProps>(
       }
 
       if (inputNode) {
-        inputAnalyserRef.current = new AudioAnalyser(inputNode)
+        try {
+          inputAnalyserRef.current = new AudioAnalyser(inputNode)
+          console.log('[SphereVisual] Input analyser created successfully')
+        } catch (error) {
+          console.error('[SphereVisual] Failed to create input analyser:', error)
+        }
       }
       if (outputNode) {
-        outputAnalyserRef.current = new AudioAnalyser(outputNode)
+        try {
+          outputAnalyserRef.current = new AudioAnalyser(outputNode)
+          console.log('[SphereVisual] Output analyser created successfully')
+        } catch (error) {
+          console.error('[SphereVisual] Failed to create output analyser:', error)
+        }
       }
     }, [inputNode, outputNode])
 

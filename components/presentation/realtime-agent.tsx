@@ -66,9 +66,15 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
     const audioTrackRef = useRef<MediaStreamTrack | null>(null)
     const isMountedRef = useRef(true)
     const userTextRef = useRef<string>('')
+    
+    // Audio nodes for visualization - these are gain nodes connected to destination
     const inputAudioNodeRef = useRef<AudioNode | null>(null)
     const outputAudioNodeRef = useRef<AudioNode | null>(null)
     const audioContextRef = useRef<AudioContext | null>(null)
+    
+    // Source nodes for actual audio input/output
+    const inputSourceRef = useRef<MediaStreamAudioSourceNode | null>(null)
+    const outputSourcesRef = useRef<Set<AudioBufferSourceNode>>(new Set())
 
     // Expose connection status and microphone control through ref
     useImperativeHandle(ref, () => ({
@@ -81,11 +87,15 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
           const newState = !audioTrackRef.current.enabled
           audioTrackRef.current.enabled = newState
           setIsMicrophoneActive(newState)
+          
+          // Control input gain for visualization based on microphone state
+          if (inputAudioNodeRef.current && 'gain' in inputAudioNodeRef.current) {
+            const gainNode = inputAudioNodeRef.current as GainNode
+            gainNode.gain.value = newState ? 1.0 : 0.0
+            Logger.info(`Input gain set to ${gainNode.gain.value}`)
+          }
+          
           Logger.info(`Micrófono ${newState ? 'activado' : 'desactivado'}`)
-          
-          // El micrófono ahora se maneja por el AudioRecorder
-          Logger.info(`Micrófono ${newState ? 'activado' : 'desactivado'} - Grabación manejada por AudioRecorder`)
-          
           return newState
         }
         return false
@@ -152,6 +162,33 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
         // Set up audio context for visualization
         if (!audioContextRef.current) {
           audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)()
+          
+          // Create gain nodes for visualization (similar to working live-audio implementation)
+          const inputGainNode = audioContextRef.current.createGain()
+          const outputGainNode = audioContextRef.current.createGain()
+          
+          // Set initial gain levels
+          inputGainNode.gain.value = 0.0 // Start muted since microphone is disabled
+          outputGainNode.gain.value = 1.0 // Enable output audio
+          
+          // Connect gain nodes to destination to enable audio flow
+          inputGainNode.connect(audioContextRef.current.destination)
+          outputGainNode.connect(audioContextRef.current.destination)
+          
+          // Store gain nodes for visualization
+          inputAudioNodeRef.current = inputGainNode
+          outputAudioNodeRef.current = outputGainNode
+          
+          // Resume audio context to enable audio processing
+          try {
+            await audioContextRef.current.resume()
+            Logger.info('Audio context and gain nodes created successfully', {
+              contextState: audioContextRef.current.state,
+              sampleRate: audioContextRef.current.sampleRate
+            })
+          } catch (error) {
+            Logger.warn('Could not resume audio context', error)
+          }
         }
 
         // Set up audio element for remote audio
@@ -168,18 +205,32 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
           if (audioRef.current && event.streams[0]) {
             audioRef.current.srcObject = event.streams[0]
             
-            // Create audio node for visualization from the remote stream
-            if (audioContextRef.current) {
+            // Ensure audio plays
+            audioRef.current.play().catch(error => {
+              Logger.warn('Could not auto-play audio', error)
+            })
+            
+            // Connect incoming audio stream to output gain node for visualization
+            if (audioContextRef.current && outputAudioNodeRef.current) {
               try {
-                const audioElement = audioRef.current
-                const source = audioContextRef.current.createMediaElementSource(audioElement)
-                const gainNode = audioContextRef.current.createGain()
-                source.connect(gainNode)
-                gainNode.connect(audioContextRef.current.destination)
-                outputAudioNodeRef.current = gainNode
-                Logger.info('Output audio node created for visualization')
+                const source = audioContextRef.current.createMediaStreamSource(event.streams[0])
+                
+                // Connect source to output gain node - this is what the SphereVisual analyzes
+                source.connect(outputAudioNodeRef.current)
+                
+                // The gain node should already be connected to destination, so audio flows:
+                // source -> outputGainNode -> destination (for hearing)
+                //       \-> analyser (for visualization in SphereVisual)
+                
+                Logger.info('Output audio source connected to gain node', {
+                  contextState: audioContextRef.current.state,
+                  streamActive: event.streams[0].active,
+                  trackCount: event.streams[0].getTracks().length,
+                  streamTracks: event.streams[0].getTracks().map(t => ({ kind: t.kind, enabled: t.enabled })),
+                  gainNodeConnected: !!outputAudioNodeRef.current
+                })
               } catch (error) {
-                Logger.warn('Could not create output audio node', error)
+                Logger.warn('Could not connect output audio source', error)
               }
             }
           }
@@ -218,22 +269,36 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
           // Store the media stream for later use
           const audioTrack = mediaStream.getAudioTracks()[0]
           if (audioTrack) {
-            // Initially disable the microphone
+            // Initially disable the microphone until user activates it
             audioTrack.enabled = false
             audioTrackRef.current = audioTrack
+            setIsMicrophoneActive(false)
             pc.addTrack(audioTrack, mediaStream)
             Logger.info('Micrófono local agregado (inicialmente deshabilitado)')
             
-            // Create audio node for visualization from the input stream
-            if (audioContextRef.current) {
+            // Create audio source and connect to input gain node for visualization
+            if (audioContextRef.current && inputAudioNodeRef.current) {
               try {
                 const source = audioContextRef.current.createMediaStreamSource(mediaStream)
-                const gainNode = audioContextRef.current.createGain()
-                source.connect(gainNode)
-                inputAudioNodeRef.current = gainNode
-                Logger.info('Input audio node created for visualization')
+                
+                // Connect source to input gain node - this is what the SphereVisual analyzes
+                source.connect(inputAudioNodeRef.current)
+                inputSourceRef.current = source
+                
+                // The gain node should already be connected to destination, so audio flows:
+                // source -> inputGainNode -> destination (for monitoring/feedback prevention)
+                //       \-> analyser (for visualization in SphereVisual)
+                
+                Logger.info('Input audio source connected to gain node', {
+                  contextState: audioContextRef.current.state,
+                  sampleRate: audioContextRef.current.sampleRate,
+                  microphoneEnabled: audioTrack.enabled,
+                  mediaStreamActive: mediaStream.active,
+                  trackEnabled: audioTrack.enabled,
+                  gainNodeConnected: !!inputAudioNodeRef.current
+                })
               } catch (error) {
-                Logger.warn('Could not create input audio node', error)
+                Logger.warn('Could not create input audio source', error)
               }
             }
           }
@@ -392,6 +457,19 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
         audioRef.current = null
       }
       
+      // Clean up audio sources
+      if (inputSourceRef.current) {
+        inputSourceRef.current.disconnect()
+        inputSourceRef.current = null
+      }
+      
+      // Clean up output sources
+      outputSourcesRef.current.forEach(source => {
+        source.stop()
+        source.disconnect()
+      })
+      outputSourcesRef.current.clear()
+      
       // Clean up audio nodes
       if (inputAudioNodeRef.current) {
         inputAudioNodeRef.current.disconnect()
@@ -438,8 +516,23 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
       }
     }, [])
 
+    // Handle click to ensure audio context is running
+    const handleContainerClick = async () => {
+      if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
+        try {
+          await audioContextRef.current.resume()
+          Logger.info('Audio context resumed after user interaction', {
+            state: audioContextRef.current.state,
+            sampleRate: audioContextRef.current.sampleRate
+          })
+        } catch (error) {
+          Logger.warn('Could not resume audio context after click', error)
+        }
+      }
+    }
+
     return (
-      <div className="relative h-full w-full">
+      <div className="relative h-full w-full" onClick={handleContainerClick}>
         {/* Connection state indicator */}
         <div className="absolute top-4 right-4 bg-black/50 text-white px-2 py-1 rounded text-sm z-50">
           <div className="flex items-center gap-2">
@@ -447,6 +540,9 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
             {connectionState === 'connected' && (
               <div className={`w-2 h-2 rounded-full ${isMicrophoneActive ? 'bg-red-400' : 'bg-green-400'} ${isMicrophoneActive ? 'animate-pulse' : ''}`} 
                    title={isMicrophoneActive ? 'Micrófono activo' : 'Micrófono inactivo'} />
+            )}
+            {audioContextRef.current && (
+              <span className="text-xs">🎵 {audioContextRef.current.state}</span>
             )}
           </div>
         </div>
@@ -482,9 +578,10 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
               <SphereVisual
                 inputNode={inputAudioNodeRef.current || undefined}
                 outputNode={outputAudioNodeRef.current || undefined}
-                isActive={connectionState === 'connected'}
+                isActive={true}
                 className="w-full h-full"
               />
+
               {/* Fallback for when sphere is loading */}
               {/* {connectionState !== 'connected' && (
                 <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-400 to-purple-600 rounded-lg">
