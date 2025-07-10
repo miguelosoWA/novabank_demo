@@ -88,12 +88,8 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
           audioTrackRef.current.enabled = newState
           setIsMicrophoneActive(newState)
           
-          // Control input gain for visualization based on microphone state
-          if (inputAudioNodeRef.current && 'gain' in inputAudioNodeRef.current) {
-            const gainNode = inputAudioNodeRef.current as GainNode
-            gainNode.gain.value = newState ? 1.0 : 0.0
-            Logger.info(`Input gain set to ${gainNode.gain.value}`)
-          }
+          // Input gain stays at 1.0 for visualization - we control the track directly
+          // The gain node is only used for visualization, not for muting
           
           Logger.info(`Micrófono ${newState ? 'activado' : 'desactivado'}`)
           return newState
@@ -163,16 +159,16 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
         if (!audioContextRef.current) {
           audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)()
           
-          // Create gain nodes for visualization (similar to working live-audio implementation)
+          // Create gain nodes for visualization
           const inputGainNode = audioContextRef.current.createGain()
           const outputGainNode = audioContextRef.current.createGain()
           
           // Set initial gain levels
-          inputGainNode.gain.value = 0.0 // Start muted since microphone is disabled
+          inputGainNode.gain.value = 1.0 // For visualization only, not connected to speakers
           outputGainNode.gain.value = 1.0 // Enable output audio
           
-          // Connect gain nodes to destination to enable audio flow
-          inputGainNode.connect(audioContextRef.current.destination)
+          // Connect ONLY output gain node to destination to prevent feedback
+          // Input gain node is only used for visualization, not playback
           outputGainNode.connect(audioContextRef.current.destination)
           
           // Store gain nodes for visualization
@@ -218,7 +214,7 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
                 // Connect source to output gain node - this is what the SphereVisual analyzes
                 source.connect(outputAudioNodeRef.current)
                 
-                // The gain node should already be connected to destination, so audio flows:
+                // Output audio flow (you hear the AI speaking):
                 // source -> outputGainNode -> destination (for hearing)
                 //       \-> analyser (for visualization in SphereVisual)
                 
@@ -285,9 +281,9 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
                 source.connect(inputAudioNodeRef.current)
                 inputSourceRef.current = source
                 
-                // The gain node should already be connected to destination, so audio flows:
-                // source -> inputGainNode -> destination (for monitoring/feedback prevention)
-                //       \-> analyser (for visualization in SphereVisual)
+                // Input audio flow for visualization only (no feedback):
+                // source -> inputGainNode -> analyser (for visualization in SphereVisual)
+                // Note: inputGainNode is NOT connected to destination to prevent hearing yourself
                 
                 Logger.info('Input audio source connected to gain node', {
                   contextState: audioContextRef.current.state,

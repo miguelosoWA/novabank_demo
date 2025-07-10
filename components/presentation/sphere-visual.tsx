@@ -421,7 +421,7 @@ export const SphereVisual = forwardRef<any, SphereVisualProps>(
 
       if (inputNode) {
         try {
-          inputAnalyserRef.current = new AudioAnalyser(inputNode)
+        inputAnalyserRef.current = new AudioAnalyser(inputNode)
           console.log('[SphereVisual] Input analyser created successfully')
         } catch (error) {
           console.error('[SphereVisual] Failed to create input analyser:', error)
@@ -429,7 +429,7 @@ export const SphereVisual = forwardRef<any, SphereVisualProps>(
       }
       if (outputNode) {
         try {
-          outputAnalyserRef.current = new AudioAnalyser(outputNode)
+        outputAnalyserRef.current = new AudioAnalyser(outputNode)
           console.log('[SphereVisual] Output analyser created successfully')
         } catch (error) {
           console.error('[SphereVisual] Failed to create output analyser:', error)
