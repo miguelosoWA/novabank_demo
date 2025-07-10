@@ -3,12 +3,17 @@
 import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from "react"
 import { motion } from "framer-motion"
 import { getContextById, type ConversationContext } from "@/lib/conversation-contexts"
+import { SphereVisualization } from "./sphere-visualization"
+import { SphereVisual } from "./sphere-visual"
 
 // Declarar CustomEvent para TypeScript
 declare global {
   interface WindowEventMap {
     'agentTextResponse': CustomEvent<{ text: string }>
     'userTextResponse': CustomEvent<{ text: string }>
+  }
+  interface Window {
+    webkitAudioContext: typeof AudioContext
   }
 }
 
@@ -61,6 +66,9 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
     const audioTrackRef = useRef<MediaStreamTrack | null>(null)
     const isMountedRef = useRef(true)
     const userTextRef = useRef<string>('')
+    const inputAudioNodeRef = useRef<AudioNode | null>(null)
+    const outputAudioNodeRef = useRef<AudioNode | null>(null)
+    const audioContextRef = useRef<AudioContext | null>(null)
 
     // Expose connection status and microphone control through ref
     useImperativeHandle(ref, () => ({
@@ -141,6 +149,11 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
         })
         peerConnectionRef.current = pc
 
+        // Set up audio context for visualization
+        if (!audioContextRef.current) {
+          audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)()
+        }
+
         // Set up audio element for remote audio
         if (!audioRef.current) {
           audioRef.current = document.createElement('audio')
@@ -154,6 +167,21 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
           Logger.info('Track recibido', { kind: event.track.kind })
           if (audioRef.current && event.streams[0]) {
             audioRef.current.srcObject = event.streams[0]
+            
+            // Create audio node for visualization from the remote stream
+            if (audioContextRef.current) {
+              try {
+                const audioElement = audioRef.current
+                const source = audioContextRef.current.createMediaElementSource(audioElement)
+                const gainNode = audioContextRef.current.createGain()
+                source.connect(gainNode)
+                gainNode.connect(audioContextRef.current.destination)
+                outputAudioNodeRef.current = gainNode
+                Logger.info('Output audio node created for visualization')
+              } catch (error) {
+                Logger.warn('Could not create output audio node', error)
+              }
+            }
           }
         }
 
@@ -195,6 +223,19 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
             audioTrackRef.current = audioTrack
             pc.addTrack(audioTrack, mediaStream)
             Logger.info('Micrófono local agregado (inicialmente deshabilitado)')
+            
+            // Create audio node for visualization from the input stream
+            if (audioContextRef.current) {
+              try {
+                const source = audioContextRef.current.createMediaStreamSource(mediaStream)
+                const gainNode = audioContextRef.current.createGain()
+                source.connect(gainNode)
+                inputAudioNodeRef.current = gainNode
+                Logger.info('Input audio node created for visualization')
+              } catch (error) {
+                Logger.warn('Could not create input audio node', error)
+              }
+            }
           }
         } catch (micError) {
           Logger.warn('No se pudo acceder al micrófono', micError)
@@ -351,6 +392,22 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
         audioRef.current = null
       }
       
+      // Clean up audio nodes
+      if (inputAudioNodeRef.current) {
+        inputAudioNodeRef.current.disconnect()
+        inputAudioNodeRef.current = null
+      }
+      
+      if (outputAudioNodeRef.current) {
+        outputAudioNodeRef.current.disconnect()
+        outputAudioNodeRef.current = null
+      }
+      
+      if (audioContextRef.current) {
+        audioContextRef.current.close()
+        audioContextRef.current = null
+      }
+      
       setIsConnected(false)
       setConnectionState('disconnected')
     }
@@ -411,36 +468,62 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
           transition={{ type: "tween", duration: 0.6, ease: "easeOut" }}
           className="relative h-[96%] flex items-center justify-center"
         >
-          {/* Virtual agent avatar placeholder */}
-          <div className="flex flex-col items-center justify-center h-full">
-            <div className="w-64 h-64 bg-gradient-to-br from-blue-400 to-purple-600 rounded-full flex items-center justify-center mb-4">
-              <div className="text-white text-6xl">🤖</div>
+          {/* Sphere visualization with agent info */}
+          <div className="flex flex-col items-center justify-center h-full relative">
+            {/* Sphere visualization container */}
+            <div className="w-full max-w-lg h-72 relative flex-shrink-0">
+              {/* <SphereVisualization
+                inputNode={inputAudioNodeRef.current || undefined}
+                outputNode={outputAudioNodeRef.current || undefined}
+                isActive={connectionState === 'connected'}
+                className="absolute inset-0 rounded-lg overflow-hidden"
+              /> */}
+
+              <SphereVisual
+                inputNode={inputAudioNodeRef.current || undefined}
+                outputNode={outputAudioNodeRef.current || undefined}
+                isActive={connectionState === 'connected'}
+                className="w-full h-full"
+              />
+              {/* Fallback for when sphere is loading */}
+              {/* {connectionState !== 'connected' && (
+                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-400 to-purple-600 rounded-lg">
+                  <div className="text-white text-6xl">🤖</div>
+                </div>
+              )} */}
             </div>
-            <div className="text-center">
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+          </div>
+          
+          {/* Agent info overlay - positioned outside the main container to avoid blocking */}
+          {/* <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-center pointer-events-none">
+            <div className="bg-black/20 backdrop-blur-sm rounded-lg px-4 py-2 text-white">
+              <h3 className="text-lg font-semibold mb-1">
                 {connectionState === 'connecting' && 'Conectando...'}
                 {connectionState === 'connected' && `Sofía - ${currentContext.name}`}
                 {connectionState === 'error' && 'Error de conexión'}
                 {connectionState === 'disconnected' && 'Desconectado'}
               </h3>
-              <p className="text-gray-600">
+              <p className="text-sm opacity-90">
                 {connectionState === 'connecting' && 'Estableciendo conexión de voz...'}
                 {connectionState === 'connected' && currentContext.welcomeMessage}
                 {connectionState === 'error' && 'No se pudo conectar con el agente'}
                 {connectionState === 'disconnected' && 'Conexión perdida'}
               </p>
               {connectionState === 'connected' && (
-                <div className="mt-2 space-y-1">
-                  <p className="text-sm text-blue-600">
+                <div className="mt-1 space-y-1">
+                  <p className="text-xs text-blue-300">
                     🎤 Micrófono controlado por el usuario
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs opacity-75">
                     {currentContext.description}
+                  </p>
+                  <p className="text-xs text-green-300">
+                    🌐 Visualización de audio activa
                   </p>
                 </div>
               )}
             </div>
-          </div>
+          </div> */}
         </motion.div>
       </div>
     )
