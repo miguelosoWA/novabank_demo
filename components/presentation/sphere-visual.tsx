@@ -139,7 +139,7 @@ export const SphereVisual = forwardRef<any, SphereVisualProps>(
       const geometry = new THREE.SphereGeometry(0.7, 32, 32) // Use simple sphere geometry, smaller radius
       const sphereMaterial = new THREE.MeshStandardMaterial({
         color: 0xff8800,
-        metalness: 0.9,
+        metalness: 0.1,
         roughness: 0.9,
         emissive: 0xff8800,
         emissiveIntensity: 0,
@@ -299,11 +299,11 @@ export const SphereVisual = forwardRef<any, SphereVisualProps>(
           
           // Scale sphere based on audio output only
           const audioScale = Math.max(inputLevel, outputLevel) / 255
-          const scaleMultiplier = 1.0 + audioScale * 0.3
+          const scaleMultiplier = 1.0 + audioScale * 1
           sphereRef.current.scale.setScalar(scaleMultiplier)
 
           // Update emissive intensity based on audio only
-          sphereMaterial.emissiveIntensity = 0.1 + audioScale * 0.4
+          sphereMaterial.emissiveIntensity = 0.1 + audioScale * 0.2
 
           // Update color based on audio activity only
           if (inputLevel > 10) {
@@ -315,34 +315,6 @@ export const SphereVisual = forwardRef<any, SphereVisualProps>(
           } else {
             // No audio - static orange color
             sphereMaterial.color.setHex(0xff8800)
-          }
-
-          // Force audio data logging every 3 seconds
-          if (frameCount % 180 === 0) {
-            console.log('[SphereVisual] Audio data check:', { 
-              frameCount,
-              time: Math.floor(t),
-              inputLevel,
-              outputLevel,
-              hasInputAnalyser: !!inputAnalyserRef.current,
-              hasOutputAnalyser: !!outputAnalyserRef.current,
-              inputDataLength: inputData.length,
-              outputDataLength: outputData.length,
-              inputDataSample: Array.from(inputData.slice(0, 4)),
-              outputDataSample: Array.from(outputData.slice(0, 4)),
-              inputDataMax: inputData.length > 0 ? Math.max(...Array.from(inputData)) : 0,
-              outputDataMax: outputData.length > 0 ? Math.max(...Array.from(outputData)) : 0,
-              isActive
-            })
-          }
-          
-          // Additional debug for non-zero audio levels
-          if ((inputLevel > 0 || outputLevel > 0) && Math.floor(t) % 500 < 16) {
-            console.log('[SphereVisual] Audio detected!', { 
-              inputLevel, 
-              outputLevel,
-              time: Math.floor(t)
-            })
           }
         }
 

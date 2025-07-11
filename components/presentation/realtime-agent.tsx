@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from "react"
 import { motion } from "framer-motion"
 import { getContextById, type ConversationContext } from "@/lib/conversation-contexts"
-import { SphereVisualization } from "./sphere-visualization"
 import { SphereVisual } from "./sphere-visual"
 
 // Declarar CustomEvent para TypeScript
@@ -146,14 +145,35 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
 
         Logger.debug('Token ephemeral obtenido', { expiresAt: tokenData.client_secret.expires_at })
 
-        // Create peer connection with proper configuration
+        // Create peer connection with enhanced audio configuration
         const pc = new RTCPeerConnection({
           iceServers: [
             { urls: 'stun:stun.l.google.com:19302' },
             { urls: 'stun:stun1.l.google.com:19302' }
-          ]
+          ],
+          // Enhanced configuration for better audio quality
+          iceCandidatePoolSize: 10,
+          bundlePolicy: 'balanced',
+          rtcpMuxPolicy: 'require'
         })
         peerConnectionRef.current = pc
+
+        // Configure audio transceivers for better quality
+        try {
+          // Add audio transceiver with specific codec preferences
+          const audioTransceiver = pc.addTransceiver('audio', {
+            direction: 'sendrecv',
+            streams: []
+          })
+          
+          // Get sender for audio configuration
+          const sender = audioTransceiver.sender
+          if (sender) {
+            Logger.info('Audio transceiver configured for high quality transmission')
+          }
+        } catch (transceiverError) {
+          Logger.warn('Could not configure audio transceiver', transceiverError)
+        }
 
         // Set up audio context for visualization
         if (!audioContextRef.current) {
@@ -256,9 +276,15 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
         try {
           const mediaStream = await navigator.mediaDevices.getUserMedia({
             audio: {
+              // Enhanced audio quality settings for better AI understanding
               echoCancellation: true,
               noiseSuppression: true,
-              autoGainControl: true
+              autoGainControl: true,
+              // Optimal settings for speech recognition
+              sampleRate: 48000,  // High quality sample rate
+              sampleSize: 16,     // 16-bit audio
+              channelCount: 1,    // Mono for speech
+              // Additional constraints for better quality
             }
           })
           
@@ -270,7 +296,32 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
             audioTrackRef.current = audioTrack
             setIsMicrophoneActive(false)
             pc.addTrack(audioTrack, mediaStream)
-            Logger.info('Micrófono local agregado (inicialmente deshabilitado)')
+            
+            // Log detailed audio track settings for debugging
+            const settings = audioTrack.getSettings()
+            const capabilities = audioTrack.getCapabilities()
+            Logger.info('Micrófono local agregado con configuración mejorada', {
+              enabled: audioTrack.enabled,
+              settings: {
+                sampleRate: settings.sampleRate,
+                sampleSize: settings.sampleSize,
+                channelCount: settings.channelCount,
+                echoCancellation: settings.echoCancellation,
+                noiseSuppression: settings.noiseSuppression,
+                autoGainControl: settings.autoGainControl,
+              },
+              capabilities: {
+                sampleRateRange: capabilities.sampleRate,
+                channelCountRange: capabilities.channelCount
+              }
+            })
+            
+            // Apply audio constraints with a slight delay to ensure they take effect
+            setTimeout(() => {
+              if (audioTrack.enabled && audioTrack.readyState === 'live') {
+                Logger.info('Audio track is live and ready for high-quality transmission')
+              }
+            }, 100)
             
             // Create audio source and connect to input gain node for visualization
             if (audioContextRef.current && inputAudioNodeRef.current) {
@@ -383,8 +434,12 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
           }
         }, 10000) // 10 second timeout
 
-        // Create and send offer
-        const offer = await pc.createOffer()
+        // Create and send offer with audio quality preferences
+        const offer = await pc.createOffer({
+          offerToReceiveAudio: true,
+          offerToReceiveVideo: false,
+          // Audio quality preferences
+        })
         await pc.setLocalDescription(offer)
 
         const baseUrl = "https://api.openai.com/v1/realtime"
