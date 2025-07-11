@@ -7,21 +7,29 @@ if (!process.env.OPENAI_API_KEY) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { voice = "alloy" } = body;
+    const { voice = "alloy", instructions } = body;
 
     console.log('Creating ephemeral session with voice:', voice);
 
     // Use the REST API directly to create an ephemeral session
+    const sessionConfig: any = {
+      model: "gpt-4o-realtime-preview-2025-06-03",
+      voice: voice,
+    };
+
+    // Add instructions (system prompt) if provided
+    if (instructions) {
+      sessionConfig.instructions = instructions;
+      console.log('Using custom instructions for session');
+    }
+
     const response = await fetch("https://api.openai.com/v1/realtime/sessions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        model: "gpt-4o-realtime-preview-2025-06-03",
-        voice: voice,
-      }),
+      body: JSON.stringify(sessionConfig),
     });
 
     if (!response.ok) {

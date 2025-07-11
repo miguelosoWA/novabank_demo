@@ -137,6 +137,8 @@ export function VirtualAgent() {
       isProcessing: isProcessingRef.current,
       lastProcessed: lastProcessedTextRef.current 
     })
+
+    Logger.info('ContextId', { contextId: currentContext.id })
     
     try {
       Logger.debug('Detectando intención de navegación...', { text })

@@ -126,7 +126,8 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            voice: 'alloy' // Voz fija para todos los contextos
+            voice: 'alloy', // Voz fija para todos los contextos
+            instructions: currentContext.systemPrompt // Send the system prompt for LLM personality
           })
         })
 
