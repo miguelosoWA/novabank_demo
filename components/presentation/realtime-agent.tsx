@@ -625,7 +625,7 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
                 <div className="text-center">
                   <div className="relative mb-4">
                     <img 
-                      src="/unnamed.webp" 
+                      src="/avatar-did.png" 
                       alt="Sofía - Asistente Virtual"
                       className="w-32 h-32 mx-auto rounded-full shadow-lg border-4 border-white"
                       onError={(e) => {
