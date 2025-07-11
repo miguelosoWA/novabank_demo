@@ -616,32 +616,81 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
           transition={{ type: "tween", duration: 0.6, ease: "easeOut" }}
           className="relative h-[96%] flex items-center justify-center"
         >
-          {/* Sphere visualization with agent info */}
+          {/* TEMPORARY: Image visualization instead of sphere */}
           <div className="flex flex-col items-center justify-center h-full relative">
-            {/* Sphere visualization container */}
+            {/* Image container */}
             <div className="w-full max-w-lg h-72 relative flex-shrink-0">
-              {/* <SphereVisualization
-                inputNode={inputAudioNodeRef.current || undefined}
-                outputNode={outputAudioNodeRef.current || undefined}
-                isActive={connectionState === 'connected'}
-                className="absolute inset-0 rounded-lg overflow-hidden"
-              /> */}
+              {/* TEMPORARY IMAGE - Sofía Assistant */}
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-green-50 rounded-2xl shadow-lg border border-gray-200">
+                <div className="text-center">
+                  <div className="relative mb-4">
+                    <img 
+                      src="/unnamed.webp" 
+                      alt="Sofía - Asistente Virtual"
+                      className="w-32 h-32 mx-auto rounded-full shadow-lg border-4 border-white"
+                      onError={(e) => {
+                        // Fallback si la imagen no carga
+                        e.currentTarget.style.display = 'none'
+                        e.currentTarget.nextElementSibling?.classList.remove('hidden')
+                      }}
+                    />
+                    {/* Fallback emoji si la imagen no carga */}
+                    <div className="hidden w-32 h-32 mx-auto rounded-full bg-gradient-to-br from-blue-400 to-green-400 flex items-center justify-center text-6xl shadow-lg border-4 border-white">
+                      🤖
+                    </div>
+                    
+                    {/* Audio activity indicator */}
+                    <div className={`absolute -bottom-2 -right-2 w-8 h-8 rounded-full border-4 border-white flex items-center justify-center ${
+                      isMicrophoneActive ? 'bg-red-500 animate-pulse' : 'bg-green-500'
+                    }`}>
+                      <div className={`w-2 h-2 rounded-full ${
+                        isMicrophoneActive ? 'bg-white animate-ping' : 'bg-white'
+                      }`}></div>
+                    </div>
+                  </div>
+                  
+                  <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                    {connectionState === 'connecting' && 'Conectando...'}
+                    {connectionState === 'connected' && 'Sofía'}
+                    {connectionState === 'error' && 'Error de conexión'}
+                    {connectionState === 'disconnected' && 'Desconectado'}
+                  </h3>
+                  
+                  <p className="text-sm text-gray-600 mb-3">
+                    {connectionState === 'connecting' && 'Estableciendo conexión de voz...'}
+                    {connectionState === 'connected' && 'Asistente Virtual de NovaBank'}
+                    {connectionState === 'error' && 'No se pudo conectar'}
+                    {connectionState === 'disconnected' && 'Conexión perdida'}
+                  </p>
+                  
+                  {connectionState === 'connected' && (
+                    <div className="space-y-1">
+                      <p className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full inline-block">
+                        🎤 {isMicrophoneActive ? 'Micrófono activo' : 'Micrófono inactivo'}
+                      </p>
+                      <p className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full inline-block">
+                        🌐 {currentContext.name}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
 
+          {/* ORIGINAL SPHERE CODE - COMMENTED OUT TEMPORARILY */}
+          {/* 
+          <div className="flex flex-col items-center justify-center h-full relative">
+            <div className="w-full max-w-lg h-72 relative flex-shrink-0">
               <SphereVisual
                 inputNode={inputAudioNodeRef.current || undefined}
                 outputNode={outputAudioNodeRef.current || undefined}
                 isActive={true}
                 className="w-full h-full"
               />
-
-              {/* Fallback for when sphere is loading */}
-              {/* {connectionState !== 'connected' && (
-                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-400 to-purple-600 rounded-lg">
-                  <div className="text-white text-6xl">🤖</div>
-                </div>
-              )} */}
             </div>
           </div>
+          */}
           
           {/* Agent info overlay - positioned outside the main container to avoid blocking */}
           {/* <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-center pointer-events-none">
