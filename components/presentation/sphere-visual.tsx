@@ -225,9 +225,6 @@ export const SphereVisual = forwardRef<any, SphereVisualProps>(
         const t = performance.now()
         
         // Reduced debug logging - every 5 seconds
-        if (frameCount % 300 === 0) {
-          console.log('[SphereVisual] Animation frame #' + frameCount + ' at:', Math.floor(t), 'ms', 'isActive:', isActive)
-        }
 
         // Update audio analysers only when active
         if (isActive) {
@@ -242,11 +239,6 @@ export const SphereVisual = forwardRef<any, SphereVisualProps>(
             if (data && data.length > 0) {
               const maxLevel = Math.max(...Array.from(data))
               if (maxLevel > 5 && Math.floor(t) % 500 < 16) {
-                console.log('[SphereVisual] Output audio detected in analyser!', { 
-                  maxLevel, 
-                  avgLevel: Array.from(data).reduce((a, b) => a + b, 0) / data.length,
-                  time: Math.floor(t)
-                })
               }
             }
           }

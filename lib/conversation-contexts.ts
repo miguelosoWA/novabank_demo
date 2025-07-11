@@ -11,7 +11,7 @@ export interface ConversationContext {
 }
 
 export interface NavigationCommand {
-  keywords: string[]
+  description: string  // Changed from keywords array to description text
   intent: string
   targetPage: string
   response: string
@@ -48,15 +48,19 @@ Segundo, ¿qué monto deseas transferir?
 Y por último, ¿deseas agregar alguna descripción a la transferencia?"
 
 7. Si el usuario solicita información para adquirir una tarjeta de crédito, responde con:
-"De acuerdo a tu perfil, te puedo ofrecer una tarjeta de crédito con las siguientes características:
+"Por supuesto, de acuerdo a tu perfil, te puedo ofrecer una tarjeta de crédito con las siguientes características:
 - Límite de crédito: $5 millones
 - Cashback: 2% de tus compras
 - Seguro de compras y viajes
 - Programa de recompensas
-Para ayudarte con tu tarjeta de crédito, necesito algunos datos:
-Primero, ¿cuál es tu ingreso mensual?
-Segundo, ¿cuántos años has trabajado en tu empleo actual?
-Y por último, ¿cuál es tu situación laboral? (empleado, independiente o empresario)"
+¿Qué te parece?
+
+Si el usuario acepta la tarjeta, confirma y dile que la solicitud será procesada en breve y se le enviará un correo con los detalles.
+Si el usuario pide una tarjeta diferente o mejor, dile de forma cordial que esa es la mejor opción para su perfil actual.
+Si el usuario no acepta la tarjeta, responde de forma cordial y vuelve al inicio.
+
+Si el usuario pregunta por volver al inicio, responde con:
+"Te llevo de vuelta al inicio."
 
 8. Si el usuario pregunta por ver la informacion final de la demostracion, responde con:
 "¡Gracias por tu tiempo! Espero que te haya parecido útil esta demostración. Si tienes alguna otra duda, no dudes en preguntarme. ¡Que tengas un excelente día!"
@@ -74,60 +78,53 @@ El tono debe ser profesional, cordial y personalizado para Carlos.`,
     capabilities: ['navegación', 'consultas generales', 'información de productos'],
     navigationCommands: [
       {
-        keywords: ['transferencia', 'transferir', 'enviar dinero', 'pagar', 'pago', 'mandar dinero', 'enviar plata', 'transfer', 'transfers'],
+        description: 'Realizar una transferencia de dinero',
         intent: 'transfer',
         targetPage: '/transfers',
         response: 'Te ayudo con tu transferencia. Te llevo a la sección de transferencias.',
         priority: 1
       },
       {
-        keywords: ['tarjeta de crédito', 'tarjeta', 'crédito', 'solicitar tarjeta', 'tarjeta crédito', 'tarjeta visa', 'tarjeta mastercard'],
+        description: 'Solicitar una tarjeta de crédito',
         intent: 'credit-card',
         targetPage: '/credit-card',
         response: 'Perfecto, te ayudo con tu tarjeta de crédito. Te llevo a la sección correspondiente.',
         priority: 1
       },
       {
-        keywords: ['inversión', 'invertir', 'ahorro', 'crecer dinero', 'inversiones', 'ahorrar', 'hacer crecer'],
-        intent: 'investments',
-        targetPage: '/investments',
-        response: 'Excelente, te ayudo con tus inversiones. Te llevo a la sección de inversiones.',
-        priority: 1
-      },
-      {
-        keywords: ['cdt', 'certificado', 'depósito a término'],
+        description: 'El usuario consulta sobre un CDT (Certificado de Depósito a Término)',
         intent: 'cdt',
         targetPage: '/cdt',
         response: 'Te explico sobre los CDT. Te llevo a la sección correspondiente.',
         priority: 1
       },
       {
-        keywords: ['fic', 'fondo de inversión', 'inversión colectiva'],
+        description: 'El usuario consulta sobre un FIC (Fondo de Inversión Colectiva)',
         intent: 'fic',
         targetPage: '/fic',
         response: 'Te explico sobre los Fondos de Inversión Colectiva. Te llevo a la sección correspondiente.',
         priority: 1
       },
       {
-        keywords: ['cuenta', 'saldo', 'movimientos', 'estado de cuenta'],
+        description: 'El usuario quiere hacer una invesion',
+        intent: 'investments',
+        targetPage: '/investments',
+        response: 'Excelente, te ayudo con el proceso de inversión.',
+        priority: 1
+      },
+      {
+        description: 'Consultar sobre el estado de la cuenta',
         intent: 'accounts',
         targetPage: '/accounts',
         response: 'Te ayudo con tu cuenta. Te llevo a la sección de cuentas.',
         priority: 2
       },
       {
-        keywords: ['recomendaciones', 'sugerencias', 'productos'],
+        description: 'El usuario saluda, diciendo cosas como "hola", "buenos días", "buenas tardes", "buenas noches", "que tal", "como estas", etc.',
         intent: 'recommendations',
         targetPage: '/recommendations',
-        response: 'Te muestro nuestras recomendaciones personalizadas.',
+        response: '¡Hola Carlos! Es un gusto verte de vuelta. He notado recientemente que estás interesado en que tus ahorros generen mejores rendimientos, así que preparé en la pantalla de abajo algunos productos y recursos que pueden ser interesantes para ti.',
         priority: 2
-      },
-      {
-        keywords: ['test', 'prueba', 'demo'],
-        intent: 'test',
-        targetPage: '/dashboard',
-        response: 'Comando de prueba detectado. Te llevo al dashboard.',
-        priority: 1
       }
     ]
   },
@@ -156,14 +153,14 @@ El tono debe ser profesional, cordial y personalizado para Carlos.`,
     capabilities: ['transferencias', 'verificación de datos', 'confirmación de montos', 'seguridad'],
     navigationCommands: [
       {
-        keywords: ['volver', 'inicio', 'dashboard', 'principal'],
+        description: 'Volver al inicio',
         intent: 'dashboard',
         targetPage: '/dashboard',
         response: 'Te llevo de vuelta al inicio.',
         priority: 1
       },
       {
-        keywords: ['otra transferencia', 'nueva transferencia'],
+        description: 'Iniciar una nueva transferencia',
         intent: 'new-transfer',
         targetPage: '/transfers',
         response: 'Perfecto, iniciamos una nueva transferencia.',
@@ -185,12 +182,11 @@ Si el usuario solicita información para adquirir una tarjeta de crédito o est�
 - Cashback: 2% de tus compras
 - Seguro de compras y viajes
 - Programa de recompensas
-Para ayudarte con tu tarjeta de crédito, necesito algunos datos:
-Primero, ¿cuál es tu ingreso mensual?
-Segundo, ¿cuántos años has trabajado en tu empleo actual?
-Y por último, ¿cuál es tu situación laboral? (empleado, independiente o empresario)"
+¿Qué te parece?
 
-Si el usuario proporciona datos de la tarjeta, confirma los datos y guíalo al siguiente paso.
+Si el usuario acepta la tarjeta, confirma y dile que la solicitud será procesada en breve y se le enviará un correo con los detalles.
+Si el usuario pide una tarjeta diferente o mejor, dile de forma cordial que esa es la mejor opción para su perfil actual.
+Si el usuario no acepta la tarjeta, responde de forma cordial y vuelve al inicio.
 
 Si el usuario pregunta por volver al inicio, responde con:
 "Te llevo de vuelta al inicio."
@@ -201,17 +197,24 @@ El tono debe ser profesional, cordial y personalizado para Carlos.`,
     capabilities: ['evaluación de perfil', 'recomendaciones', 'proceso de solicitud', 'asesoría crediticia'],
     navigationCommands: [
       {
-        keywords: ['volver', 'inicio', 'dashboard', 'principal'],
+        description: 'El usuario quiere cancelar la solicitud, no acepta la tarjeta ofrecida, no está interesado, rechaza la propuesta, o quiere volver al menú principal',
         intent: 'dashboard',
         targetPage: '/dashboard',
         response: 'Te llevo de vuelta al inicio.',
         priority: 1
       },
       {
-        keywords: ['otra tarjeta', 'nueva solicitud'],
+        description: 'El usuario quiere solicitar una tarjeta diferente, buscar otras opciones de tarjetas, o iniciar un nuevo proceso de solicitud',
         intent: 'new-credit-card',
         targetPage: '/credit-card',
         response: 'Perfecto, iniciamos una nueva solicitud de tarjeta.',
+        priority: 1
+      },
+      {
+        description: 'El usuario acepta la tarjeta que se le ofreció',
+        intent: 'dashboard',
+        targetPage: '/dashboard',
+        response: 'Perfecto, te llevo al siguiente paso.',
         priority: 1
       }
     ]
@@ -239,21 +242,21 @@ El tono debe ser profesional, cordial y personalizado para Carlos.`,
     capabilities: ['evaluación de objetivos', 'productos de inversión', 'estrategias', 'educación financiera'],
     navigationCommands: [
       {
-        keywords: ['volver', 'inicio', 'dashboard', 'principal'],
+        description: 'Volver al inicio',
         intent: 'dashboard',
         targetPage: '/dashboard',
         response: 'Te llevo de vuelta al inicio.',
         priority: 1
       },
       {
-        keywords: ['cdt', 'certificado', 'depósito'],
+        description: 'Consultar sobre Certificados de Depósito a Término',
         intent: 'cdt',
         targetPage: '/cdt',
         response: 'Te explico sobre los CDT.',
         priority: 1
       },
       {
-        keywords: ['fic', 'fondo', 'inversión colectiva'],
+        description: 'Consultar sobre Fondos de Inversión Colectiva',
         intent: 'fic',
         targetPage: '/fic',
         response: 'Te explico sobre los FIC.',
@@ -281,26 +284,33 @@ El tono debe ser profesional, cordial y personalizado para Carlos.`,
     capabilities: ['explicación de productos', 'comparaciones', 'proceso de apertura', 'educación financiera'],
     navigationCommands: [
       {
-        keywords: ['volver', 'inicio', 'dashboard', 'principal'],
+        description: 'Volver al inicio',
         intent: 'dashboard',
         targetPage: '/dashboard',
         response: 'Te llevo de vuelta al inicio.',
         priority: 1
       },
       {
-        keywords: ['fic', 'fondo', 'inversión colectiva'],
+        description: 'Consultar sobre FIC (Fondos de Inversión Colectiva)',
         intent: 'fic',
         targetPage: '/fic',
         response: 'Te explico sobre los FIC.',
         priority: 1
       },
       {
-        keywords: ['inversión', 'invertir'],
-        intent: 'investments',
-        targetPage: '/investments',
-        response: 'Te explico sobre inversiones.',
+        description: 'El usuario dice que no le interesa lo que se le ofreció',
+        intent: 'recommendations',
+        targetPage: '/recommendations',
+        response: 'No hay problema, te llevo de vuelta a los productos y recursos que te mencioné antes.',
+        priority: 2
+      },
+      {
+        description: 'El usuario pregunta por las otras opciones de inversión',
+        intent: 'recommendations',
+        targetPage: '/recommendations',
+        response: 'Excelente, te ayudo con tus inversiones. Te llevo a la sección de inversiones.',
         priority: 1
-      }
+      },
     ]
   },
 
@@ -323,21 +333,21 @@ El tono debe ser profesional, cordial y personalizado para Carlos.`,
     capabilities: ['explicación de FIC', 'gestión profesional', 'diversificación', 'proceso de inversión'],
     navigationCommands: [
       {
-        keywords: ['volver', 'inicio', 'dashboard', 'principal'],
+        description: 'Volver al inicio',
         intent: 'dashboard',
         targetPage: '/dashboard',
         response: 'Te llevo de vuelta al inicio.',
         priority: 1
       },
       {
-        keywords: ['cdt', 'certificado', 'depósito'],
+        description: 'Consultar sobre Certificados de Depósito a Término',
         intent: 'cdt',
         targetPage: '/cdt',
         response: 'Te explico sobre los CDT.',
         priority: 1
       },
       {
-        keywords: ['inversión', 'invertir'],
+        description: 'Consultar sobre Inversiones',
         intent: 'investments',
         targetPage: '/investments',
         response: 'Te explico sobre inversiones.',
@@ -371,22 +381,11 @@ export function getContextById(contextId: string): ConversationContext {
 }
 
 export function detectNavigationCommand(text: string, context: ConversationContext): NavigationCommand | null {
-  const lowerText = text.toLowerCase().trim()
+  // NOTE: With descriptions instead of keywords, this function becomes less useful
+  // The intent detection should now rely more on AI analysis rather than simple text matching
+  // This function is kept for compatibility but may return null more often
   
-  // Buscar comandos de navegación en orden de prioridad
-  const sortedCommands = [...context.navigationCommands].sort((a, b) => b.priority - a.priority)
-  
-  for (const command of sortedCommands) {
-    for (const keyword of command.keywords) {
-      const lowerKeyword = keyword.toLowerCase()
-      
-      // Verificación simple: si la palabra clave está presente en el texto
-      if (lowerText.includes(lowerKeyword)) {
-        return command
-      }
-    }
-  }
-  
+  // For now, return null and let the AI-powered intent detection handle it
   return null
 }
 
