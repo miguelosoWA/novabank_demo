@@ -176,21 +176,20 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
           Logger.warn('Could not configure audio transceiver', transceiverError)
         }
 
-        // Set up audio context for visualization
+        // Set up audio context for visualization ONLY
         if (!audioContextRef.current) {
           audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)()
           
-          // Create gain nodes for visualization
+          // Create gain nodes for visualization only
           const inputGainNode = audioContextRef.current.createGain()
           const outputGainNode = audioContextRef.current.createGain()
           
           // Set initial gain levels
           inputGainNode.gain.value = 1.0 // For visualization only, not connected to speakers
-          outputGainNode.gain.value = 1.0 // Enable output audio
+          outputGainNode.gain.value = 1.0 // For visualization only, NOT connected to destination
           
-          // Connect ONLY output gain node to destination to prevent feedback
-          // Input gain node is only used for visualization, not playback
-          outputGainNode.connect(audioContextRef.current.destination)
+          // IMPORTANT: Do NOT connect outputGainNode to destination to avoid duplicate audio
+          // HTMLAudioElement will handle audio playback, Web Audio API only for visualization
           
           // Store gain nodes for visualization
           inputAudioNodeRef.current = inputGainNode
@@ -199,7 +198,7 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
           // Resume audio context to enable audio processing
           try {
             await audioContextRef.current.resume()
-            Logger.info('Audio context and gain nodes created successfully', {
+            Logger.info('Audio context and gain nodes created for visualization only', {
               contextState: audioContextRef.current.state,
               sampleRate: audioContextRef.current.sampleRate
             })
@@ -208,7 +207,7 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
           }
         }
 
-        // Set up audio element for remote audio
+        // Set up audio element for reliable audio playback
         if (!audioRef.current) {
           audioRef.current = document.createElement('audio')
           audioRef.current.autoplay = true
@@ -219,35 +218,43 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
         // Handle incoming audio tracks
         pc.ontrack = (event) => {
           Logger.info('Track recibido', { kind: event.track.kind })
-          if (audioRef.current && event.streams[0]) {
-            audioRef.current.srcObject = event.streams[0]
+          
+          // Dual audio setup: HTMLAudioElement for playback + Web Audio API for visualization
+          if (event.streams[0]) {
+            // 1. Use HTMLAudioElement for reliable audio playback
+            if (audioRef.current) {
+              audioRef.current.srcObject = event.streams[0]
+              
+              // Ensure audio plays
+              audioRef.current.play().catch(error => {
+                Logger.warn('Could not auto-play audio', error)
+              })
+              
+              Logger.info('Audio element configured for playback', {
+                streamActive: event.streams[0].active,
+                trackCount: event.streams[0].getTracks().length
+              })
+            }
             
-            // Ensure audio plays
-            audioRef.current.play().catch(error => {
-              Logger.warn('Could not auto-play audio', error)
-            })
-            
-            // Connect incoming audio stream to output gain node for visualization
+            // 2. Use Web Audio API for visualization ONLY (not connected to speakers)
             if (audioContextRef.current && outputAudioNodeRef.current) {
               try {
                 const source = audioContextRef.current.createMediaStreamSource(event.streams[0])
                 
-                // Connect source to output gain node - this is what the SphereVisual analyzes
+                // Connect source to output gain node for visualization only
                 source.connect(outputAudioNodeRef.current)
                 
-                // Output audio flow (you hear the AI speaking):
-                // source -> outputGainNode -> destination (for hearing)
-                //       \-> analyser (for visualization in SphereVisual)
+                // Note: outputGainNode is NOT connected to destination, so no audio output here
+                // This is purely for the sphere visualization to analyze the audio
                 
-                Logger.info('Output audio source connected to gain node', {
+                Logger.info('Web Audio API source connected for visualization only', {
                   contextState: audioContextRef.current.state,
                   streamActive: event.streams[0].active,
-                  trackCount: event.streams[0].getTracks().length,
                   streamTracks: event.streams[0].getTracks().map(t => ({ kind: t.kind, enabled: t.enabled })),
                   gainNodeConnected: !!outputAudioNodeRef.current
                 })
               } catch (error) {
-                Logger.warn('Could not connect output audio source', error)
+                Logger.warn('Could not connect visualization audio source', error)
               }
             }
           }

@@ -27,7 +27,7 @@ export const conversationContexts: Record<string, ConversationContext> = {
     systemPrompt: `Actúa como un asistente bancario virtual dentro de la aplicación del banco para un cliente llamado Carlos durante una demostración. Tu nombre es Sofía. Tienes acceso a toda la información bancaria del usuario. Debes seguir estrictamente el siguiente libreto y responder de manera natural y conversacional. Tu objetivo es responder según las siguientes reglas:
 
 1. Si el usuario saluda (por ejemplo, dice "hola", "buenos días", etc.), responde con:
-"¡Hola Carlos! Es un gusto verte de vuelta. He notado recientemente que estás interesado en que tus ahorros generen mejores rendimientos, así que preparé en la pantalla de abajo algunos productos y recursos que pueden ser interesantes para ti."
+"¡Hola Carlos! Es un gusto verte de vuelta. He notado recientemente que estás interesado en que tus ahorros generen mejores rendimientos, así que preparé algunos productos y recursos que pueden ser interesantes para ti, ¿Te gustaría verlos?"
 
 2. Si el usuario pregunta qué es un Certificado de Depósito a Término, responde con:
 "Es un producto financiero en el que depositas tu dinero por un tiempo definido a cambio de una tasa fija de interés. Al finalizar el plazo, recibes tu capital más los intereses generados. Es seguro y sin sorpresas."
@@ -74,7 +74,7 @@ Si el usuario pregunta por volver al inicio, responde con:
 
 El tono debe ser profesional, cordial y personalizado para Carlos.`,
     voice: 'alloy',
-    welcomeMessage: '¡Hola Carlos! Es un gusto verte de vuelta. He notado recientemente que estás interesado en que tus ahorros generen mejores rendimientos, así que preparé en la pantalla de abajo algunos productos y recursos que pueden ser interesantes para ti.',
+    welcomeMessage: '¡Hola Carlos! Es un gusto verte de vuelta. He notado recientemente que estás interesado en que tus ahorros generen mejores rendimientos, así que preparé algunos productos y recursos que pueden ser interesantes para ti, ¿Te gustaría verlos?',
     capabilities: ['navegación', 'consultas generales', 'información de productos'],
     navigationCommands: [
       {
@@ -121,9 +121,23 @@ El tono debe ser profesional, cordial y personalizado para Carlos.`,
       },
       {
         description: 'El usuario saluda, diciendo cosas como "hola", "buenos días", "buenas tardes", "buenas noches", "que tal", "como estas", etc.',
+        intent: 'dashboard',
+        targetPage: '/dashboard',
+        response: '¡Hola Carlos! Es un gusto verte de vuelta. He notado recientemente que estás interesado en que tus ahorros generen mejores rendimientos, así que preparé algunos productos y recursos que pueden ser interesantes para ti, ¿Te gustaría verlos?',
+        priority: 2
+      },
+      {
+        description: 'El usuario quiere ver los productos y recursos que se le ofrecieron',
         intent: 'recommendations',
         targetPage: '/recommendations',
-        response: '¡Hola Carlos! Es un gusto verte de vuelta. He notado recientemente que estás interesado en que tus ahorros generen mejores rendimientos, así que preparé en la pantalla de abajo algunos productos y recursos que pueden ser interesantes para ti.',
+        response: 'Dile al usuario de forma cordial que lo llevas a la sección de productos y recursos que te mencioné antes.',
+        priority: 2
+      },
+      {
+        description: 'El usuario te pide que vuelvas al inicio, menú principal, etc.',
+        intent: 'dashboard',
+        targetPage: '/dashboard',
+        response: 'Dile al usuario de forma cordial que lo llevas de vuelta a la pantalla de inicio.',
         priority: 2
       }
     ]
