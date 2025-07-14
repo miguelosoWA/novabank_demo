@@ -29,27 +29,14 @@ const responseSchema = {
   additionalProperties: false
 }
 
-export async function POST(request: NextRequest) {
-  try {
-    const { text, contextId } = await request.json()
-
-    if (!text) {
-      return NextResponse.json({ error: 'Texto requerido' }, { status: 400 })
-    }
-
-    // Load context information to get navigation descriptions
-    const currentContext = getContextById(contextId || 'general')
-
-    // Build context-aware prompt with descriptions instead of keywords
-    const systemPrompt = `Analiza el texto del usuario y determina si quiere navegar a alguna sección del banco.
+// Generate system prompt based on current context
+const generateSystemPrompt = (currentContext: any) => `Analiza el texto del usuario y determina si quiere navegar a alguna sección del banco.
 
 CONTEXTO ACTUAL: ${currentContext.name}
 DESCRIPCIÓN DEL CONTEXTO: ${currentContext.description}
-PERSONALIDAD DEL CONTEXTO: ${currentContext.personality}
-CAPACIDADES ACTUALES: ${currentContext.capabilities.join(', ')}
 
 COMANDOS DE NAVEGACIÓN DISPONIBLES EN ESTE CONTEXTO:
-${currentContext.navigationCommands.map(cmd => 
+${currentContext.navigationCommands.map((cmd: any) => 
   `- ${cmd.description} → Navegar a ${cmd.targetPage} (Prioridad: ${cmd.priority})`
 ).join('\n')}
 
@@ -66,26 +53,38 @@ OTRAS SECCIONES GENERALES DISPONIBLES:
 
 INSTRUCCIONES:
 1. Analiza la intención del usuario considerando el contexto actual: ${currentContext.name}
-2. Considera la personalidad del contexto: ${currentContext.personality}
-3. Si la intención coincide con alguna descripción, determina la navegación apropiada
-4. Prioriza comandos con mayor prioridad cuando hay ambigüedad
-5. Considera variaciones naturales del lenguaje según las capacidades del contexto: ${currentContext.capabilities.join(', ')}
-6. Ten en cuenta que el usuario está en "${currentContext.name}" - esto afecta cómo interpretar sus palabras
+2. Si la intención coincide con alguna descripción, determina la navegación apropiada
+3. Prioriza comandos con mayor prioridad cuando hay ambigüedad
+4. Ten en cuenta que el usuario está en "${currentContext.name}" - esto afecta cómo interpretar sus palabras
 
 Tu respuesta debe seguir exactamente el formato JSON especificado.`
 
-    const userPrompt = `ANÁLISIS DE INTENCIÓN DE NAVEGACIÓN:
+// Generate user prompt based on current context and user text
+const generateUserPrompt = (currentContext: any, text: string) => `ANÁLISIS DE INTENCIÓN DE NAVEGACIÓN:
 
 Sección actual: ${currentContext.name}
-Capacidades disponibles: ${currentContext.capabilities.join(', ')}
 Texto del usuario: "${text}"
 
 Evalúa si el usuario quiere navegar a otra sección considerando:
 - Su ubicación actual en ${currentContext.name}
 - Las descripciones de navegación específicas del contexto
-- La personalidad y capacidades del contexto actual
 
 Proporciona tu análisis en el formato JSON especificado.`
+
+export async function POST(request: NextRequest) {
+  try {
+    const { text, contextId } = await request.json()
+
+    if (!text) {
+      return NextResponse.json({ error: 'Texto requerido' }, { status: 400 })
+    }
+
+    // Load context information to get navigation descriptions
+    const currentContext = getContextById(contextId || 'general')
+
+    // Build context-aware prompt with descriptions instead of keywords
+    const systemPrompt = generateSystemPrompt(currentContext)
+    const userPrompt = generateUserPrompt(currentContext, text)
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -99,8 +98,7 @@ Proporciona tu análisis en el formato JSON especificado.`
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        temperature: 0.1,
-        max_tokens: 300,
+        temperature: 0.3,
         response_format: {
           type: "json_schema",
           json_schema: {

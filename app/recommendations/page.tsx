@@ -1,14 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { TrendingUp, BookOpen, PiggyBank } from "lucide-react"
-import { AccountCard } from "@/components/dashboard/account-card"
-import { OpportunityCard } from "@/components/dashboard/opportunity-card"
-import { TransactionList } from "@/components/dashboard/transaction-list"
-import { InvestmentSimulator } from "@/components/dashboard/investment-simulator"
-import { PersonalizedRecommendation } from "@/components/dashboard/personalized-recommendation"
-import { ContextualNotification } from "@/components/dashboard/contextual-notification"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useUserActivity } from "@/hooks/use-user-activity"
 
 // Datos de ejemplo
@@ -154,22 +146,6 @@ export default function Dashboard() {
               <div className="flex-1 p-4">
                 <h3 className="text-gray-800 font-semibold text-base leading-tight">
                   Fondo de Inversión Colectiva
-                </h3>
-              </div>
-            </div>
-
-            {/* AFC Card */}
-            <div className="flex items-center bg-white rounded-xl overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
-                 onClick={() => {
-                   window.alert("Abriendo artículo...")
-                   trackInteraction("click", "opportunity_card_article")
-                 }}>
-              <div className="bg-[#074f2a] w-20 h-20 flex items-center justify-center">
-                <span className="text-white font-bold text-lg">AFC</span>
-              </div>
-              <div className="flex-1 p-4">
-                <h3 className="text-gray-800 font-semibold text-base leading-tight">
-                  Cuenta AFC
                 </h3>
               </div>
             </div>

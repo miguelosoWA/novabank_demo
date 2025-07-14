@@ -9,36 +9,42 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Archivo de audio requerido' }, { status: 400 })
     }
 
-    // Convertir el archivo a buffer
+    // Check if Deepgram API key is configured
+    if (!process.env.DEEPGRAM_API_KEY) {
+      return NextResponse.json({ error: 'Deepgram API key not configured' }, { status: 500 })
+    }
+
+    // Convert file to buffer for Deepgram
     const audioBuffer = await audioFile.arrayBuffer()
 
-    // Enviar a OpenAI Whisper para transcripción
-    const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+    // Send to Deepgram for transcription
+    const deepgramUrl = 'https://api.deepgram.com/v1/listen?model=nova-2&smart_format=true&language=es'
+    
+    const response = await fetch(deepgramUrl, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Authorization': `Token ${process.env.DEEPGRAM_API_KEY}`,
+        'Content-Type': audioFile.type || 'audio/webm',
       },
-      body: (() => {
-        const formData = new FormData()
-        formData.append('file', new Blob([audioBuffer], { type: audioFile.type }), 'audio.webm')
-        formData.append('model', 'whisper-1')
-        formData.append('language', 'es')
-        return formData
-      })()
+      body: audioBuffer
     })
 
     if (!response.ok) {
       const errorText = await response.text()
-      console.error('Error en OpenAI Whisper:', errorText)
+      console.error('Error en Deepgram:', errorText)
       return NextResponse.json({ error: 'Error al transcribir audio' }, { status: 500 })
     }
 
     const data = await response.json()
     
+    // Deepgram response structure is different from OpenAI
+    // Extract text from Deepgram's response format
+    const transcriptText = data.results?.channels?.[0]?.alternatives?.[0]?.transcript || ''
+    
     return NextResponse.json({
       success: true,
-      text: data.text,
-      language: data.language
+      text: transcriptText,
+      language: data.results?.channels?.[0]?.detected_language || 'es'
     })
 
   } catch (error) {
