@@ -18,6 +18,28 @@ declare global {
 
 // Tipos para el sistema de navegación
 
+// Add this example function to show how to listen to agent responses
+// (You can add this to any component that needs to listen to agent text)
+const setupAgentTextListener = () => {
+  const handleAgentText = (event: CustomEvent<{ text: string }>) => {
+    console.log('🤖 Agent Response:', event.detail.text)
+    
+    // You can also do other things with the text here:
+    // - Store it in state
+    // - Send it to analytics
+    // - Display it in UI
+    // - Save to local storage
+    // etc.
+  }
+  
+  window.addEventListener('agentTextResponse', handleAgentText)
+  
+  // Don't forget to cleanup
+  return () => {
+    window.removeEventListener('agentTextResponse', handleAgentText)
+  }
+}
+
 // Logger utility
 const Logger = {
   info: (message: string, data?: any) => {
@@ -34,6 +56,14 @@ const Logger = {
   },
   success: (message: string, data?: any) => {
     console.log(`[RealtimeAgent] ✅ ${message}`, data || '')
+  },
+  // Add a special method for agent responses
+  agentResponse: (text: string) => {
+    console.group('🤖 Agent Response')
+    console.log('Text:', text)
+    console.log('Timestamp:', new Date().toISOString())
+    console.log('Length:', text.length)
+    console.groupEnd()
   }
 }
 
@@ -375,30 +405,134 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
         })
 
         dc.addEventListener('message', (event) => {
+          // Log RAW data first to see exactly what we're receiving
+          // Logger.info('🔍 RAW message received in data channel', { 
+          //   data: event.data, 
+          //   type: typeof event.data,
+          //   length: event.data.length 
+          // })
+          
           try {
             const data = JSON.parse(event.data)
-            Logger.debug('Mensaje recibido en data channel', data)
+            
+            // Log PARSED data with full structure
+            // Logger.info('📦 PARSED message data', { 
+            //   fullObject: data,
+            //   type: data.type,
+            //   hasText: !!data.text,
+            //   hasContent: !!data.content,
+            //   hasResponse: !!data.response,
+            //   allKeys: Object.keys(data)
+            // })
             
             // Handle different types of messages from OpenAI Realtime
-            if (data.type === 'text') {
-              Logger.info('Texto recibido del agente', data.text)
+            if (data.type === 'response.audio_transcript.delta') {
+              // Streaming text pieces as the agent speaks
+              const text = data.delta
+              if (text) {
+                // Logger.info('🎙️ Agent speech delta:', text)
+                
+                // Emit individual delta for real-time display if needed
+                const deltaEvent = new CustomEvent('agentTextDelta', { 
+                  detail: { delta: text } 
+                })
+                window.dispatchEvent(deltaEvent)
+              }
+            } else if (data.type === 'response.audio_transcript.done') {
+              // Complete transcript when agent finishes speaking
+              const fullText = data.transcript
+              if (fullText) {
+                Logger.agentResponse(fullText)
+                Logger.info('🤖 Complete agent response received:', fullText)
+                
+                const textEvent = new CustomEvent('agentTextResponse', { 
+                  detail: { text: fullText } 
+                })
+                window.dispatchEvent(textEvent)
+              }
+            } else if (data.type === 'response.text.delta' || data.type === 'response.text.done') {
+              // OpenAI Realtime API might use these event types for text
+              const text = data.delta || data.text || data.content
+              if (text) {
+                Logger.agentResponse(text)
+                Logger.info('🤖 Texto recibido del agente (response.text)', text)
+                
+                const textEvent = new CustomEvent('agentTextResponse', { 
+                  detail: { text: text } 
+                })
+                window.dispatchEvent(textEvent)
+              }
+            } else if (data.type === 'text') {
+              // Enhanced logging for agent responses
+              Logger.agentResponse(data.text)
+              Logger.info('🤖 Texto recibido del agente (text)', data.text)
+              
               // Emitir evento para que el componente padre pueda procesar el texto
               const textEvent = new CustomEvent('agentTextResponse', { 
                 detail: { text: data.text } 
               })
               window.dispatchEvent(textEvent)
+            } else if (data.type === 'response.audio.delta' || data.type === 'response.audio.done') {
+              Logger.info('🔊 Audio response received', { type: data.type, hasAudio: !!data.audio })
+            } else if (data.type === 'response.content_part.added' || data.type === 'response.content_part.done') {
+              Logger.info('📝 Content part received', { type: data.type })
+            } else if (data.type === 'response.output_item.added' || data.type === 'response.output_item.done') {
+              Logger.info('📄 Output item received', { type: data.type })
+            } else if (data.type === 'response.created' || data.type === 'response.done') {
+              Logger.info('📋 Response lifecycle event', { type: data.type })
+            } else if (data.type === 'input_audio_buffer.speech_started' || data.type === 'input_audio_buffer.speech_stopped' || data.type === 'input_audio_buffer.committed') {
+              Logger.info('🎤 Audio input event', { type: data.type })
+            } else if (data.type === 'output_audio_buffer.started' || data.type === 'output_audio_buffer.stopped') {
+              Logger.info('🔊 Audio output event', { type: data.type })
+            } else if (data.type === 'rate_limits.updated') {
+              Logger.info('⚡ Rate limits updated', { type: data.type })
+            } else if (data.type === 'conversation.item.created') {
+              Logger.info('💬 Conversation item created', data)
+              // Check if this contains text content
+              if (data.item && data.item.content) {
+                data.item.content.forEach((contentItem: any) => {
+                  if (contentItem.type === 'text' && contentItem.text) {
+                    Logger.agentResponse(contentItem.text)
+                    Logger.info('🤖 Texto del agente en conversation.item', contentItem.text)
+                    
+                    const textEvent = new CustomEvent('agentTextResponse', { 
+                      detail: { text: contentItem.text } 
+                    })
+                    window.dispatchEvent(textEvent)
+                  }
+                })
+              }
             } else if (data.type === 'user_text') {
               // Texto transcrito del usuario - ya no emitir evento, se maneja por AudioRecorder
-              Logger.info('Texto del usuario transcrito (manejado por AudioRecorder)', data.text)
+              Logger.info('👤 Texto del usuario transcrito (manejado por AudioRecorder)', data.text)
             } else if (data.type === 'audio') {
-              Logger.info('Audio recibido del agente')
-            } else if (data.type === 'conversation_started') {
-              Logger.info('Conversación iniciada con el agente')
-            } else if (data.type === 'conversation_ended') {
-              Logger.info('Conversación finalizada')
+              Logger.info('🔊 Audio recibido del agente')
+            } else if (data.type === 'conversation_started' || data.type === 'session.created') {
+              Logger.info('🚀 Conversación iniciada con el agente', data)
+            } else if (data.type === 'conversation_ended' || data.type === 'session.ended') {
+              Logger.info('🏁 Conversación finalizada', data)
+            } else {
+              // Log any other message types we haven't handled
+              Logger.warn('❓ Unknown message type received', { 
+                type: data.type, 
+                fullData: data,
+                possibleTextFields: {
+                  text: data.text,
+                  content: data.content,
+                  delta: data.delta,
+                  transcript: data.transcript,
+                  response: data.response
+                }
+              })
             }
           } catch (parseError) {
-            Logger.warn('Error al parsear mensaje', { data: event.data, error: parseError })
+            Logger.warn('❌ Error al parsear mensaje', { 
+              rawData: event.data, 
+              error: parseError,
+              dataType: typeof event.data,
+              dataLength: event.data.length,
+              firstChars: event.data.substring(0, 100)
+            })
           }
         })
 
@@ -558,6 +692,26 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
         contextName: newContext.name
       })
     }, [contextId])
+
+    // Add event listener for agent text responses
+    useEffect(() => {
+      const handleAgentText = (event: CustomEvent<{ text: string }>) => {
+        // Additional logging and processing of agent responses
+        console.log('🤖 Agent Text Response:', event.detail.text)
+        
+        // You can add more processing here:
+        // - Store in state
+        // - Send to analytics
+        // - Display in UI
+        // - Save to history
+      }
+      
+      window.addEventListener('agentTextResponse', handleAgentText)
+      
+      return () => {
+        window.removeEventListener('agentTextResponse', handleAgentText)
+      }
+    }, [])
 
     // Initialize on mount
     useEffect(() => {

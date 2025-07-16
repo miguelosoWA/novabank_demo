@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getContextById } from '@/lib/conversation-contexts'
+import { getContextById, conversationContexts } from '@/lib/conversation-contexts'
 
 // Define the response schema for structured output
 const responseSchema = {
@@ -12,7 +12,7 @@ const responseSchema = {
     targetPage: {
       type: ["string", "null"],
       description: "The target page to navigate to (only if hasNavigationIntent is true, null otherwise)",
-      enum: ["/dashboard", "/transfers", "/credit-card", "/investments", "/cdt", "/fic", "/accounts", "/recommendations", null]
+      enum: ["/dashboard", "/transfers", "/transfers_form", "/transfers_success", "/credit-card", "/credit_card_form", "/credit_card_success", "/cdt", "/cdt_form", "/cdt_success", "/fic", "/fic_form", "/fic_success", "/accounts", "/recommendations", null]
     },
     confidence: {
       type: "number",
@@ -30,32 +30,22 @@ const responseSchema = {
 }
 
 // Generate system prompt based on current context
-const generateSystemPrompt = (currentContext: any) => `Analiza el texto del usuario y determina si quiere navegar a alguna sección del banco.
+const generateSystemPrompt = (currentContext: any) => `Analiza el texto del agente bancario y determina si quiere navegar a alguna sección del banco.
 
 CONTEXTO ACTUAL: ${currentContext.name}
 DESCRIPCIÓN DEL CONTEXTO: ${currentContext.description}
 
 COMANDOS DE NAVEGACIÓN DISPONIBLES EN ESTE CONTEXTO:
 ${currentContext.navigationCommands.map((cmd: any) => 
-  `- ${cmd.description} → Navegar a ${cmd.targetPage} (Prioridad: ${cmd.priority})`
+  `{ "description": "${cmd.description}", "targetPage": "${cmd.targetPage}", "priority": ${cmd.priority} }`
 ).join('\n')}
 
-OTRAS SECCIONES GENERALES DISPONIBLES:
-- Realizar transferencias → /transfers
-- Solicitar tarjeta de crédito → /credit-card  
-- Consultar inversiones → /recommendations
-- Hacer una inversión → /investments
-- Ver información de CDT → /cdt
-- Ver información de FIC → /fic
-- Ver estado de cuentas → /accounts
-- Ver recomendaciones → /recommendations
-- Volver al inicio → /dashboard
-
 INSTRUCCIONES:
-1. Analiza la intención del usuario considerando el contexto actual: ${currentContext.name}
+1. Analiza la intención del agente bancario considerando el contexto actual: ${currentContext.name}
 2. Si la intención coincide con alguna descripción, determina la navegación apropiada
-3. Prioriza comandos con mayor prioridad cuando hay ambigüedad
-4. Ten en cuenta que el usuario está en "${currentContext.name}" - esto afecta cómo interpretar sus palabras
+3. Prioriza siempre los comandos con mayor prioridad
+4. Prioriza comandos en el contexto actual sobre las otras secciones generales
+5. Ten en cuenta que el agente bancario está en "${currentContext.name}" - esto afecta cómo interpretar sus palabras
 
 Tu respuesta debe seguir exactamente el formato JSON especificado.`
 
@@ -63,11 +53,11 @@ Tu respuesta debe seguir exactamente el formato JSON especificado.`
 const generateUserPrompt = (currentContext: any, text: string) => `ANÁLISIS DE INTENCIÓN DE NAVEGACIÓN:
 
 Sección actual: ${currentContext.name}
-Texto del usuario: "${text}"
+Texto del agente bancario: "${text}"
 
-Evalúa si el usuario quiere navegar a otra sección considerando:
+Evalúa si el agente bancario quiere navegar a otra sección considerando:
 - Su ubicación actual en ${currentContext.name}
-- Las descripciones de navegación específicas del contexto
+- Las descripciones de navegación disponibles en el contexto
 
 Proporciona tu análisis en el formato JSON especificado.`
 
@@ -82,9 +72,21 @@ export async function POST(request: NextRequest) {
     // Load context information to get navigation descriptions
     const currentContext = getContextById(contextId || 'general')
 
+    // DEBUG: Add detailed logging about context resolution
+    console.log('=== CONTEXT DEBUG INFO ===')
+    console.log('Received contextId:', contextId)
+    console.log('Fallback to general:', contextId || 'general')
+    console.log('Loaded context ID:', currentContext.id)
+    console.log('Loaded context name:', currentContext.name)
+    console.log('Context keys available:', Object.keys(conversationContexts))
+    console.log('========================')
+
     // Build context-aware prompt with descriptions instead of keywords
     const systemPrompt = generateSystemPrompt(currentContext)
     const userPrompt = generateUserPrompt(currentContext, text)
+
+    console.log('System prompt:', systemPrompt)
+    console.log('User prompt:', userPrompt)
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -93,7 +95,7 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4.1-nano-2025-04-14',
+        model: 'gpt-4.1-mini-2025-04-14',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
@@ -127,6 +129,8 @@ export async function POST(request: NextRequest) {
     // Parse JSON response - now guaranteed to be well-formatted
     try {
       const intentResult = JSON.parse(content)
+
+      console.log('Intent result:', intentResult)
       
       // Additional validation (though structured output should guarantee this)
       if (typeof intentResult.hasNavigationIntent !== 'boolean') {

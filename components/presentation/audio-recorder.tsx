@@ -105,7 +105,7 @@ export function AudioRecorder({ onTranscription, isActive, onRecordingStateChang
 
       mediaRecorder.onstop = async () => {
         Logger.info('MediaRecorder.onstop llamado')
-        await processAudio()
+        // await processAudio()
       }
 
       mediaRecorder.start(1000) // Capturar cada segundo
