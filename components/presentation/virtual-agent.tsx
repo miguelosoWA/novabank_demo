@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useMemo, useCallback } from "react"
 import { RealtimeAgent, RealtimeAgentRef } from "./realtime-agent"
 import { useRouter, usePathname } from "next/navigation"
 import { useTransferStore } from '@/lib/store/transfer-store'
@@ -44,7 +44,28 @@ export function VirtualAgent() {
   const streamingAgentRef = useRef<RealtimeAgentRef>(null)
   const router = useRouter()
   const pathname = usePathname()
-  const currentContext = getContextForPath(pathname)
+  
+  // Make currentContext reactive to pathname changes
+  const currentContext = useMemo(() => {
+    const context = getContextForPath(pathname)
+    // DEBUG: Log current context detection
+    console.log('=== VIRTUAL AGENT CONTEXT DEBUG ===')
+    console.log('Current pathname:', pathname)
+    console.log('Detected context ID:', context.id)
+    console.log('Detected context name:', context.name)
+    console.log('===================================')
+    return context
+  }, [pathname])
+  
+  // Log when currentContext changes to verify the fix
+  useEffect(() => {
+    Logger.info('Context updated', {
+      pathname,
+      contextId: currentContext.id,
+      contextName: currentContext.name
+    })
+  }, [currentContext.id, pathname])
+  
   const isMountedRef = useRef(true)
   const setTransferData = useTransferStore((state) => state.setTransferData)
   const setCreditCardData = useCreditCardStore((state) => state.setCreditCardData)
@@ -104,10 +125,10 @@ export function VirtualAgent() {
   const handleUserTranscription = (text: string) => {
     Logger.info('Transcripción del usuario recibida para detección de intención', { text })
     // Solo usar la transcripción para detectar intención de navegación
-    handleIntentDetection(text)
+    // handleIntentDetection(text, 'user')
   }
 
-  const handleIntentDetection = async (text: string) => {
+  const handleIntentDetection = useCallback(async (text: string, source: 'user' | 'agent' = 'user') => {
     if (!isMountedRef.current) {
       Logger.warn('Componente no montado, ignorando detección de intención')
       return
@@ -115,20 +136,21 @@ export function VirtualAgent() {
     
     Logger.info('Iniciando detección de intención', { 
       text, 
+      source,
       isProcessing: isProcessingRef.current,
       lastProcessed: lastProcessedTextRef.current,
       isMounted: isMountedRef.current 
     })
     
     // Evitar procesar el mismo texto múltiples veces para intención
-    if (lastProcessedTextRef.current === text || isProcessingRef.current) {
-      Logger.debug('Texto ya procesado para intención, ignorando', { 
-        text, 
-        lastProcessed: lastProcessedTextRef.current,
-        isProcessing: isProcessingRef.current 
-      })
-      return
-    }
+    // if (lastProcessedTextRef.current === text || isProcessingRef.current) {
+    //   Logger.info('Texto ya procesado para intención, ignorando', { 
+    //     text, 
+    //     lastProcessed: lastProcessedTextRef.current,
+    //     isProcessing: isProcessingRef.current 
+    //   })
+    //   return
+    // }
     
     isProcessingRef.current = true
     lastProcessedTextRef.current = text
@@ -140,8 +162,66 @@ export function VirtualAgent() {
 
     Logger.info('ContextId', { contextId: currentContext.id })
     
+    // DEBUG: Verify current context is up to date
+    console.log('=== USECALLBACK CONTEXT CHECK ===')
+    console.log('Current context in handleIntentDetection:', currentContext.id)
+    console.log('Current context name:', currentContext.name)
+    console.log('==================================')
+    
     try {
-      Logger.debug('Detectando intención de navegación...', { text })
+      Logger.debug('Detectando intención de navegación...', { text, source })
+      
+      // DEBUG: Log what we're sending to the API
+      console.log('=== SENDING TO API ===')
+      console.log('Text:', text)
+      console.log('ContextId being sent:', currentContext.id)
+      console.log('Context name:', currentContext.name)
+      console.log('API URL: /api/openai/intent-detection')
+      console.log('======================')
+
+      if (currentContext.id === 'transfers' || currentContext.id === 'transfers_form') {
+        const transferData = await fetch('/api/openai/transfers', { 
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            text: text,
+          })
+        })
+
+        if (transferData.ok) {
+          const transferResult = await transferData.json()
+          if (transferResult.response && transferResult.response.response === true) {
+            // Update transfer store with the received data
+            const { nombreDestinatario, amount } = transferResult.response
+            
+            setTransferData({
+              nombreDestinatario: nombreDestinatario || '',
+              amount: amount || 0,
+              description: '', // Keep existing description or set to empty
+              response: 'success' // Indicate successful data extraction
+            })
+            
+            Logger.info('Transfer data received and store updated', {
+              nombreDestinatario,
+              amount,
+              transferResult
+            })
+            
+            // Navigate to transfer form page with the extracted data
+            setTimeout(() => {
+              if (isMountedRef.current) {
+                router.push('/transfers_form')
+                Logger.success('Navigated to transfer form with extracted data')
+              }
+            }, 500) // Small delay to allow store update
+          } else if (transferResult.response && transferResult.response.response === false) {
+            Logger.info('Transfer data extraction was not successful - insufficient information provided')
+          }
+        }
+      }
+      
       const intentResponse = await fetch('/api/openai/intent-detection', {
         method: 'POST',
         headers: {
@@ -159,6 +239,7 @@ export function VirtualAgent() {
 
         if (intentData.success && intentData.intent.hasNavigationIntent && intentData.intent.targetPage) {
           Logger.info('Intención de navegación detectada', {
+            source,
             targetPage: intentData.intent.targetPage,
             confidence: intentData.intent.confidence,
             reasoning: intentData.intent.reasoning,
@@ -205,19 +286,36 @@ export function VirtualAgent() {
         }
       }, 2000) // 2 segundos de delay para evitar procesamiento inmediato
     }
-  }
+  }, [currentContext, isMountedRef])
 
   const handleRecordingStateChange = (isRecording: boolean) => {
     setIsRecording(isRecording)
     Logger.info('Estado de grabación cambiado', { isRecording })
   }
 
+  // Event listener para respuestas del agente
+  useEffect(() => {
+    const handleAgentResponse = (event: CustomEvent<{ text: string }>) => {
+      const agentText = event.detail.text
+      Logger.info('Respuesta del agente recibida para detección de intención', { text: agentText })
+      
+      // Pasar la respuesta del agente también a handleIntentDetection
+      handleIntentDetection(agentText, 'agent')
+    }
+    
+    window.addEventListener('agentTextResponse', handleAgentResponse)
+    
+    return () => {
+      window.removeEventListener('agentTextResponse', handleAgentResponse)
+    }
+  }, [handleIntentDetection])
+
   // Log cuando el componente se monta
   useEffect(() => {
     Logger.info('Componente VirtualAgent montado')
     isMountedRef.current = true
     
-    Logger.info('Sistema configurado para solo detección de intención')
+    Logger.info('Sistema configurado para detección de intención de usuario y agente')
     
     return () => {
       Logger.info('Componente VirtualAgent desmontado')
