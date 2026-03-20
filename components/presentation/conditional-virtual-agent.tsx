@@ -27,7 +27,7 @@ export function ConditionalVirtualAgent({ children }: { children: React.ReactNod
 
   if (!shouldShowVirtualAgent) {
     return (
-      <div className="flex flex-col h-screen overflow-hidden bg-gradient-to-b from-[#003C1A] to-[#00C96B]">
+      <div className="bi-shell flex h-screen flex-col overflow-hidden">
         <Navbar />
         <div className="w-full h-full overflow-auto">
           {children}
@@ -37,14 +37,14 @@ export function ConditionalVirtualAgent({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-[#E6F7ED] font-roboto" style={{ fontFamily: 'var(--font-roboto)' }}>
+    <div className="bi-shell flex h-screen flex-col overflow-hidden font-roboto" style={{ fontFamily: 'var(--font-roboto)' }}>
       <Navbar />
       {/* Asistente virtual - parte superior */}
-      <div className="w-full h-1/2 min-h-[350px] pt-16 flex items-center justify-center" style={{ background: '#F4F8F6' }}>
+      <div className="flex h-1/2 min-h-[350px] w-full items-center justify-center border-b border-[#d7e4e8] pt-16" style={{ background: 'linear-gradient(180deg, #f8fefe 0%, #eaf3f5 100%)' }}>
         <VirtualAgent />
       </div>
 
-      {/* Aplicación SofkaBank - parte inferior */}
+      {/* Aplicación Bi Banking - parte inferior */}
       <div className="w-full flex-1 h-1/2 overflow-auto">
         {children}
       </div>

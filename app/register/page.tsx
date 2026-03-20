@@ -54,15 +54,15 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#f0f5fa] to-white flex flex-col justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-b from-[#EAF3F5] to-white flex flex-col justify-center p-4">
       <div className="max-w-md w-full mx-auto">
         <div className="flex justify-center mb-8">
           <Logo size="lg" />
         </div>
 
-        <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+        <div className="bg-white bi-panel-radius shadow-[0_8px_30px_rgba(0,56,101,0.12)] p-6 md:p-8">
           <div className="text-center mb-6">
-            <h1 className="text-2xl font-bold text-[#1C3B5A]">Crear una cuenta</h1>
+            <h1 className="text-2xl font-bold text-primary font-display">Crear una cuenta</h1>
             <p className="text-gray-500 mt-1">Completa tus datos para comenzar</p>
           </div>
 
@@ -134,11 +134,11 @@ export default function RegisterPage() {
                 label={
                   <span className="text-sm text-gray-600">
                     Acepto los{" "}
-                    <Link href="#" className="text-[#1C3B5A] hover:text-[#DEA742] font-medium">
+                    <Link href="#" className="text-primary hover:text-accent font-medium">
                       términos y condiciones
                     </Link>{" "}
                     y la{" "}
-                    <Link href="#" className="text-[#1C3B5A] hover:text-[#DEA742] font-medium">
+                    <Link href="#" className="text-primary hover:text-accent font-medium">
                       política de privacidad
                     </Link>
                   </span>
@@ -157,7 +157,7 @@ export default function RegisterPage() {
           <div className="mt-6 text-center">
             <p className="text-gray-500">
               ¿Ya tienes cuenta?{" "}
-              <Link href="/login" className="text-[#1C3B5A] font-medium hover:text-[#DEA742]">
+              <Link href="/login" className="text-accent-dark font-medium hover:text-accent">
                 Iniciar sesión
               </Link>
             </p>

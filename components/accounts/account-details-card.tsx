@@ -62,11 +62,11 @@ export function AccountDetailsCard({
   const getCardGradient = () => {
     switch (type) {
       case "savings":
-        return "from-[#1C3B5A] to-[#2a5580]"
+        return "from-primary to-[#2D8C9E]"
       case "checking":
-        return "from-[#2a5580] to-[#3a6590]"
+        return "from-[#2D8C9E] to-accent"
       case "credit":
-        return "from-[#DEA742] to-[#e8c078]"
+        return "from-secondary to-[#FFC14D]"
     }
   }
 
@@ -135,21 +135,21 @@ export function AccountDetailsCard({
             {interestRate && (
               <div>
                 <p className="text-sm text-gray-500">Tasa de interés</p>
-                <p className="text-[#1C3B5A] font-medium">{interestRate}% anual</p>
+                <p className="text-primary font-medium">{interestRate}% anual</p>
               </div>
             )}
 
             {dueDate && (
               <div>
                 <p className="text-sm text-gray-500">Fecha de pago</p>
-                <p className="text-[#1C3B5A] font-medium">{dueDate}</p>
+                <p className="text-primary font-medium">{dueDate}</p>
               </div>
             )}
 
             {type === "savings" && (
               <div>
                 <p className="text-sm text-gray-500">Rendimiento mensual</p>
-                <p className="text-[#1C3B5A] font-medium">
+                <p className="text-primary font-medium">
                   {formatCurrency((balance * (interestRate || 0)) / 100 / 12)}
                 </p>
               </div>

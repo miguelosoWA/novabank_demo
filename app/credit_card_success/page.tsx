@@ -27,7 +27,7 @@ export default function CreditCardConfirmationPage() {
     <div className="px-2 py-2">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="bg-[#15d05f] text-white p-6 rounded-t-2xl shadow-lg  mt-5">
+        <div className="bi-card-hero bi-feature-radius text-white p-6 shadow-lg mt-5">
           <div className="flex items-center justify-center gap-3">
             <CheckCircle2 className="h-6 w-8" />
             <h1 className="text-xl font-semibold">Solicitud Aprobada</h1>
@@ -37,7 +37,7 @@ export default function CreditCardConfirmationPage() {
         {/* Mensaje de Confirmación */}
         <Card className="mt-3 border-0 shadow-lg rounded-2xl bg-white">
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2" style={{ fontFamily: 'var(--font-clash-display)', color: '#003C1A' }}>
+            <CardTitle className="text-lg flex items-center gap-2 font-display text-primary">
               Su tarjeta de crédito ha sido aprobada y le llegará a su residencia en los próximos días.
             </CardTitle>
           </CardHeader>
@@ -46,7 +46,7 @@ export default function CreditCardConfirmationPage() {
               <div className="mt-6">
                 <Button 
                   onClick={handleReturnToDashboard}
-                  className="w-full bg-[#00C96B] hover:bg-[#00A55A] text-white"
+                  className="w-full bg-secondary hover:bg-[#d88912] text-primary font-bold"
                 >
                   Regresar al inicio
                 </Button>

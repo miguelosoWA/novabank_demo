@@ -7,13 +7,13 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export function Card({ variant = "default", className, children, ...props }: CardProps) {
   const variants = {
-    default: "bg-white shadow-md",
-    outline: "bg-white border border-gray-200",
-    filled: "bg-[#f0f5fa]",
+    default: "bg-white border border-[#d7e4e8] shadow-[0_2px_8px_rgba(0,56,101,0.08)]",
+    outline: "bg-white border border-[#cfd8dc]",
+    filled: "bg-[#EAF3F5]",
   }
 
   return (
-    <div className={cn("rounded-xl p-5", variants[variant], className)} {...props}>
+    <div className={cn("rounded-lg p-5", variants[variant], className)} {...props}>
       {children}
     </div>
   )
@@ -24,7 +24,7 @@ export function CardHeader({ className, ...props }: React.HTMLAttributes<HTMLDiv
 }
 
 export function CardTitle({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
-  return <h3 className={cn("text-lg font-semibold text-[#1a3e24]", className)} {...props} />
+  return <h3 className={cn("text-lg font-semibold text-primary", className)} {...props} />
 }
 
 export function CardDescription({ className, ...props }: React.HTMLAttributes<HTMLParagraphElement>) {

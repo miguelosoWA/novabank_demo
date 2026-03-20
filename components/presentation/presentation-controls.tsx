@@ -11,7 +11,7 @@ export function PresentationControls({ isActive, onToggle }: PresentationControl
   return (
     <motion.button
       onClick={onToggle}
-      className="fixed bottom-4 left-4 z-50 rounded-full p-3 shadow-lg bg-[#DEA742] text-white"
+      className="fixed bottom-4 left-4 z-50 rounded-full p-3 shadow-lg bg-secondary text-white"
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.95 }}
       initial={{ opacity: 0, y: 20 }}

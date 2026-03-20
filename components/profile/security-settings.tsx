@@ -117,7 +117,7 @@ export function SecuritySettings({
         <div>
           <div className="flex flex-wrap justify-between items-start mb-4 gap-2">
             <div>
-              <h3 className="text-base font-medium text-[#1C3B5A] flex items-center">
+              <h3 className="text-base font-medium text-primary flex items-center">
                 <Lock size={18} className="mr-2" aria-hidden="true" /> Contraseña
               </h3>
               <p className="text-sm text-gray-500 mt-1">Última actualización: {lastPasswordChange || "Nunca"}</p>
@@ -247,10 +247,10 @@ export function SecuritySettings({
           <div className="flex flex-wrap justify-between items-start gap-4">
             <div className="flex items-start gap-3 flex-1">
               <div className="mt-0.5">
-                <Smartphone size={18} className="text-[#1C3B5A]" aria-hidden="true" />
+                <Smartphone size={18} className="text-primary" aria-hidden="true" />
               </div>
               <div>
-                <h3 className="text-base font-medium text-[#1C3B5A]" id="two-factor-label">
+                <h3 className="text-base font-medium text-primary" id="two-factor-label">
                   Autenticación de dos factores
                 </h3>
                 <p className="text-sm text-gray-500 mt-1">
@@ -267,7 +267,7 @@ export function SecuritySettings({
                 disabled={isLoading}
                 aria-labelledby="two-factor-label"
               />
-              <label htmlFor="two-factor" className="ml-2 text-sm text-[#1C3B5A]">
+              <label htmlFor="two-factor" className="ml-2 text-sm text-primary">
                 {twoFactorEnabled ? "Activado" : "Desactivado"}
               </label>
             </div>
@@ -278,10 +278,10 @@ export function SecuritySettings({
           <div className="flex flex-wrap justify-between items-start gap-4">
             <div className="flex items-start gap-3 flex-1">
               <div className="mt-0.5">
-                <Shield size={18} className="text-[#1C3B5A]" aria-hidden="true" />
+                <Shield size={18} className="text-primary" aria-hidden="true" />
               </div>
               <div>
-                <h3 className="text-base font-medium text-[#1C3B5A]" id="login-notifications-label">
+                <h3 className="text-base font-medium text-primary" id="login-notifications-label">
                   Notificaciones de inicio de sesión
                 </h3>
                 <p className="text-sm text-gray-500 mt-1">
@@ -297,7 +297,7 @@ export function SecuritySettings({
                 disabled={isLoading}
                 aria-labelledby="login-notifications-label"
               />
-              <label htmlFor="login-notifications" className="ml-2 text-sm text-[#1C3B5A]">
+              <label htmlFor="login-notifications" className="ml-2 text-sm text-primary">
                 {loginNotifications ? "Activado" : "Desactivado"}
               </label>
             </div>

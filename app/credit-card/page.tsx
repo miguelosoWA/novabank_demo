@@ -37,8 +37,8 @@ const userCards: UserCreditCard[] = [
 
 // Función para obtener el color de fondo según el nombre de la tarjeta
 function getCardBgColor(name: string) {
-  if (name.toLowerCase().includes('gold')) return 'bg-[#DEA742] text-white';
-  if (name.toLowerCase().includes('clásica')) return 'bg-[#1C3B5A] text-white';
+  if (name.toLowerCase().includes('gold')) return 'bg-secondary text-white';
+  if (name.toLowerCase().includes('clásica')) return 'bg-primary text-white';
   if (name.toLowerCase().includes('platinum')) return 'bg-[#4B5563] text-white';
   return 'bg-white';
 }
@@ -53,28 +53,28 @@ export default function CreditCardPage() {
         <Card className="mt-6 border-0 shadow-lg bg-white">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <Gift className="h-5 w-5 text-green-600" />
+              <Gift className="h-5 w-5 text-accent" />
               Beneficios de tu Tarjeta
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-start gap-3">
-                <CheckCircle2 className="h-5 w-5 text-green-500 mt-1" />
+                <CheckCircle2 className="h-5 w-5 text-accent mt-1" />
                 <div>
                   <h3 className="font-semibold">Cashback en Compras</h3>
                   <p className="text-sm text-gray-600">Obtén hasta 2% de devolución en todas tus compras</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <CheckCircle2 className="h-5 w-5 text-green-500 mt-1" />
+                <CheckCircle2 className="h-5 w-5 text-accent mt-1" />
                 <div>
                   <h3 className="font-semibold">Seguros de Protección</h3>
                   <p className="text-sm text-gray-600">Seguro de compras y protección de viajes incluidos</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <CheckCircle2 className="h-5 w-5 text-green-500 mt-1" />
+                <CheckCircle2 className="h-5 w-5 text-accent mt-1" />
                 <div>
                   <h3 className="font-semibold">Programa de Recompensas</h3>
                   <p className="text-sm text-gray-600">Acumula puntos en cada compra y canjéalos por beneficios</p>
@@ -85,31 +85,31 @@ export default function CreditCardPage() {
         </Card>
 
         {/* Requisitos */}
-        <Card className="mt-6 border-0 shadow-lg bg-yellow-50">
+        <Card className="mt-6 border-0 shadow-lg bg-neutral">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <Shield className="h-5 w-5 text-yellow-600" />
+              <Shield className="h-5 w-5 text-secondary" />
               Requisitos
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-start gap-3">
-                <Clock className="h-5 w-5 text-yellow-500 mt-1" />
+                <Clock className="h-5 w-5 text-secondary mt-1" />
                 <div>
                   <h3 className="font-semibold">Edad Mínima</h3>
                   <p className="text-sm text-gray-600">Mayor de 18 años</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <Clock className="h-5 w-5 text-yellow-500 mt-1" />
+                <Clock className="h-5 w-5 text-secondary mt-1" />
                 <div>
                   <h3 className="font-semibold">Ingresos Mínimos</h3>
                   <p className="text-sm text-gray-600">Ingresos mensuales superiores a 2 SMMLV</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <Clock className="h-5 w-5 text-yellow-500 mt-1" />
+                <Clock className="h-5 w-5 text-secondary mt-1" />
                 <div>
                   <h3 className="font-semibold">Historial Crediticio</h3>
                   <p className="text-sm text-gray-600">Sin reportes negativos en centrales de riesgo</p>

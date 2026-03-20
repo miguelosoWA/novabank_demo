@@ -1,5 +1,4 @@
-import { ArrowDownLeft, ArrowUpRight, ShoppingBag, Coffee, Home, CreditCard } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { ArrowDownLeft, ArrowUpRight } from "lucide-react"
 
 interface Transaction {
   id: string
@@ -25,33 +24,42 @@ export function TransactionList({ transactions }: TransactionListProps) {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6">
-      <h2 className="text-2xl font-semibold text-[#103B3C] mb-6 text-left">Movimientos recientes</h2>
+    <div className="bi-card bi-feature-radius p-6">
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="font-display text-2xl font-semibold text-primary">Movimientos recientes</h2>
+        <span className="rounded-full bg-[#e5f9fb] px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[#2D8C9E]">
+          Últimos 30 días
+        </span>
+      </div>
       <div className="space-y-4">
         {transactions.map((transaction) => (
-          <div key={transaction.id} className="flex items-center justify-between pb-2 border-b border-gray-200 last:border-b-0">
+          <div key={transaction.id} className="flex items-center justify-between border-b border-[#e5eef1] pb-4 last:border-b-0">
             <div className="flex items-center gap-4">
               <div
                 className={`h-10 w-10 rounded-full flex items-center justify-center ${
-                  transaction.type === "income" ? "bg-green-200" : "bg-pink-200"
+                  transaction.type === "income" ? "bg-[#e5f9fb]" : "bg-[#fff3df]"
                 }`}
               >
-                {/* Icons are not present in the image for transactions, so this part is removed or can be customized if needed */}
+                {transaction.type === "income" ? (
+                  <ArrowDownLeft size={18} className="text-accent-dark" />
+                ) : (
+                  <ArrowUpRight size={18} className="text-secondary" />
+                )}
               </div>
 
               <div>
-                <p className="text-base font-medium text-[#1C3B5A]">{transaction.title}</p>
-                <p className="text-sm text-gray-500">{transaction.description}</p>
+                <p className="text-base font-medium text-primary">{transaction.title}</p>
+                <p className="text-sm text-[#4F5151]">{transaction.description}</p>
               </div>
             </div>
 
             <div className="text-right">
               <p
-                className={`text-base font-semibold ${transaction.type === "income" ? "text-green-600" : "text-red-600"}`}
+                className={`text-base font-semibold ${transaction.type === "income" ? "text-[#1EC771]" : "text-[#F13852]"}`}
               >
                 {transaction.type === "income" ? "+" : "-"}{formatCurrency(transaction.amount)}
               </p>
-              <p className="text-sm text-gray-500">{transaction.date}</p>
+              <p className="text-sm text-[#4F5151]">{transaction.date}</p>
             </div>
           </div>
         ))}

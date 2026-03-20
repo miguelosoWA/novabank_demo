@@ -44,18 +44,18 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: 'cover',
-  themeColor: '#000000',
+  themeColor: '#003865',
 }
 
 export const metadata: Metadata = {
-  title: "SofkaBank - Banca Digital Personalizada",
-  description: "Experimenta el poder de la hiperpersonalización en tu banca digital",
+  title: "Bi Banking - Banca Digital Personalizada",
+  description: "Banca digital personalizada con la identidad de Banco Industrial",
   generator: 'v0.dev',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'SofkaBank',
+    title: 'Bi Banking',
     startupImage: [
       {
         url: '/icon-512x512.png',
@@ -70,7 +70,7 @@ export const metadata: Metadata = {
     'mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-status-bar-style': 'black-translucent',
-    'msapplication-TileColor': '#000000',
+    'msapplication-TileColor': '#003865',
     'msapplication-tap-highlight': 'no',
   },
 }

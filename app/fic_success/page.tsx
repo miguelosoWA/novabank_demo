@@ -50,7 +50,7 @@ export default function FICSuccessPage() {
     <div className="px-2 py-2">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="bg-[#15d05f] text-white p-6 rounded-t-2xl shadow-lg mt-5">
+        <div className="bi-card-hero bi-feature-radius text-white p-6 shadow-lg mt-5">
           <div className="flex items-center justify-center gap-3">
             <CheckCircle2 className="h-6 w-8" />
             <h1 className="text-xl font-semibold">Inversión en FIC Realizada Exitosamente</h1>
@@ -60,15 +60,15 @@ export default function FICSuccessPage() {
         {/* Mensaje de Confirmación */}
         <Card className="mt-3 border-0 shadow-lg rounded-2xl bg-white">
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2" style={{ fontFamily: 'var(--font-clash-display)', color: '#003C1A' }}>
-              <CheckCircle2 className="h-5 w-5 text-[#00C96B]" />
+            <CardTitle className="text-lg flex items-center gap-2 font-display text-primary">
+              <CheckCircle2 className="h-5 w-5 text-accent" />
               Tu Inversión en Fondo de Inversión Colectiva
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
               <div className="flex items-start gap-3">
-                <FileText className="h-5 w-5 text-[#00C96B] mt-1" />
+                <FileText className="h-5 w-5 text-accent mt-1" />
                 <div>
                   <h3 className="font-semibold" style={{ fontFamily: 'var(--font-roboto)' }}>Número de Inversión</h3>
                   <p className="text-gray-600" style={{ fontFamily: 'var(--font-roboto)' }}>{ficData.ficNumber}</p>
@@ -76,7 +76,7 @@ export default function FICSuccessPage() {
               </div>
 
               <div className="flex items-start gap-3">
-                <DollarSign className="h-5 w-5 text-[#00C96B] mt-1" />
+                <DollarSign className="h-5 w-5 text-accent mt-1" />
                 <div>
                   <h3 className="font-semibold" style={{ fontFamily: 'var(--font-roboto)' }}>Monto Invertido</h3>
                   <p className="text-gray-600" style={{ fontFamily: 'var(--font-roboto)' }}>${ficData.amount.toLocaleString('es-CO')} COP</p>
@@ -84,7 +84,7 @@ export default function FICSuccessPage() {
               </div>
 
               <div className="flex items-start gap-3">
-                <BarChart3 className="h-5 w-5 text-[#00C96B] mt-1" />
+                <BarChart3 className="h-5 w-5 text-accent mt-1" />
                 <div>
                   <h3 className="font-semibold" style={{ fontFamily: 'var(--font-roboto)' }}>Unidades Adquiridas</h3>
                   <p className="text-gray-600" style={{ fontFamily: 'var(--font-roboto)' }}>{ficData.unitsAcquired.toLocaleString('es-CO')} unidades</p>
@@ -92,7 +92,7 @@ export default function FICSuccessPage() {
               </div>
 
               <div className="flex items-start gap-3">
-                <Target className="h-5 w-5 text-[#00C96B] mt-1" />
+                <Target className="h-5 w-5 text-accent mt-1" />
                 <div>
                   <h3 className="font-semibold" style={{ fontFamily: 'var(--font-roboto)' }}>Valor por Unidad</h3>
                   <p className="text-gray-600" style={{ fontFamily: 'var(--font-roboto)' }}>${ficData.unitValue.toLocaleString('es-CO')} COP</p>
@@ -100,15 +100,15 @@ export default function FICSuccessPage() {
               </div>
 
               <div className="flex items-start gap-3">
-                <TrendingUp className="h-5 w-5 text-[#00C96B] mt-1" />
+                <TrendingUp className="h-5 w-5 text-accent mt-1" />
                 <div>
                   <h3 className="font-semibold" style={{ fontFamily: 'var(--font-roboto)' }}>Rentabilidad Esperada</h3>
                   <p className="text-gray-600" style={{ fontFamily: 'var(--font-roboto)' }}>{ficData.expectedReturn}% anual promedio</p>
                 </div>
               </div>
 
-              <div className="bg-[#f0f9f4] p-4 rounded-lg mb-4">
-                <h3 className="font-semibold text-[#003C1A] mb-2" style={{ fontFamily: 'var(--font-roboto)' }}>Datos del Inversionista</h3>
+              <div className="bg-neutral p-4 rounded-lg mb-4">
+                <h3 className="font-semibold text-primary mb-2" style={{ fontFamily: 'var(--font-roboto)' }}>Datos del Inversionista</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Nombre completo:</span>
@@ -133,8 +133,8 @@ export default function FICSuccessPage() {
                 </div>
               </div>
 
-              <div className="bg-[#f0f9f4] p-4 rounded-lg">
-                <h3 className="font-semibold text-[#003C1A] mb-2" style={{ fontFamily: 'var(--font-roboto)' }}>Resumen de tu Inversión</h3>
+              <div className="bg-neutral p-4 rounded-lg">
+                <h3 className="font-semibold text-primary mb-2" style={{ fontFamily: 'var(--font-roboto)' }}>Resumen de tu Inversión</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Capital invertido:</span>
@@ -142,7 +142,7 @@ export default function FICSuccessPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Unidades adquiridas:</span>
-                    <span className="font-medium text-[#00C96B]">{ficData.unitsAcquired.toLocaleString('es-CO')} unidades</span>
+                    <span className="font-medium text-accent">{ficData.unitsAcquired.toLocaleString('es-CO')} unidades</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Valor por unidad:</span>
@@ -150,7 +150,7 @@ export default function FICSuccessPage() {
                   </div>
                   <div className="flex justify-between border-t pt-2">
                     <span className="font-semibold">Fecha de inversión:</span>
-                    <span className="font-bold text-[#003C1A]">{ficData.investmentDate}</span>
+                    <span className="font-bold text-primary">{ficData.investmentDate}</span>
                   </div>
                 </div>
               </div>
@@ -158,7 +158,7 @@ export default function FICSuccessPage() {
               <div className="mt-6">
                 <Button 
                   onClick={handleReturnToDashboard}
-                  className="w-full bg-[#00C96B] hover:bg-[#00A55A] text-white"
+                  className="w-full bg-secondary hover:bg-[#d88912] text-primary font-bold"
                 >
                   Regresar al Dashboard
                 </Button>

@@ -149,7 +149,7 @@ export default function VirtualAgent() {
           <div className="absolute bottom-4 left-4">
             <Button
               onClick={handleStart}
-              className="bg-[#1C3B5A] hover:bg-[#1C3B5A]/90 text-white px-6 py-2 rounded-full flex items-center gap-2"
+              className="bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-full flex items-center gap-2"
             >
               <Play className="w-4 h-4" />
             </Button>
@@ -248,7 +248,7 @@ export default function VirtualAgent() {
                 {/* Botón de completar */}
                 <div className="pt-4">
                   <Button 
-                    className="w-full bg-[#1C3B5A] hover:bg-[#1C3B5A]/90"
+                    className="w-full bg-primary hover:bg-primary/90"
                     onClick={handleComplete}
                     disabled={!isFormComplete}
                   >

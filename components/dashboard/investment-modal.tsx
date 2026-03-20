@@ -52,10 +52,10 @@ export function InvestmentModal({ isOpen, onClose }: InvestmentModalProps) {
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-auto">
         <div className="flex items-center justify-between p-4 border-b">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-full bg-[#f0f5fa] flex items-center justify-center">
-              <TrendingUp size={18} className="text-[#1C3B5A]" />
+            <div className="h-8 w-8 rounded-full bg-neutral flex items-center justify-center">
+              <TrendingUp size={18} className="text-primary" />
             </div>
-            <h2 className="text-lg font-semibold text-[#1C3B5A]">Depósito a Plazo Personalizado</h2>
+            <h2 className="text-lg font-semibold text-primary">Depósito a Plazo Personalizado</h2>
           </div>
           <Button variant="ghost" size="sm" onClick={onClose}>
             <X size={18} />
@@ -63,47 +63,47 @@ export function InvestmentModal({ isOpen, onClose }: InvestmentModalProps) {
         </div>
 
         <div className="p-4">
-          <div className="bg-[#f0f5fa] rounded-lg p-4 mb-4">
-            <p className="text-sm text-[#1C3B5A]">
+          <div className="bg-neutral rounded-lg p-4 mb-4">
+            <p className="text-sm text-primary">
               <strong>Carlos</strong>, hemos creado esta oferta especialmente para ti basada en tu perfil financiero.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-[#1C3B5A] mb-1">Monto a invertir</label>
+              <label className="block text-sm font-medium text-primary mb-1">Monto a invertir</label>
               <div className="relative">
                 <DollarSign size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value.replace(/[^0-9]/g, ""))}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DEA742]"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B2ECF2]"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#1C3B5A] mb-1">Plazo (meses)</label>
+              <label className="block text-sm font-medium text-primary mb-1">Plazo (meses)</label>
               <div className="relative">
                 <Calendar size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
                   value={term}
                   onChange={(e) => setTerm(e.target.value.replace(/[^0-9]/g, ""))}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DEA742]"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B2ECF2]"
                 />
               </div>
             </div>
 
-            <div className="bg-[#f0f5fa] rounded-lg p-4">
+            <div className="bg-neutral rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-gray-500">Tasa anual:</span>
-                <span className="text-sm font-medium text-[#1C3B5A]">{monthlyRate}%</span>
+                <span className="text-sm font-medium text-primary">{monthlyRate}%</span>
               </div>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-gray-500">Interés estimado:</span>
-                <span className="text-sm font-medium text-[#1C3B5A]">
+                <span className="text-sm font-medium text-primary">
                   {new Intl.NumberFormat("es-MX", {
                     style: "currency",
                     currency: "MXN",
@@ -112,7 +112,7 @@ export function InvestmentModal({ isOpen, onClose }: InvestmentModalProps) {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-500">Monto al vencimiento:</span>
-                <span className="text-sm font-medium text-[#1C3B5A]">
+                <span className="text-sm font-medium text-primary">
                   {new Intl.NumberFormat("es-MX", {
                     style: "currency",
                     currency: "MXN",

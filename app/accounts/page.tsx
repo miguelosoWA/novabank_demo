@@ -65,11 +65,11 @@ export default function AccountsPage() {
   const getAccountGradient = (type: "savings" | "checking" | "credit") => {
     switch (type) {
       case "savings":
-        return "from-[#1C3B5A] to-[#2a5580]"
+        return "from-primary to-[#2D8C9E]"
       case "checking":
-        return "from-[#2a5580] to-[#3a6590]"
+        return "from-[#2D8C9E] to-accent"
       case "credit":
-        return "from-[#DEA742] to-[#e8c078]"
+        return "from-secondary to-[#FFC14D]"
     }
   }
 
@@ -114,12 +114,12 @@ export default function AccountsPage() {
   }
 
   return (
-    <div className="min-h-screen pb-16 md:pb-20 bg-[#F4F8F6]">
+    <div className="min-h-screen pb-16 md:pb-20 bg-background">
       <div className="max-w-md mx-auto px-2 md:px-0 py-6 space-y-6">
         {/* Tarjetas resumen de cuentas */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Cuenta de Ahorros */}
-          <div className="rounded-2xl bg-[#0097A7] text-white p-4 flex flex-col shadow-md">
+          <div className="rounded-2xl bg-[linear-gradient(135deg,#003865_0%,#2D8C9E_100%)] text-white p-4 flex flex-col shadow-[0_4px_16px_rgba(0,56,101,0.12)]">
             <div className="flex items-center gap-2 mb-2">
               <DollarSign className="h-5 w-5" />
               <span className="font-semibold">Cuenta de Ahorros</span>
@@ -129,7 +129,7 @@ export default function AccountsPage() {
             <div className="text-2xl font-bold" style={{ fontFamily: 'var(--font-clash-display)' }}>$35,000</div>
           </div>
           {/* Tarjeta Oro */}
-          <div className="rounded-2xl bg-[#DEA742] text-white p-4 flex flex-col shadow-md">
+          <div className="rounded-2xl bg-[linear-gradient(135deg,#F5A623_0%,#ffcf66_100%)] text-white p-4 flex flex-col shadow-[0_4px_16px_rgba(0,56,101,0.12)]">
             <div className="flex items-center gap-2 mb-2">
               <CreditCard className="h-5 w-5" />
               <span className="font-semibold">Tarjeta Oro</span>
@@ -146,18 +146,18 @@ export default function AccountsPage() {
 
         {/* Movimientos recientes */}
         <div className="rounded-2xl bg-white p-4 shadow-md">
-          <h2 className="text-lg font-bold text-[#1C3B5A] mb-3" style={{ fontFamily: 'var(--font-clash-display)' }}>Movimientos recientes</h2>
+          <h2 className="text-lg font-bold text-primary mb-3" style={{ fontFamily: 'var(--font-clash-display)' }}>Movimientos recientes</h2>
           <ul className="divide-y divide-gray-100">
             {movimientos.map((mov, i) => (
               <li key={i} className="flex items-center py-2 gap-3">
                 <div className={`h-8 w-8 rounded-full flex items-center justify-center ${mov.tipo === 'ingreso' ? 'bg-[#E6F7ED]' : 'bg-[#FFF0F0]'}`}> 
-                  {mov.tipo === 'ingreso' ? <DollarSign className="text-[#00C96B]" /> : <CreditCard className="text-[#F87171]" />}
+                  {mov.tipo === 'ingreso' ? <DollarSign className="text-accent" /> : <CreditCard className="text-[#F87171]" />}
                 </div>
                 <div className="flex-1">
                   <div className="font-medium text-sm text-gray-900">{mov.descripcion}</div>
                   <div className="text-xs text-gray-400">{mov.detalle}</div>
                 </div>
-                <div className={`text-sm font-bold ${mov.tipo === 'ingreso' ? 'text-[#00C96B]' : 'text-[#F87171]'}`}>{mov.monto > 0 ? '+' : ''}${Math.abs(mov.monto).toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+                <div className={`text-sm font-bold ${mov.tipo === 'ingreso' ? 'text-accent' : 'text-[#F87171]'}`}>{mov.monto > 0 ? '+' : ''}${Math.abs(mov.monto).toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
                 <div className="text-xs text-gray-400 ml-2 whitespace-nowrap">{mov.fecha}</div>
               </li>
             ))}
@@ -166,11 +166,11 @@ export default function AccountsPage() {
 
         {/* Resumen financiero */}
         <div className="rounded-2xl bg-white p-4 shadow-md">
-          <h2 className="text-lg font-bold text-[#1C3B5A] mb-3" style={{ fontFamily: 'var(--font-clash-display)' }}>Resumen financiero</h2>
+          <h2 className="text-lg font-bold text-primary mb-3" style={{ fontFamily: 'var(--font-clash-display)' }}>Resumen financiero</h2>
           <div className="flex flex-col gap-2">
             <div className="flex justify-between text-sm">
               <span>Ingresos (Mayo):</span>
-              <span className="font-bold text-[#00C96B]">${resumen.ingresos.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+              <span className="font-bold text-accent">${resumen.ingresos.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span>Gastos (Mayo):</span>
@@ -178,12 +178,12 @@ export default function AccountsPage() {
             </div>
             <div className="flex justify-between text-sm">
               <span>Balance:</span>
-              <span className="font-bold text-[#1C3B5A]">${resumen.balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+              <span className="font-bold text-primary">${resumen.balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
             </div>
             {/* Barra de progreso */}
             <div className="mt-2">
               <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
-                <div className="h-full bg-[#00C96B]" style={{ width: `${Math.max(0, Math.min(100, (resumen.balance / resumen.ingresos) * 100))}%` }} />
+                <div className="h-full bg-accent" style={{ width: `${Math.max(0, Math.min(100, (resumen.balance / resumen.ingresos) * 100))}%` }} />
               </div>
             </div>
           </div>

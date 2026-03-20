@@ -36,7 +36,7 @@ export function MobileNavbar() {
   ]
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-30">
+    <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-[#d7e4e8] bg-white shadow-[0_-4px_16px_rgba(0,56,101,0.08)]">
       <div className="flex justify-around items-center h-16">
         {navItems.map((item) => {
           const isActive = pathname === item.href
@@ -47,10 +47,10 @@ export function MobileNavbar() {
               key={item.href}
               href={item.href}
               className={`flex flex-col items-center justify-center w-full h-full ${
-                isActive ? "text-[#DEA742]" : "text-[#1C3B5A]"
+                isActive ? "text-accent" : "text-primary"
               }`}
             >
-              <Icon size={20} className={isActive ? "text-[#DEA742]" : "text-[#1C3B5A]"} />
+              <Icon size={20} className={isActive ? "text-accent" : "text-primary"} />
               <span className="text-xs mt-1">{item.label}</span>
             </Link>
           )

@@ -114,10 +114,10 @@ export function InvestmentSimulator({ isOpen, onClose, userName, initialAmount =
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-auto animate-scale-in">
         <div className="flex items-center justify-between p-4 border-b">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-full bg-[#f0f5fa] flex items-center justify-center">
-              <TrendingUp size={18} className="text-[#1C3B5A]" />
+            <div className="h-8 w-8 rounded-full bg-neutral flex items-center justify-center">
+              <TrendingUp size={18} className="text-primary" />
             </div>
-            <h2 className="text-lg font-semibold text-[#1C3B5A]">Simulador de Inversión</h2>
+            <h2 className="text-lg font-semibold text-primary">Simulador de Inversión</h2>
           </div>
           <Button variant="ghost" size="sm" onClick={onClose}>
             <X size={18} />
@@ -125,8 +125,8 @@ export function InvestmentSimulator({ isOpen, onClose, userName, initialAmount =
         </div>
 
         <div className="p-4">
-          <div className="bg-[#f0f5fa] rounded-lg p-4 mb-4">
-            <p className="text-sm text-[#1C3B5A]">
+          <div className="bg-neutral rounded-lg p-4 mb-4">
+            <p className="text-sm text-primary">
               <strong>{userName}</strong>, hemos personalizado este simulador basado en tu actividad reciente y perfil
               financiero.
             </p>
@@ -134,26 +134,26 @@ export function InvestmentSimulator({ isOpen, onClose, userName, initialAmount =
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-[#1C3B5A] mb-1">Monto a invertir</label>
+              <label className="block text-sm font-medium text-primary mb-1">Monto a invertir</label>
               <div className="relative">
                 <DollarSign size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value.replace(/[^0-9]/g, ""))}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DEA742]"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B2ECF2]"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#1C3B5A] mb-1">Plazo (meses)</label>
+              <label className="block text-sm font-medium text-primary mb-1">Plazo (meses)</label>
               <div className="relative">
                 <Calendar size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <select
                   value={term}
                   onChange={(e) => setTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DEA742] appearance-none bg-white"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B2ECF2] appearance-none bg-white"
                 >
                   <option value="3">3 meses</option>
                   <option value="6">6 meses</option>
@@ -165,12 +165,12 @@ export function InvestmentSimulator({ isOpen, onClose, userName, initialAmount =
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#1C3B5A] mb-1">Perfil de riesgo</label>
+              <label className="block text-sm font-medium text-primary mb-1">Perfil de riesgo</label>
               <div className="grid grid-cols-3 gap-2">
                 <button
                   type="button"
                   className={`flex flex-col items-center justify-center py-2 px-3 rounded-lg border ${
-                    risk === "low" ? "border-[#1C3B5A] bg-[#f0f5fa]" : "border-gray-200 hover:bg-gray-50"
+                    risk === "low" ? "border-primary bg-neutral" : "border-gray-200 hover:bg-gray-50"
                   }`}
                   onClick={() => setRisk("low")}
                 >
@@ -180,7 +180,7 @@ export function InvestmentSimulator({ isOpen, onClose, userName, initialAmount =
                 <button
                   type="button"
                   className={`flex flex-col items-center justify-center py-2 px-3 rounded-lg border ${
-                    risk === "medium" ? "border-[#1C3B5A] bg-[#f0f5fa]" : "border-gray-200 hover:bg-gray-50"
+                    risk === "medium" ? "border-primary bg-neutral" : "border-gray-200 hover:bg-gray-50"
                   }`}
                   onClick={() => setRisk("medium")}
                 >
@@ -190,7 +190,7 @@ export function InvestmentSimulator({ isOpen, onClose, userName, initialAmount =
                 <button
                   type="button"
                   className={`flex flex-col items-center justify-center py-2 px-3 rounded-lg border ${
-                    risk === "high" ? "border-[#1C3B5A] bg-[#f0f5fa]" : "border-gray-200 hover:bg-gray-50"
+                    risk === "high" ? "border-primary bg-neutral" : "border-gray-200 hover:bg-gray-50"
                   }`}
                   onClick={() => setRisk("high")}
                 >
@@ -200,15 +200,15 @@ export function InvestmentSimulator({ isOpen, onClose, userName, initialAmount =
               </div>
             </div>
 
-            <Card className="bg-[#f0f5fa] border-0">
+            <Card className="bg-neutral border-0">
               <CardContent className="p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-500">Tasa anual:</span>
-                  <span className="text-sm font-medium text-[#1C3B5A]">{annualRate}%</span>
+                  <span className="text-sm font-medium text-primary">{annualRate}%</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-500">Interés estimado:</span>
-                  <span className="text-sm font-medium text-[#1C3B5A]">
+                  <span className="text-sm font-medium text-primary">
                     {new Intl.NumberFormat("es-MX", {
                       style: "currency",
                       currency: "MXN",
@@ -217,7 +217,7 @@ export function InvestmentSimulator({ isOpen, onClose, userName, initialAmount =
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-500">Monto al vencimiento:</span>
-                  <span className="text-sm font-medium text-[#1C3B5A]">
+                  <span className="text-sm font-medium text-primary">
                     {new Intl.NumberFormat("es-MX", {
                       style: "currency",
                       currency: "MXN",
@@ -274,7 +274,7 @@ export function InvestmentSimulator({ isOpen, onClose, userName, initialAmount =
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="text-[#1C3B5A] hover:text-[#DEA742] mt-2 text-sm"
+                className="text-primary hover:text-accent mt-2 text-sm"
                 leftIcon={<PiggyBank size={16} />}
               >
                 Invertir ahora

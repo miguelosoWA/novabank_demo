@@ -49,38 +49,38 @@ export default function CDTPage() {
   };
 
   return (
-    <div className="space-y-6 px-0 md:px-6 lg:px-8 pb-16 md:pb-20 max-w-screen-xl mx-auto bg-[#c9e6d4]">
+    <div className="space-y-6 px-0 md:px-6 lg:px-8 pb-16 md:pb-20 max-w-screen-xl mx-auto bg-background">
       
-      <div className="bg-[#2D7A4A] text-white py-6 px-6 shadow-m">
-        <h1 className="text-xl text-center">Formulario de Apertura de Certificado de Depósito a Término (CDT)</h1>
+      <div className="bg-primary text-white py-6 px-6 shadow-[0_4px_16px_rgba(0,56,101,0.12)]">
+        <h1 className="text-xl text-center font-display">Formulario de Apertura de Certificado de Depósito a Término (CDT)</h1>
       </div>
 
       <div className="space-y-6 bg-transparent p-0 md:p-8 rounded-lg" style={{ marginRight: "24px", marginLeft: "24px" }}>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="firstName" className="block text-sm font-medium text-[#074f2a]-700 mb-1">Nombres</label>
+            <label htmlFor="firstName" className="block text-sm font-medium text-primary mb-1">Nombres</label>
             <div className="relative">
-              <User size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#074f2a]-400" />
+              <User size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 id="firstName"
                 type="text"
                 value={firstName}
                 onChange={(e) => updateField('firstName', e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DEA742] focus:border-[#DEA742]"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B2ECF2] focus:border-accent"
                 required
               />
             </div>
           </div>
           <div>
-            <label htmlFor="lastName" className="block text-sm font-medium text-[#074f2a]-700 mb-1">Apellidos</label>
+            <label htmlFor="lastName" className="block text-sm font-medium text-primary mb-1">Apellidos</label>
             <div className="relative">
-              <User size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#074f2a]-400" />
+              <User size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 id="lastName"
                 type="text"
                 value={lastName}
                 onChange={(e) => updateField('lastName', e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DEA742] focus:border-[#DEA742]"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B2ECF2] focus:border-accent"
                 required
               />
             </div>
@@ -88,15 +88,15 @@ export default function CDTPage() {
         </div>
 
         <div>
-          <label htmlFor="amount" className="block text-sm font-medium text-[#074f2a]-700 mb-1">Monto del CDT</label>
+          <label htmlFor="amount" className="block text-sm font-medium text-primary mb-1">Monto del CDT</label>
           <div className="relative">
-            <DollarSign size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#074f2a]-400" />
+            <DollarSign size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               id="amount"
               type="text"
               value={amount ? formatAmountForDisplay(amount) : ""}
               onChange={handleAmountChange}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DEA742] focus:border-[#DEA742]"
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B2ECF2] focus:border-accent"
               placeholder="0"
               required
             />
@@ -105,14 +105,14 @@ export default function CDTPage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="cdtTerm" className="block text-sm font-medium text-[#074f2a]-700 mb-1">Plazo del CDT (días)</label>
+            <label htmlFor="cdtTerm" className="block text-sm font-medium text-primary mb-1">Plazo del CDT (días)</label>
             <div className="relative">
-              <Clock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#074f2a]-400" />
+              <Clock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <select
                 id="cdtTerm"
                 value={cdtTerm}
                 onChange={(e) => updateField('cdtTerm', e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DEA742] focus:border-[#DEA742]"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B2ECF2] focus:border-accent"
                 required
               >
                 <option value="90">90 días</option>
@@ -124,14 +124,14 @@ export default function CDTPage() {
             </div>
           </div>
           <div>
-            <label htmlFor="renewalType" className="block text-sm font-medium text-[#074f2a]-700 mb-1">Tipo de Renovación</label>
+            <label htmlFor="renewalType" className="block text-sm font-medium text-primary mb-1">Tipo de Renovación</label>
             <div className="relative">
-              <RefreshCw size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#074f2a]-400" />
+              <RefreshCw size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <select
                 id="renewalType"
                 value={renewalType}
                 onChange={(e) => updateField('renewalType', e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DEA742] focus:border-[#DEA742]"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B2ECF2] focus:border-accent"
                 required
               >
                 <option value="Capital + Intereses">Capital + Intereses</option>
@@ -145,28 +145,28 @@ export default function CDTPage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="accountNumber" className="block text-sm font-medium text-[#074f2a]-700 mb-1">No. de Cuenta de Débito</label>
+            <label htmlFor="accountNumber" className="block text-sm font-medium text-primary mb-1">No. de Cuenta de Débito</label>
             <div className="relative">
-              <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#074f2a]-400" />
+              <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 id="accountNumber"
                 type="text"
                 value={accountNumber}
                 onChange={(e) => updateField('accountNumber', e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DEA742] focus:border-[#DEA742]"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B2ECF2] focus:border-accent"
                 required
               />
             </div>
           </div>
           <div>
-            <label htmlFor="accountType" className="block text-sm font-medium text-[#074f2a]-700 mb-1">Tipo de Cuenta</label>
+            <label htmlFor="accountType" className="block text-sm font-medium text-primary mb-1">Tipo de Cuenta</label>
             <div className="relative">
-              <Building size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#074f2a]-400" />
+              <Building size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <select
                 id="accountType"
                 value={accountType}
                 onChange={(e) => updateField('accountType', e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DEA742] focus:border-[#DEA742]"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B2ECF2] focus:border-accent"
                 required
               >
                 <option value="Ahorros">Ahorros</option>
@@ -177,37 +177,37 @@ export default function CDTPage() {
         </div>
 
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-[#074f2a]-700 mb-1">Correo Electrónico</label>
+          <label htmlFor="email" className="block text-sm font-medium text-primary mb-1">Correo Electrónico</label>
           <div className="relative">
-            <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#074f2a]-400" />
+            <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               id="email"
               type="email"
               value={email}
               onChange={(e) => updateField('email', e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DEA742] focus:border-[#DEA742]"
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B2ECF2] focus:border-accent"
               required
             />
           </div>
         </div>
 
         <div>
-          <label htmlFor="phoneNumber" className="block text-sm font-medium text-[#074f2a]-700 mb-1">Número de Teléfono</label>
+          <label htmlFor="phoneNumber" className="block text-sm font-medium text-primary mb-1">Número de Teléfono</label>
           <div className="relative">
-            <Phone size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#074f2a]-400" />
+            <Phone size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               id="phoneNumber"
               type="tel"
               value={phoneNumber}
               onChange={(e) => updateField('phoneNumber', e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DEA742] focus:border-[#DEA742]"
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#B2ECF2] focus:border-accent"
               required
             />
           </div>
         </div>
         
-        <div className="mt-6 p-4 bg-[#f0f9f4] rounded-lg">
-          <p className="text-sm text-[#003C1A] text-center">
+        <div className="mt-6 p-4 bg-neutral rounded-lg">
+          <p className="text-sm text-primary text-center">
             Los datos se guardan automáticamente cuando realizas cambios.
           </p>
         </div>

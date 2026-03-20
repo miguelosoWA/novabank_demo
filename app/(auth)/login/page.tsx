@@ -4,12 +4,12 @@ import type React from "react"
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Mail, Lock } from "lucide-react"
+import { Lock, Mail } from "lucide-react"
 import Image from "next/image"
-import { Input } from "@/components/ui/input"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import Link from "next/link"
+import { Input } from "@/components/ui/input"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -21,7 +21,6 @@ export default function LoginPage() {
     e.preventDefault()
     setIsLoading(true)
 
-    // Simulación de inicio de sesión
     setTimeout(() => {
       setIsLoading(false)
       router.push("/dashboard")
@@ -29,93 +28,85 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#004029] flex flex-col items-center justify-center p-4 relative overflow-hidden">
-      <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "url(\'data:image/svg+xml;charset=UTF-8,%3Csvg width=%2220%22 height=%2220%22 viewBox=%220 0 20 20%22 fill=%22none%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cpath d=%22M10 0L10 20M0 10L20 10%22 stroke=%22white%22 stroke-width=%220.5%22/%3E%3C/svg%3E\')" }}></div>
+    <div className="relative min-h-screen overflow-y-auto bg-primary px-4 py-6 sm:px-6 lg:flex lg:items-center lg:justify-center lg:overflow-hidden lg:p-4">
+      <div
+        className="absolute inset-0 opacity-10"
+        style={{
+          backgroundImage:
+            "url('data:image/svg+xml;charset=UTF-8,%3Csvg width=%2240%22 height=%2240%22 viewBox=%220 0 40 40%22 fill=%22none%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cpath d=%22M20 0L20 40M0 20L40 20%22 stroke=%22white%22 stroke-width=%220.5%22/%3E%3C/svg%3E')",
+        }}
+      />
 
-      <div className="relative z-10 w-full max-w-sm mx-auto">
-        <div className="text-center mb-10 px-4">
-          <div className="inline-block">
-            <div className="flex items-center justify-center">
-              <div className="mr-3">
-                <Image
-                  src="/icon-512x512.png"
-                  alt="Insight Banking Logo"
-                  width={80}
-                  height={80}
-                />
-              </div>
-              <div>
-                <h1 className="text-4xl font-bold text-white tracking-tight">INSIGHT</h1>
-                <h2 className="text-4xl font-light text-white tracking-tight -mt-2">BANKING</h2>
-              </div>
-            </div>
-            <p className="text-right text-sm text-white mt-1">
-              By <span className="font-semibold text-[#FF7A2E]">sofka_</span>
-            </p>
+      <div className="relative z-10 mx-auto grid w-full max-w-5xl gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-10">
+        <div className="px-1 pt-2 text-white sm:px-2 lg:pt-0">
+          <div className="mb-5 lg:mb-8">
+            <Image
+              src="/logo-bi-white.png"
+              alt="Banco Industrial"
+              width={220}
+              height={96}
+              priority
+              className="h-auto w-[124px] sm:w-[156px] lg:w-[220px]"
+            />
           </div>
 
-          <h2 className="text-3xl font-semibold text-white mt-8">
-            ¡Bienvenido de nuevo!
-          </h2>
+          <div className="max-w-xl space-y-4 lg:space-y-5">
+            <span className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-white/90 backdrop-blur sm:px-4 sm:text-sm">
+              Bi Banking
+            </span>
+            <h1 className="font-display text-[2.15rem] font-semibold leading-[1.05] sm:text-[2.75rem] lg:text-5xl">
+              Tu banca digital,&emsp; una experiencia clara y confiable.
+            </h1>
+          </div>
         </div>
 
-        <div className="bg-[#12B47A] rounded-[40px] shadow-2xl p-8 pt-10 w-full">
-          <form onSubmit={handleLogin} className="space-y-6">
+        <div className="bi-panel-radius w-full bg-white/98 p-5 shadow-[0_8px_30px_rgba(0,56,101,0.24)] backdrop-blur sm:p-8 lg:p-10">
+
+          <form onSubmit={handleLogin} className="space-y-5 sm:space-y-5">
+            <div>
               <Input
+                label="Correo electrónico"
                 type="email"
                 placeholder="Ingresa tu correo"
-                icon={<Mail size={35} className="text-[#12B47A] pr-3" />}
+                icon={<Mail size={20} />}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="bg-white placeholder-gray-500 text-gray-800 flex-grow"
               />
 
-            <Input
-              type="password"
-              placeholder="Ingresa contraseña"
-              icon={<Lock size={35} className="text-[#12B47A] pr-3" />}
-              required
-              className="bg-white placeholder-gray-500 text-gray-800 flex-grow"
-            />
-
-            <div className="flex items-center justify-between text-sm">
-              <Checkbox
-                label="Recordarme"
-                checked={rememberMe}
-                onChange={() => setRememberMe(!rememberMe)}
-                className="text-white"
-                id="remember-me"
+              <Input
+                label="Contraseña"
+                type="password"
+                placeholder="Ingresa contraseña"
+                icon={<Lock size={20} />}
+                required
               />
-              <Link href="/forgot-password" className="font-medium text-white hover:text-gray-200">
+            </div>
+
+            <div className="flex flex-row items-center gap-1 text-sm">
+              <Link href="/forgot-password" className="mr-auto font-semibold text-accent-dark hover:text-accent">
                 ¿Olvidaste tu contraseña?
               </Link>
             </div>
 
-            <Button
-              type="submit"
-              fullWidth
-              isLoading={isLoading}
-              className="bg-[#FF7A2E] hover:bg-[#E66A20] text-white font-bold py-3 rounded-full text-lg"
-            >
+            <Button type="submit" fullWidth isLoading={isLoading} className="py-3 text-base font-bold sm:text-lg">
               Iniciar sesión
             </Button>
           </form>
 
-          <div className="mt-8 text-center">
+          <div className="mt-6 text-center sm:mt-8">
             <p className="text-sm text-white">
               ¿Nuevo aquí?{" "}
-              <Link href="/login" className="font-semibold text-[#6ECE3C] hover:text-[#8CF05D]">
+              <Link href="/login" className="font-semibold text-accent-dark hover:text-accent">
                 Crea tu cuenta
               </Link>
             </p>
           </div>
         </div>
       </div>
-      <div className="absolute bottom-4 text-center w-full z-0">
-        <p className="text-xs text-gray-300 opacity-75">
-          2025© Sofka Technologies / All Rigths Reserved
-        </p>
+
+      <div className="relative z-10 mt-6 w-full text-center lg:absolute lg:bottom-4 lg:left-0 lg:mt-0">
+        <p className="text-xs text-white/65">2026© Banco Industrial / Todos los derechos reservados</p>
       </div>
     </div>
   )

@@ -819,7 +819,7 @@ export const RealtimeAgent = forwardRef<RealtimeAgentRef, RealtimeAgentProps>(
                   
                   <p className="text-sm text-gray-600 mb-3">
                     {connectionState === 'connecting' && 'Estableciendo conexión de voz...'}
-                    {connectionState === 'connected' && 'Asistente Virtual de NovaBank'}
+                    {connectionState === 'connected' && 'Asistente Virtual'}
                     {connectionState === 'error' && 'No se pudo conectar'}
                     {connectionState === 'disconnected' && 'Conexión perdida'}
                   </p>

@@ -63,7 +63,7 @@ export function LinkedAccounts({ accounts, onConnect, onDisconnect, isLoading = 
                     )}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-[#1C3B5A]">{account.name}</p>
+                    <p className="text-sm font-medium text-primary">{account.name}</p>
                     <p className="text-xs text-gray-500">Conectado</p>
                   </div>
                 </div>

@@ -40,19 +40,19 @@ export function PersonalizedRecommendation({
       title: `${userName}, notamos que estás buscando mejores rendimientos`,
       description: `Con tu saldo disponible de ${formatCurrency(availableBalance)}, podrías obtener hasta ${formatCurrency(availableBalance * 0.12)} en 12 meses con nuestro depósito a plazo personalizado.`,
       cta: "Ver oferta personalizada",
-      icon: <TrendingUp size={24} className="text-[#DEA742]" />,
+      icon: <TrendingUp size={24} className="text-secondary" />,
     },
     {
       title: `Una estrategia de inversión adaptada a tu perfil`,
       description: `Basado en tu actividad reciente, creamos una estrategia de inversión que podría maximizar tus ahorros con bajo riesgo.`,
       cta: "Ver detalles",
-      icon: <LineChart size={24} className="text-[#DEA742]" />,
+      icon: <LineChart size={24} className="text-secondary" />,
     },
     {
       title: `Oportunidad exclusiva para ti, ${userName}`,
       description: `Hemos identificado un instrumento de inversión con rendimiento del 9.5% anual que se alinea perfectamente con tus hábitos financieros.`,
       cta: "Simular inversión",
-      icon: <BarChart2 size={24} className="text-[#DEA742]" />,
+      icon: <BarChart2 size={24} className="text-secondary" />,
     },
   ]
 
@@ -83,7 +83,7 @@ export function PersonalizedRecommendation({
       <CardContent className="p-0">
         <div className="relative">
           {/* Personalized banner background with gradient */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#1C3B5A] to-[#2a5580] opacity-90" />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary to-[#2D8C9E] opacity-90" />
 
           {/* Pattern overlay */}
           <div

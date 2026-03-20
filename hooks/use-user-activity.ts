@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useCallback, useState } from "react"
 
 // Define user activity types
 export type UserBehavior = {
@@ -51,7 +51,7 @@ export function useUserActivity() {
   })
 
   // Function to add a new section view
-  const trackSectionView = (section: string) => {
+  const trackSectionView = useCallback((section: string) => {
     setUserActivity((prev) => {
       const updatedViews = [...prev.recentViews]
       const existingViewIndex = updatedViews.findIndex((view) => view.section === section)
@@ -77,18 +77,18 @@ export function useUserActivity() {
         recentViews: updatedViews,
       }
     })
-  }
+  }, [])
 
   // Function to add a new interaction
-  const trackInteraction = (type: string, value: string) => {
+  const trackInteraction = useCallback((type: string, value: string) => {
     setUserActivity((prev) => ({
       ...prev,
       interactions: [...prev.interactions, { type, value, timestamp: Date.now() }],
     }))
-  }
+  }, [])
 
   // Function to update financial context
-  const updateFinancialContext = (updates: Partial<UserBehavior["financialContext"]>) => {
+  const updateFinancialContext = useCallback((updates: Partial<UserBehavior["financialContext"]>) => {
     setUserActivity((prev) => ({
       ...prev,
       financialContext: {
@@ -96,10 +96,10 @@ export function useUserActivity() {
         ...updates,
       },
     }))
-  }
+  }, [])
 
   // Function to update preferences
-  const updatePreferences = (updates: Partial<UserBehavior["preferences"]>) => {
+  const updatePreferences = useCallback((updates: Partial<UserBehavior["preferences"]>) => {
     setUserActivity((prev) => ({
       ...prev,
       preferences: {
@@ -107,31 +107,31 @@ export function useUserActivity() {
         ...updates,
       },
     }))
-  }
+  }, [])
 
   // Helper functions to analyze user behavior
 
   // Check if user has shown interest in a specific section
-  const hasInterestIn = (section: string, threshold = 2): boolean => {
+  const hasInterestIn = useCallback((section: string, threshold = 2): boolean => {
     const sectionView = userActivity.recentViews.find((view) => view.section === section)
     return !!sectionView && sectionView.frequency >= threshold
-  }
+  }, [userActivity.recentViews])
 
   // Get user's most viewed sections
-  const getMostViewedSections = (limit = 3): string[] => {
+  const getMostViewedSections = useCallback((limit = 3): string[] => {
     return [...userActivity.recentViews]
       .sort((a, b) => b.frequency - a.frequency)
       .slice(0, limit)
       .map((view) => view.section)
-  }
+  }, [userActivity.recentViews])
 
   // Check if user has available balance for investment
-  const hasAvailableBalanceForInvestment = (minimumAmount = 5000): boolean => {
+  const hasAvailableBalanceForInvestment = useCallback((minimumAmount = 5000): boolean => {
     return userActivity.financialContext.availableBalance >= minimumAmount
-  }
+  }, [userActivity.financialContext.availableBalance])
 
   // Get investment recommendations based on user behavior
-  const getInvestmentRecommendations = () => {
+  const getInvestmentRecommendations = useCallback(() => {
     const isInterestedInSavings = hasInterestIn("savings")
     const isInterestedInInvestments = hasInterestIn("investments")
     const hasUsedCalculator = userActivity.interactions.some((int) => int.type === "calculator")
@@ -158,7 +158,7 @@ export function useUserActivity() {
         description: "Comienza a hacer crecer tu dinero con nuestra cuenta de ahorro premium.",
       }
     }
-  }
+  }, [hasInterestIn, userActivity.interactions, userActivity.financialContext])
 
   return {
     userActivity,

@@ -77,18 +77,18 @@ export default function TransferConfirmation() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-start bg-[#DDF3E6]">
+    <div className="flex flex-col items-center justify-start bg-background">
       {/* Banner superior */}
-      <div className="w-full max-w-xl rounded-t-2xl bg-[#00C96B] flex justify-center items-center py-6 shadow-sm">
-        <span className="text-2xl md:text-3xl text-white" style={{ fontFamily: 'var(--font-clash-display)' }}>
+      <div className="w-full max-w-xl bi-feature-radius bg-primary flex justify-center items-center py-6 shadow-[0_4px_16px_rgba(0,56,101,0.12)]">
+        <span className="text-2xl md:text-3xl text-white font-display">
           Transferencia
         </span>
       </div>
       <div className="w-full max-w-xl px-4 -mt-6">
         <Card className="mt-6 border-0 shadow-lg rounded-2xl bg-white">
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2" style={{ fontFamily: 'var(--font-clash-display)', color: '#003C1A' }}>
-              <Info className="h-5 w-5 text-[#00C96B]" />
+            <CardTitle className="text-lg flex items-center gap-2 font-display text-primary">
+              <Info className="h-5 w-5 text-accent" />
               Detalles de la Transferencia
             </CardTitle>
           </CardHeader>
@@ -99,7 +99,7 @@ export default function TransferConfirmation() {
                 <Label htmlFor="nombreDestinatario" className="text-gray-600 flex items-center gap-2" style={{ fontFamily: 'var(--font-roboto)' }}>
                   Nombre Destinatario
                   {response === 'success' && nombreDestinatario && (
-                    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                    <span className="text-xs bg-[#e5f9fb] text-accent-dark px-2 py-1 rounded-full">
                       Auto-completado
                     </span>
                   )}
@@ -109,9 +109,9 @@ export default function TransferConfirmation() {
                   value={nombreDestinatario}
                   onChange={(e) => handleInputChange('nombreDestinatario', e.target.value)}
                   placeholder="Ingrese el nombre del destinatario"
-                  className={`border-gray-300 focus:border-[#00C96B] focus:ring-[#00C96B] h-14 text-base ${
+                    className={`border-gray-300 focus:border-accent focus:ring-[#B2ECF2] h-14 text-base ${
                     response === 'success' && nombreDestinatario 
-                      ? 'border-green-300 bg-green-50' 
+                      ? 'border-accent-light bg-[#f2fcfd]' 
                       : ''
                   }`}
                 />
@@ -122,7 +122,7 @@ export default function TransferConfirmation() {
                 <Label htmlFor="amount" className="text-gray-600 flex items-center gap-2" style={{ fontFamily: 'var(--font-roboto)' }}>
                   Monto
                   {response === 'success' && amount > 0 && (
-                    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                    <span className="text-xs bg-[#e5f9fb] text-accent-dark px-2 py-1 rounded-full">
                       Auto-completado
                     </span>
                   )}
@@ -135,9 +135,9 @@ export default function TransferConfirmation() {
                     value={amount === 0 ? '' : formatMoney(amount)}
                     onChange={(e) => handleInputChange('amount', parseMoney(e.target.value))}
                     placeholder="0"
-                    className={`pl-8 pr-16 border-gray-300 focus:border-[#00C96B] focus:ring-[#00C96B] h-14 text-base ${
+                    className={`pl-8 pr-16 border-gray-300 focus:border-accent focus:ring-[#B2ECF2] h-14 text-base ${
                       response === 'success' && amount > 0 
-                        ? 'border-green-300 bg-green-50' 
+                        ? 'border-accent-light bg-[#f2fcfd]' 
                         : ''
                     }`}
                   />
@@ -151,7 +151,7 @@ export default function TransferConfirmation() {
             <div className="mt-6">
               <Button
                 onClick={handleComplete}
-                className="w-full bg-[#00C96B] hover:bg-[#00B05A] text-white py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                className="w-full bg-secondary hover:bg-[#d88912] text-primary py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 font-bold"
               >
                 Confirmar Transferencia
               </Button>

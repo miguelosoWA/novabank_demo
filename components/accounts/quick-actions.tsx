@@ -33,28 +33,28 @@ export function QuickActions({
       return {
         title: "Optimiza tu crédito",
         description: `${userName}, tienes crédito sin utilizar. Considera consolidar otras deudas con mayor interés.`,
-        icon: <CreditCard size={20} className="text-[#1C3B5A]" />,
+        icon: <CreditCard size={20} className="text-primary" />,
         action: "Ver opciones",
       }
     } else if (accountType === "savings" && lowSavings) {
       return {
         title: "Incrementa tus ahorros",
         description: `${userName}, configura un ahorro automático mensual para alcanzar tus metas financieras más rápido.`,
-        icon: <PiggyBank size={20} className="text-[#1C3B5A]" />,
+        icon: <PiggyBank size={20} className="text-primary" />,
         action: "Configurar ahorro",
       }
     } else if (accountType === "checking") {
       return {
         title: "Protege tu cuenta",
         description: `${userName}, configura alertas de seguridad para monitorear la actividad de tu cuenta.`,
-        icon: <Shield size={20} className="text-[#1C3B5A]" />,
+        icon: <Shield size={20} className="text-primary" />,
         action: "Configurar alertas",
       }
     } else {
       return {
         title: "Gestiona tu dinero",
         description: `${userName}, configura categorías personalizadas para un mejor seguimiento de tus finanzas.`,
-        icon: <Bell size={20} className="text-[#1C3B5A]" />,
+        icon: <Bell size={20} className="text-primary" />,
         action: "Personalizar",
       }
     }
@@ -95,14 +95,14 @@ export function QuickActions({
         </div>
 
         {/* Personalized recommendation */}
-        <div className="bg-[#f0f5fa] rounded-lg p-3 sm:p-4">
+        <div className="bg-neutral rounded-lg p-3 sm:p-4">
           <div className="flex items-start gap-3">
             <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center flex-shrink-0">
               {recommendation.icon}
             </div>
 
             <div>
-              <h4 className="text-sm font-medium text-[#1C3B5A]">{recommendation.title}</h4>
+              <h4 className="text-sm font-medium text-primary">{recommendation.title}</h4>
               <p className="text-xs text-gray-600 mt-1 mb-2">{recommendation.description}</p>
               <Button size="sm" variant="default">
                 {recommendation.action}

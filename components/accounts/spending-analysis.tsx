@@ -151,10 +151,10 @@ export function SpendingAnalysis({ transactions, accountType }: SpendingAnalysis
                 <div key={category} className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className={`h-3 w-3 rounded-full ${getCategoryColor(category)}`} />
-                    <span className="text-sm text-[#1C3B5A]">{getCategoryName(category)}</span>
+                    <span className="text-sm text-primary">{getCategoryName(category)}</span>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-medium text-[#1C3B5A]">{formatCurrency(amount)}</p>
+                    <p className="text-sm font-medium text-primary">{formatCurrency(amount)}</p>
                     <p className="text-xs text-gray-500">{Math.round((amount / totalSpending) * 100)}%</p>
                   </div>
                 </div>
@@ -164,17 +164,17 @@ export function SpendingAnalysis({ transactions, accountType }: SpendingAnalysis
             {/* Total */}
             <div className="mt-4 pt-4 border-t">
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-[#1C3B5A]">Total de gastos</span>
-                <span className="text-sm font-bold text-[#1C3B5A]">{formatCurrency(totalSpending)}</span>
+                <span className="text-sm font-medium text-primary">Total de gastos</span>
+                <span className="text-sm font-bold text-primary">{formatCurrency(totalSpending)}</span>
               </div>
             </div>
 
             {/* Insights */}
-            <div className="mt-4 bg-[#f0f5fa] rounded-lg p-3">
+            <div className="mt-4 bg-neutral rounded-lg p-3">
               <div className="flex items-start gap-2">
-                <TrendingUp size={18} className="text-[#1C3B5A] mt-0.5" />
+                <TrendingUp size={18} className="text-primary mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-[#1C3B5A]">Análisis personalizado</p>
+                  <p className="text-sm font-medium text-primary">Análisis personalizado</p>
                   <p className="text-xs text-gray-600">
                     {sortedCategories.length > 0
                       ? `Tu mayor gasto es en ${getCategoryName(

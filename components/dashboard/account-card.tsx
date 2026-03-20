@@ -23,44 +23,50 @@ export function AccountCard({ type, name, number, balance, currency = "USD", lim
 
   return (
     <Card
-      className={`p-3 overflow-hidden rounded-lg shadow-lg h-full flex flex-col ${type === "savings" ? "bg-[#00a29f]" : "bg-[#deb72b]"}`}
+      className={`bi-feature-radius flex h-full flex-col overflow-hidden border-0 p-4 shadow-[0_4px_16px_rgba(0,56,101,0.12)] ${
+        type === "savings"
+          ? "bg-[linear-gradient(135deg,#003865_0%,#2D8C9E_100%)]"
+          : "bg-[linear-gradient(135deg,#F5A623_0%,#ffcf66_100%)]"
+      }`}
     >
       <CardContent className="p-0 flex-grow flex flex-col justify-between">
         <div className="flex justify-between items-start">
           <div>
-            <p className="text-white text-lg font-semibold">{name}</p>
-            <p className="text-white font-bold text-xl mt-1">{maskedNumber}</p>
+            <p className={`text-sm font-medium ${type === "savings" ? "text-white/80" : "text-primary/75"}`}>{name}</p>
+            <p className={`mt-1 text-2xl font-semibold ${type === "savings" ? "text-white" : "text-primary"}`}>{maskedNumber}</p>
           </div>
           <div
-            className={`h-12 w-12 rounded-full flex items-center justify-center ${type === "savings" ? "bg-white/30" : "bg-white/30"}`}
+            className={`flex h-12 w-12 items-center justify-center rounded-full ${
+              type === "savings" ? "bg-white/20" : "bg-primary/10"
+            }`}
           >
             {type === "savings" ? (
               <DollarSign size={28} className="text-white" />
             ) : (
-              <div className="w-7 h-5 rounded bg-white border-2 border-gray-300" />
+              <CreditCard size={24} className="text-primary" />
             )}
           </div>
         </div>
 
         <div className="mt-auto">
-          <p className="text-white text-base">
+          <p className={`text-sm ${type === "savings" ? "text-white/80" : "text-primary/75"}`}>
             {type === "savings" ? "Saldo disponible" : "Saldo Actual"}
           </p>
-          <p className="text-white text-xl font-bold mt-1">{formatCurrency(balance)}</p>
+          <p className={`mt-1 text-2xl font-bold ${type === "savings" ? "text-white" : "text-primary"}`}>{formatCurrency(balance)}</p>
 
           {type === "credit" && limit && (
             <div className="mt-3">
-              <div className="flex justify-between text-sm text-white">
+              <div className="flex justify-between text-xs text-primary/75">
                 <span>Límite</span>
                 <span>Disponible</span>
               </div>
-              <div className="flex justify-between text-sm font-semibold text-white">
+              <div className="flex justify-between text-sm font-semibold text-primary">
                 <span>{formatCurrency(limit)}</span>
                 <span>{formatCurrency(limit - balance)}</span>
               </div>
-              <div className="mt-2 h-2.5 bg-white/30 rounded-full overflow-hidden">
+              <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-primary/10">
                 <div
-                  className="h-full bg-white"
+                  className="h-full bg-primary"
                   style={{ width: `${(balance / limit) * 100}%` }}
                 />
               </div>

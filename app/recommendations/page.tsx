@@ -109,11 +109,11 @@ export default function Dashboard() {
 
   return (
     <>
-      <main className="min-h-screen p-0 bg-[#c9e6d4]">
+      <main className="min-h-screen p-0 bg-background">
         <div className="max-w-md mx-auto">
           {/* Header */}
-          <div className="bg-[#2D7A4A] text-white py-6 px-6 shadow-m">
-            <h1 className="text-2xl font-bold text-center">Oportunidades para ti</h1>
+          <div className="bg-primary text-white py-6 px-6 shadow-[0_4px_16px_rgba(0,56,101,0.12)]">
+            <h1 className="text-2xl font-bold text-center font-display">Oportunidades para ti</h1>
           </div>
 
           {/* Cards Container */}
@@ -124,7 +124,7 @@ export default function Dashboard() {
                    setIsInvestmentSimulatorOpen(true)
                    trackInteraction("click", "opportunity_card_investment")
                  }}>
-              <div className="bg-[#074f2a] w-20 h-20 flex items-center justify-center">
+              <div className="bg-primary w-20 h-20 flex items-center justify-center">
                 <span className="text-white font-bold text-lg">CDT</span>
               </div>
               <div className="flex-1 p-4">
@@ -140,7 +140,7 @@ export default function Dashboard() {
                    window.alert("Abriendo artículo...")
                    trackInteraction("click", "opportunity_card_article")
                  }}>
-              <div className="bg-[#074f2a] w-20 h-20 flex items-center justify-center">
+              <div className="bg-primary w-20 h-20 flex items-center justify-center">
                 <span className="text-white font-bold text-lg">FIC</span>
               </div>
               <div className="flex-1 p-4">

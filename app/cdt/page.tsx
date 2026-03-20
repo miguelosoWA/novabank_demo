@@ -10,11 +10,11 @@ export default function WithdrawalPage() {
   const availableBalance = 18500.75 // Simulado, normalmente vendría de la API
 
   return (
-    <div className="pb-12 bg-[#cae6d5]">
+    <div className="pb-12 bg-background">
       {/* Header */}
-      <div className="bg-[#2D7A4A] text-white py-4 px-6">
+      <div className="bg-primary text-white py-4 px-6">
         <div className="max-w-4xl mx-auto">
-            <div className="text-xl font-medium">Certificado de Depósito a Término (CDT)</div>
+            <div className="text-xl font-medium font-display">Certificado de Depósito a Término (CDT)</div>
         </div>
       </div>
 
@@ -25,10 +25,10 @@ export default function WithdrawalPage() {
           
           <div className="p-4">
             <div className="space-y-6">
-              <h3 className="text-xl font-semibold text-[#fd7524]">Características clave</h3>
+              <h3 className="text-xl font-semibold text-secondary font-display">Características clave</h3>
               {/* Plazo fijo */}
               <div className="flex items-start gap-4">
-                <div className="w-6 h-6 bg-[#FF6B35] rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                <div className="w-6 h-6 bg-accent rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                   <div className="w-2 h-2 bg-white rounded-full"></div>
                 </div>
                 <div>
@@ -41,7 +41,7 @@ export default function WithdrawalPage() {
 
               {/* Tasa de interés conocida */}
               <div className="flex items-start gap-4">
-                <div className="w-6 h-6 bg-[#FF6B35] rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                <div className="w-6 h-6 bg-accent rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                   <div className="w-2 h-2 bg-white rounded-full"></div>
                 </div>
                 <div>
@@ -54,7 +54,7 @@ export default function WithdrawalPage() {
 
               {/* Bajo riesgo */}
               <div className="flex items-start gap-4">
-                <div className="w-6 h-6 bg-[#FF6B35] rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                <div className="w-6 h-6 bg-accent rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                   <div className="w-2 h-2 bg-white rounded-full"></div>
                 </div>
                 <div>
@@ -67,7 +67,7 @@ export default function WithdrawalPage() {
 
               {/* Rendimiento garantizado */}
               <div className="flex items-start gap-4">
-                <div className="w-6 h-6 bg-[#FF6B35] rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                <div className="w-6 h-6 bg-accent rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                   <div className="w-2 h-2 bg-white rounded-full"></div>
                 </div>
                 <div>

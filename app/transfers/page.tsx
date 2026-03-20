@@ -15,10 +15,10 @@ const TransfersContent = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-start pb-16 md:pb-20 bg-[#DDF3E6]">
+    <div className="min-h-screen flex flex-col items-center justify-start pb-16 md:pb-20 bg-background">
       {/* Banner superior */}
-      <div className="w-full max-w-xl rounded-t-1xl bg-[#2D7A4A] flex justify-center items-center py-6 shadow-sm mb-5">
-        <span className="text-3xl md:text-3xl text-white" style={{ fontFamily: 'var(--font-clash-display)' }}>
+      <div className="w-full max-w-xl bi-feature-radius bg-primary flex justify-center items-center py-6 shadow-[0_4px_16px_rgba(0,56,101,0.12)] mb-5">
+        <span className="text-3xl md:text-3xl text-white font-display">
           Transferencias
         </span>
       </div>
@@ -27,8 +27,8 @@ const TransfersContent = () => {
           {/* Límites de Transferencia */}
           <Card className="border-0 shadow-lg rounded-2xl bg-white">
             <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2" style={{ fontFamily: 'var(--font-clash-display)', color: '#003C1A' }}>
-                <Shield className="h-5 w-5 text-[#00C96B]" />
+              <CardTitle className="text-lg flex items-center gap-2 font-display text-primary">
+                <Shield className="h-5 w-5 text-accent" />
                 Límites de Transferencia
               </CardTitle>
             </CardHeader>
@@ -57,23 +57,23 @@ const TransfersContent = () => {
           {/* Información Importante */}
           <Card className="border-0 shadow-lg rounded-2xl bg-white">
             <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2" style={{ fontFamily: 'var(--font-clash-display)', color: '#003C1A' }}>
-                <Info className="h-5 w-5 text-[#00C96B]" />
+              <CardTitle className="text-lg flex items-center gap-2 font-display text-primary">
+                <Info className="h-5 w-5 text-accent" />
                 Información Importante
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
                 <div className="p-3 bg-gray-50 rounded-lg">
-                  <h3 className="font-semibold text-[#003C1A] mb-1 text-sm" style={{ fontFamily: 'var(--font-clash-display)' }}>Horarios de Procesamiento</h3>
+                  <h3 className="font-semibold text-primary mb-1 text-sm font-display">Horarios de Procesamiento</h3>
                   <p className="text-gray-700 text-sm" style={{ fontFamily: 'var(--font-roboto)' }}>Las transferencias se procesan en horario bancario de lunes a viernes.</p>
                 </div>
                 <div className="p-3 bg-gray-50 rounded-lg">
-                  <h3 className="font-semibold text-[#003C1A] mb-1 text-sm" style={{ fontFamily: 'var(--font-clash-display)' }}>Tiempo de Procesamiento</h3>
+                  <h3 className="font-semibold text-primary mb-1 text-sm font-display">Tiempo de Procesamiento</h3>
                   <p className="text-gray-700 text-sm" style={{ fontFamily: 'var(--font-roboto)' }}>Las transferencias pueden tomar hasta 24 horas hábiles.</p>
                 </div>
                 <div className="p-3 bg-gray-50 rounded-lg">
-                  <h3 className="font-semibold text-[#003C1A] mb-1 text-sm" style={{ fontFamily: 'var(--font-clash-display)' }}>Comisiones</h3>
+                  <h3 className="font-semibold text-primary mb-1 text-sm font-display">Comisiones</h3>
                   <p className="text-gray-700 text-sm" style={{ fontFamily: 'var(--font-roboto)' }}>Consulta las comisiones aplicables según el tipo de transferencia.</p>
                 </div>
               </div>
@@ -94,7 +94,7 @@ const TransfersContent = () => {
 
         {/* Mensaje de Seguridad */}
         <div className="mt-8 text-center text-gray-600 flex items-center justify-center gap-2">
-          <Shield className="h-5 w-5 text-[#00C96B]" />
+          <Shield className="h-5 w-5 text-accent" />
           <p style={{ fontFamily: 'var(--font-roboto)' }}>Todas las transferencias están protegidas con los más altos estándares de seguridad</p>
         </div>
       </div>

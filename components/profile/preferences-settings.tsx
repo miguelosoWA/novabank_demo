@@ -71,7 +71,7 @@ export function PreferencesSettings({
       <CardContent className="px-4 sm:px-6 space-y-6">
         {/* Notificaciones */}
         <div>
-          <h3 className="text-base font-medium text-[#1C3B5A] mb-4 flex items-center" id="notifications-heading">
+          <h3 className="text-base font-medium text-primary mb-4 flex items-center" id="notifications-heading">
             <Bell size={18} className="mr-2" aria-hidden="true" /> Notificaciones
           </h3>
 
@@ -79,7 +79,7 @@ export function PreferencesSettings({
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-3">
                 <Mail size={18} className="text-gray-500" aria-hidden="true" />
-                <label htmlFor="email-notifications" className="text-sm text-[#1C3B5A]">
+                <label htmlFor="email-notifications" className="text-sm text-primary">
                   Correo electrónico
                 </label>
               </div>
@@ -94,7 +94,7 @@ export function PreferencesSettings({
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-3">
                 <Bell size={18} className="text-gray-500" aria-hidden="true" />
-                <label htmlFor="push-notifications" className="text-sm text-[#1C3B5A]">
+                <label htmlFor="push-notifications" className="text-sm text-primary">
                   Notificaciones push
                 </label>
               </div>
@@ -109,7 +109,7 @@ export function PreferencesSettings({
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-3">
                 <Smartphone size={18} className="text-gray-500" aria-hidden="true" />
-                <label htmlFor="sms-notifications" className="text-sm text-[#1C3B5A]">
+                <label htmlFor="sms-notifications" className="text-sm text-primary">
                   SMS
                 </label>
               </div>
@@ -125,7 +125,7 @@ export function PreferencesSettings({
 
         {/* Tipos de notificaciones */}
         <div className="border-t pt-6">
-          <h3 className="text-base font-medium text-[#1C3B5A] mb-4" id="notification-types-heading">
+          <h3 className="text-base font-medium text-primary mb-4" id="notification-types-heading">
             Tipos de notificaciones
           </h3>
 
@@ -133,7 +133,7 @@ export function PreferencesSettings({
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-3">
                 <DollarSign size={18} className="text-gray-500" aria-hidden="true" />
-                <label htmlFor="transactions-notifications" className="text-sm text-[#1C3B5A]">
+                <label htmlFor="transactions-notifications" className="text-sm text-primary">
                   Transacciones
                 </label>
               </div>
@@ -148,7 +148,7 @@ export function PreferencesSettings({
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-3">
                 <CreditCard size={18} className="text-gray-500" aria-hidden="true" />
-                <label htmlFor="account-notifications" className="text-sm text-[#1C3B5A]">
+                <label htmlFor="account-notifications" className="text-sm text-primary">
                   Actualizaciones de cuenta
                 </label>
               </div>
@@ -163,7 +163,7 @@ export function PreferencesSettings({
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-3">
                 <Shield size={18} className="text-gray-500" aria-hidden="true" />
-                <label htmlFor="security-notifications" className="text-sm text-[#1C3B5A]">
+                <label htmlFor="security-notifications" className="text-sm text-primary">
                   Seguridad
                 </label>
               </div>
@@ -178,7 +178,7 @@ export function PreferencesSettings({
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-3">
                 <PiggyBank size={18} className="text-gray-500" aria-hidden="true" />
-                <label htmlFor="promotions-notifications" className="text-sm text-[#1C3B5A]">
+                <label htmlFor="promotions-notifications" className="text-sm text-primary">
                   Promociones y ofertas
                 </label>
               </div>
@@ -195,7 +195,7 @@ export function PreferencesSettings({
         {/* Idioma y tema */}
         <div className="border-t pt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h3 className="text-base font-medium text-[#1C3B5A] mb-2 flex items-center" id="language-heading">
+            <h3 className="text-base font-medium text-primary mb-2 flex items-center" id="language-heading">
               <Languages size={18} className="mr-2" aria-hidden="true" /> Idioma
             </h3>
             <DropdownMenu>
@@ -230,7 +230,7 @@ export function PreferencesSettings({
           </div>
 
           <div>
-            <h3 className="text-base font-medium text-[#1C3B5A] mb-2 flex items-center" id="dark-mode-heading">
+            <h3 className="text-base font-medium text-primary mb-2 flex items-center" id="dark-mode-heading">
               <Moon size={18} className="mr-2" aria-hidden="true" /> Modo oscuro
             </h3>
             <div className="flex items-center">
@@ -241,7 +241,7 @@ export function PreferencesSettings({
                 disabled={isLoading}
                 aria-labelledby="dark-mode-heading"
               />
-              <label htmlFor="dark-mode" className="ml-2 text-sm text-[#1C3B5A]">
+              <label htmlFor="dark-mode" className="ml-2 text-sm text-primary">
                 Activar modo oscuro
               </label>
             </div>

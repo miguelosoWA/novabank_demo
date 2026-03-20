@@ -141,16 +141,16 @@ export function TransactionHistory({ transactions, accountName, accountType }: T
 
         {/* Summary */}
         <div className="grid grid-cols-2 gap-4 mb-6">
-          <Card className="bg-green-50 border-0">
+          <Card className="bg-[#e5f9fb] border-0">
             <CardContent className="p-4">
-              <p className="text-sm text-green-700">Ingresos</p>
-              <p className="text-lg font-semibold text-green-700">{formatCurrency(totals.income)}</p>
+              <p className="text-sm text-accent-dark">Ingresos</p>
+              <p className="text-lg font-semibold text-accent-dark">{formatCurrency(totals.income)}</p>
             </CardContent>
           </Card>
-          <Card className="bg-red-50 border-0">
+          <Card className="bg-[#fff3df] border-0">
             <CardContent className="p-4">
-              <p className="text-sm text-red-700">Gastos</p>
-              <p className="text-lg font-semibold text-red-700">{formatCurrency(totals.expense)}</p>
+              <p className="text-sm text-[#d88912]">Gastos</p>
+              <p className="text-lg font-semibold text-[#d88912]">{formatCurrency(totals.expense)}</p>
             </CardContent>
           </Card>
         </div>
@@ -181,7 +181,7 @@ export function TransactionHistory({ transactions, accountName, accountType }: T
                   </div>
 
                   <div>
-                    <p className="text-sm font-medium text-[#1C3B5A]">{transaction.title}</p>
+                    <p className="text-sm font-medium text-primary">{transaction.title}</p>
                     <p className="text-xs text-gray-500">{transaction.description}</p>
                   </div>
                 </div>

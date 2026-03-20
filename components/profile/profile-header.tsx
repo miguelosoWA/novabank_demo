@@ -35,7 +35,7 @@ export function ProfileHeader({ name, email, phone, avatarUrl }: ProfileHeaderPr
           </div>
         ) : (
           <div
-            className="h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-[#1C3B5A] flex items-center justify-center text-white text-xl sm:text-2xl font-bold"
+            className="h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-primary flex items-center justify-center text-white text-xl sm:text-2xl font-bold"
             aria-label={`Iniciales de ${name}: ${initials}`}
           >
             {initials}
@@ -60,7 +60,7 @@ export function ProfileHeader({ name, email, phone, avatarUrl }: ProfileHeaderPr
       </div>
 
       <div className="text-center md:text-left flex-1">
-        <h2 className="text-xl sm:text-2xl font-bold text-[#1C3B5A]">{name}</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-primary">{name}</h2>
         <div className="mt-2 space-y-1 text-gray-500">
           <p>
             <span className="sr-only">Correo electrónico: </span>

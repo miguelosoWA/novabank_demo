@@ -433,7 +433,7 @@ export function VirtualAgent() {
             className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-200 ${
               isMicrophoneActive 
                 ? 'bg-red-500 hover:bg-red-600 shadow-lg' 
-                : 'bg-green-500 hover:bg-green-600 shadow-lg'
+                : 'bg-yellow-500 hover:bg-yellow-600 shadow-lg'
             }`}
             title={isMicrophoneActive ? 'Desactivar micrófono' : 'Activar micrófono'}
           >

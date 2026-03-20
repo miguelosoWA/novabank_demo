@@ -18,30 +18,30 @@ export function UserMenu() {
   return (
     <div className="relative">
       <Button variant="ghost" size="sm" className="flex items-center" onClick={() => setIsProfileOpen(!isProfileOpen)}>
-        <div className="h-8 w-8 rounded-full bg-[#1C3B5A] flex items-center justify-center text-white mr-2">
+        <div className="mr-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-white">
           <User size={16} />
         </div>
-        <span className="hidden md:block text-sm font-medium">Carlos</span>
+        <span className="hidden text-sm font-medium text-white md:block">Carlos</span>
       </Button>
 
       {isProfileOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 border border-gray-200">
-          <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+        <div className="absolute right-0 z-10 mt-2 w-48 rounded-lg border border-[#d7e4e8] bg-white py-1 shadow-[0_4px_16px_rgba(0,56,101,0.12)]">
+          <Link href="/profile" className="flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-[#eaf3f5]">
             <User size={16} className="mr-2" />
             Mi perfil
           </Link>
-          <Link href="/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+          <Link href="/settings" className="flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-[#eaf3f5]">
             <Settings size={16} className="mr-2" />
             Configuración
           </Link>
-          <Link href="/help" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+          <Link href="/help" className="flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-[#eaf3f5]">
             <HelpCircle size={16} className="mr-2" />
             Ayuda
           </Link>
-          <div className="border-t border-gray-200 my-1"></div>
+          <div className="my-1 border-t border-[#d7e4e8]"></div>
           <button
             onClick={handleLogout}
-            className="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center"
+            className="flex w-full items-center px-4 py-2 text-left text-sm text-[#F13852] hover:bg-[#fff4f6]"
           >
             <LogOut size={16} className="mr-2" />
             Cerrar sesión

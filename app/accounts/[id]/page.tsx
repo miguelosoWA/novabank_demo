@@ -98,7 +98,7 @@ export default function AccountDetailsPage() {
   if (!account) {
     return (
       <div className="text-center py-12">
-        <h1 className="text-2xl font-bold text-[#1C3B5A]">Cuenta no encontrada</h1>
+        <h1 className="text-2xl font-bold text-primary">Cuenta no encontrada</h1>
         <p className="text-gray-500 mt-2">La cuenta que buscas no existe o no tienes acceso a ella.</p>
         <Button className="mt-4" onClick={() => router.push("/accounts")}>
           Volver a Cuentas
@@ -117,7 +117,7 @@ export default function AccountDetailsPage() {
             Inicio
           </Button>
         </div>
-        <h1 className="text-2xl font-bold text-[#1C3B5A]">Detalles de cuenta</h1>
+        <h1 className="text-2xl font-bold text-primary">Detalles de cuenta</h1>
         <p className="text-gray-500">Gestiona y analiza tu cuenta</p>
       </div>
 

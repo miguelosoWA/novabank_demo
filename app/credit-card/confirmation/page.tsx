@@ -27,7 +27,7 @@ export default function CreditCardConfirmationPage() {
     <div className="px-2 py-2">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="bg-[#15d05f] text-white p-6 rounded-t-2xl shadow-lg  mt-5">
+        <div className="bi-card-hero bi-feature-radius text-white p-6 shadow-lg mt-5">
           <div className="flex items-center justify-center gap-3">
             <CheckCircle2 className="h-6 w-8" />
             <h1 className="text-xl font-semibold">Solicitud Recibida</h1>
@@ -37,15 +37,15 @@ export default function CreditCardConfirmationPage() {
         {/* Mensaje de Confirmación */}
         <Card className="mt-3 border-0 shadow-lg rounded-2xl bg-white">
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2" style={{ fontFamily: 'var(--font-clash-display)', color: '#003C1A' }}>
-              <CheckCircle2 className="h-5 w-5 text-[#00C96B]" />
+            <CardTitle className="text-lg flex items-center gap-2 font-display text-primary">
+              <CheckCircle2 className="h-5 w-5 text-accent" />
               Detalles de tu Solicitud
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
               <div className="flex items-start gap-3">
-                <DollarSign className="h-5 w-5 text-[#00C96B] mt-1" />
+                <DollarSign className="h-5 w-5 text-accent mt-1" />
                 <div>
                   <h3 className="font-semibold" style={{ fontFamily: 'var(--font-roboto)' }}>Ingreso Mensual</h3>
                   <p className="text-gray-600" style={{ fontFamily: 'var(--font-roboto)' }}>${monthlyIncome.toLocaleString('es-CO')} COP</p>
@@ -53,7 +53,7 @@ export default function CreditCardConfirmationPage() {
               </div>
 
               <div className="flex items-start gap-3">
-                <Briefcase className="h-5 w-5 text-[#00C96B] mt-1" />
+                <Briefcase className="h-5 w-5 text-accent mt-1" />
                 <div>
                   <h3 className="font-semibold" style={{ fontFamily: 'var(--font-roboto)' }}>Estado Laboral</h3>
                   <p className="text-gray-600 capitalize" style={{ fontFamily: 'var(--font-roboto)' }}>{employmentStatus}</p>
@@ -61,7 +61,7 @@ export default function CreditCardConfirmationPage() {
               </div>
 
               <div className="flex items-start gap-3">
-                <Calendar className="h-5 w-5 text-[#00C96B] mt-1" />
+                <Calendar className="h-5 w-5 text-accent mt-1" />
                 <div>
                   <h3 className="font-semibold" style={{ fontFamily: 'var(--font-roboto)' }}>Años de Experiencia</h3>
                   <p className="text-gray-600" style={{ fontFamily: 'var(--font-roboto)' }}>{timeEmployed}</p>
@@ -71,7 +71,7 @@ export default function CreditCardConfirmationPage() {
               <div className="mt-6">
                 <Button 
                   onClick={handleReturnToDashboard}
-                  className="w-full bg-[#00C96B] hover:bg-[#00A55A] text-white"
+                  className="w-full bg-secondary hover:bg-[#d88912] text-primary font-bold"
                 >
                   Confirmar Solicitud
                 </Button>

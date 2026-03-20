@@ -24,18 +24,18 @@ export default function TransferConfirmation() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-start bg-[#DDF3E6]">
+    <div className="flex flex-col items-center justify-start bg-background">
       {/* Banner superior */}
-      <div className="w-full max-w-xl rounded-t-2xl bg-[#00C96B] flex justify-center items-center py-6 shadow-sm">
-        <span className="text-2xl md:text-3xl text-white" style={{ fontFamily: 'var(--font-clash-display)' }}>
+      <div className="w-full max-w-xl bi-feature-radius bg-primary flex justify-center items-center py-6 shadow-[0_4px_16px_rgba(0,56,101,0.12)]">
+        <span className="text-2xl md:text-3xl text-white font-display">
           Transferencia Confirmada
         </span>
       </div>
       <div className="w-full max-w-xl px-4 -mt-6">
         <Card className="mt-6 border-0 shadow-lg rounded-2xl bg-white">
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2" style={{ fontFamily: 'var(--font-clash-display)', color: '#003C1A' }}>
-              <Info className="h-5 w-5 text-[#00C96B]" />
+            <CardTitle className="text-lg flex items-center gap-2 font-display text-primary">
+              <Info className="h-5 w-5 text-accent" />
               Detalles de la Transferencia
             </CardTitle>
           </CardHeader>
@@ -62,7 +62,7 @@ export default function TransferConfirmation() {
             <div className="mt-6">
               <Button
                 onClick={handleComplete}
-                className="w-full bg-[#00C96B] hover:bg-[#00B05A] text-white py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                className="w-full bg-secondary hover:bg-[#d88912] text-primary py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 font-bold"
               >
                 Confirmar Transferencia
               </Button>
@@ -72,7 +72,7 @@ export default function TransferConfirmation() {
 
         {/* Mensaje de Seguridad */}
         <div className="mt-6 text-center text-gray-600 flex items-center justify-center gap-2 mb-10">
-          <Shield className="h-5 w-5 text-[#00C96B]" />
+          <Shield className="h-5 w-5 text-accent" />
           <p style={{ fontFamily: 'var(--font-roboto)' }}>Tu transferencia está siendo procesada de manera segura</p>
         </div>
       </div>

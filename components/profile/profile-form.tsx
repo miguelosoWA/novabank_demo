@@ -90,7 +90,7 @@ export function ProfileForm({ initialData, onSave, isLoading = false }: ProfileF
                     />
                   </div>
                 ) : (
-                  <p className="text-[#1C3B5A] font-medium" id="name-display">
+                  <p className="text-primary font-medium" id="name-display">
                     {formData.name}
                   </p>
                 )}
@@ -121,7 +121,7 @@ export function ProfileForm({ initialData, onSave, isLoading = false }: ProfileF
                     />
                   </div>
                 ) : (
-                  <p className="text-[#1C3B5A] font-medium" id="email-display">
+                  <p className="text-primary font-medium" id="email-display">
                     {formData.email}
                   </p>
                 )}
@@ -152,7 +152,7 @@ export function ProfileForm({ initialData, onSave, isLoading = false }: ProfileF
                     />
                   </div>
                 ) : (
-                  <p className="text-[#1C3B5A] font-medium" id="phone-display">
+                  <p className="text-primary font-medium" id="phone-display">
                     {formData.phone}
                   </p>
                 )}
@@ -180,7 +180,7 @@ export function ProfileForm({ initialData, onSave, isLoading = false }: ProfileF
                     />
                   </div>
                 ) : (
-                  <p className="text-[#1C3B5A] font-medium" id="birthdate-display">
+                  <p className="text-primary font-medium" id="birthdate-display">
                     {formData.birthdate}
                   </p>
                 )}
@@ -208,7 +208,7 @@ export function ProfileForm({ initialData, onSave, isLoading = false }: ProfileF
                     />
                   </div>
                 ) : (
-                  <p className="text-[#1C3B5A] font-medium" id="occupation-display">
+                  <p className="text-primary font-medium" id="occupation-display">
                     {formData.occupation}
                   </p>
                 )}
@@ -236,7 +236,7 @@ export function ProfileForm({ initialData, onSave, isLoading = false }: ProfileF
                     />
                   </div>
                 ) : (
-                  <p className="text-[#1C3B5A] font-medium" id="address-display">
+                  <p className="text-primary font-medium" id="address-display">
                     {formData.address}
                   </p>
                 )}

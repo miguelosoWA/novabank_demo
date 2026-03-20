@@ -7,13 +7,13 @@ interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 export function Checkbox({ label, className, ...props }: CheckboxProps) {
   return (
-    <label className="flex items-center space-x-2 cursor-pointer">
+    <label className="flex items-center gap-[3px] cursor-pointer">
       <div className="relative">
         <input type="checkbox" className="sr-only" {...props} />
         <div
           className={cn(
             "h-5 w-5 border rounded transition-colors",
-            props.checked ? "bg-[#1C3B5A] border-[#1C3B5A]" : "border-gray-300 bg-white",
+            props.checked ? "border-primary bg-primary" : "border-[#cfd8dc] bg-white",
             className,
           )}
         >
@@ -33,7 +33,7 @@ export function Checkbox({ label, className, ...props }: CheckboxProps) {
           )}
         </div>
       </div>
-      {label && <span className="text-sm text-[#1C3B5A]">{label}</span>}
+      {label && <span className="text-sm text-primary">{label}</span>}
     </label>
   )
 }
